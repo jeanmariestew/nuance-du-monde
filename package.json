@@ -1,0 +1,55 @@
+{
+  "name": "nuance-du-monde",
+  "version": "1.0.0",
+  "description": "Site web Nuance du Monde - Migration WordPress vers Next.js",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:schema": "mysql -u root -p nuance_du_monde < database_schema.sql",
+    "db:seed": "mysql -u root -p nuance_du_monde < database_seed.sql"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "next": "15.4.6",
+    "mysql2": "^3.11.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.15"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
+    "@types/nodemailer": "^6.4.12",
+    "@tailwindcss/postcss": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "15.4.6",
+    "@eslint/eslintrc": "^3.2.0"
+  },
+  "keywords": [
+    "voyage",
+    "tourisme",
+    "next.js",
+    "mysql",
+    "typescript",
+    "tailwind"
+  ],
+  "author": "Nuance du Monde",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nuancedumonde/website"
+  },
+  "homepage": "https://nuancedumonde.com"
+}
+

@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "./.next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "env": {
+    "DB_HOST": "@nuance-du-monde_db_host",
+    "DB_PORT": "@nuance-du-monde_db_port",
+    "DB_USER": "@nuance-du-monde_db_user",
+    "DB_PASSWORD": "@nuance-du-monde_db_password",
+    "DB_NAME": "@nuance-du-monde_db_name",
+    "JWT_SECRET": "@nuance-du-monde_jwt_secret",
+    "SMTP_HOST": "@nuance-du-monde_smtp_host",
+    "SMTP_PORT": "@nuance-du-monde_smtp_port",
+    "SMTP_USER": "@nuance-du-monde_smtp_user",
+    "SMTP_PASS": "@nuance-du-monde_smtp_pass",
+    "NEXT_PUBLIC_BASE_URL": "@nuance-du-monde_next_public_base_url"
+  }
+}
+

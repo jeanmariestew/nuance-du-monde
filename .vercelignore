@@ -1,0 +1,11 @@
+node_modules
+.env.local
+database_schema.sql
+database_seed.sql
+README.md
+LIVRAISON.md
+website_analysis.md
+website_content.md
+todo.md
+nuance-du-monde-complete.tar.gz
+
