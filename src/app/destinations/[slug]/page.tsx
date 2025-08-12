@@ -184,7 +184,7 @@ export default function DestinationPage() {
 
                 <Link 
                   href={`/demander-devis?destination=${destination.slug}`}
-                  className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors text-center block"
+                  className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold hover:brightness-95 transition-colors text-center block"
                 >
                   Demander un devis
                 </Link>

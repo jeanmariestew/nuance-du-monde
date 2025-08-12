@@ -8,43 +8,37 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-black/90 backdrop-blur supports-[backdrop-filter]:bg-black/70 text-white sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image
-              src="/images/homepage_banner.webp"
-              alt="Nuance du Monde"
-              width={150}
-              height={40}
-              className="h-10 w-auto"
-            />
+            <Image src="/images/logo.png" alt="Nuance du Monde" width={130} height={36} className="h-9 w-auto" />
           </Link>
 
           {/* Navigation Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/type-de-voyage" 
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               Type de voyage
             </Link>
             <Link 
               href="/destinations" 
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               Destinations
             </Link>
             <Link 
               href="/themes" 
-              className="text-gray-700 hover:text-blue-600 transition-colors"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               Thème de voyage
             </Link>
             <Link 
               href="/demander-devis" 
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="btn-accent px-4 py-2 rounded-full hover:brightness-95 transition-colors"
             >
               Demander un devis
             </Link>
@@ -52,7 +46,7 @@ const Header = () => {
 
           {/* Menu Mobile */}
           <button
-            className="md:hidden p-2"
+            className="md:hidden p-2 text-white"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,32 +57,32 @@ const Header = () => {
 
         {/* Menu Mobile Dropdown */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t border-white/10">
             <nav className="flex flex-col space-y-4">
               <Link 
                 href="/type-de-voyage" 
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-gray-200 hover:text-white transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Type de voyage
               </Link>
               <Link 
                 href="/destinations" 
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-gray-200 hover:text-white transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Destinations
               </Link>
               <Link 
                 href="/themes" 
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-gray-200 hover:text-white transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Thème de voyage
               </Link>
               <Link 
                 href="/demander-devis" 
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-block text-center"
+                className="btn-accent px-4 py-2 rounded-full hover:brightness-95 transition-colors inline-block text-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Demander un devis

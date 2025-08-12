@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import NewsletterForm from '@/components/NewsletterForm';
+import HeroAnimated from '@/components/HeroAnimated';
 import { Destination, TravelType, TravelTheme, Testimonial } from '@/types';
 
 export default function Home() {
@@ -44,48 +45,8 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/homepage_banner.webp"
-            alt="Nuance du Monde - Voyage sur mesure"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        </div>
-        
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            NUANCE DU MONDE<br />
-            VOTRE SPÉCIALISTE DU<br />
-            VOYAGE SUR MESURE
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Créez avec nous votre voyage sur mesure, partout dans le monde. 
-            Nous vous faisons vivre des expériences authentiques et confortables, 
-            et ce, au meilleur prix du marché.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <input
-              type="text"
-              placeholder="Rechercher une destination..."
-              className="px-6 py-3 rounded-lg text-gray-900 w-full sm:w-80"
-            />
-            <button className="bg-yellow-500 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors">
-              Rechercher
-            </button>
-          </div>
-          <Link 
-            href="/destinations"
-            className="inline-block mt-8 bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
-          >
-            Explorer les thèmes et destinations
-          </Link>
-        </div>
-      </section>
+      {/* Hero animé */}
+      <HeroAnimated />
 
       {/* Type de voyage Section */}
       <section className="py-16 bg-gray-50">
@@ -100,7 +61,7 @@ export default function Home() {
             </div>
             <div>
               <Image
-                src="/images/type_voyage_banner.webp"
+                src="/images/type_de_voyage_banner.webp"
                 alt="Type de voyage"
                 width={600}
                 height={400}
@@ -127,7 +88,7 @@ export default function Home() {
                   <p className="text-gray-600 mb-4">{type.short_description}</p>
                   <Link 
                     href={`/type-de-voyage/${type.slug}`}
-                    className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors inline-block"
+                    className="btn-accent text-black px-4 py-2 rounded hover:brightness-95 transition-colors inline-block"
                   >
                     Explorer
                   </Link>
@@ -185,7 +146,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 text-white">
                     <h3 className="text-xl font-semibold">{destination.title}</h3>
-                    <button className="mt-2 bg-orange-500 text-white px-4 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+                    <button className="mt-2 btn-accent text-black px-4 py-1 rounded text-sm hover:brightness-95 transition-colors">
                       Explorer
                     </button>
                   </div>
@@ -228,7 +189,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 text-white">
                     <h3 className="text-lg font-semibold">{theme.title}</h3>
-                    <button className="mt-2 bg-orange-500 text-white px-4 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+                    <button className="mt-2 btn-accent text-black px-4 py-1 rounded text-sm hover:brightness-95 transition-colors">
                       Explorer
                     </button>
                   </div>

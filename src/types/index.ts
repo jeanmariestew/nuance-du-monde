@@ -27,7 +27,7 @@ export interface Destination {
   duration_nights?: number;
   group_size_min?: number;
   group_size_max?: number;
-  available_dates?: string;
+  available_dates?: string[] | string | null;
   sort_order: number;
   is_active: boolean;
   created_at: string;

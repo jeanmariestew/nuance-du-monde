@@ -8,8 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-roboto);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,3 +23,46 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Styles héro: motif radial et pulsations d'avatars */
+.hero-radial {
+  background: radial-gradient(600px circle at 50% 50%, rgba(255,255,255,0.06), transparent 40%),
+              radial-gradient(300px circle at 30% 20%, rgba(255,255,255,0.04), transparent 35%),
+              radial-gradient(400px circle at 70% 30%, rgba(255,255,255,0.04), transparent 35%);
+  animation: heroPulse 6s ease-in-out infinite;
+}
+
+@keyframes heroPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.avatar-pulse-0, .avatar-pulse-1, .avatar-pulse-2, .avatar-pulse-3 {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Typography scale Roboto */
+.h1 { font-size: 3.5rem; line-height: 120%; font-weight: 800; }
+.h2 { font-size: 3rem; line-height: 120%; font-weight: 800; }
+.h3 { font-size: 2.5rem; line-height: 130%; font-weight: 700; }
+.h4 { font-size: 2rem; line-height: 140%; font-weight: 700; }
+.h5 { font-size: 1.25rem; line-height: 140%; font-weight: 600; }
+
+/* Theme colors */
+:root {
+  --color-primary: #0090c1; /* Sky */
+  --color-accent: #ffef00; /* Yellow */
+  --color-dark: #131312; /* Black */
+  --color-red: #BE201E;
+  --color-blue: #093B6D;
+  --color-muted: #F5F5F9; /* Light grey */
+}
+
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-accent { background: var(--color-accent); color: #000; }
+.text-muted { color: #7a7a7a; }

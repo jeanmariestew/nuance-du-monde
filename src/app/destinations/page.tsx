@@ -132,7 +132,7 @@ export default function DestinationsPage() {
                         )}
                       </div>
                       
-                      <button className="w-full mt-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition-colors">
+                      <button className="w-full mt-4 btn-accent text-black py-2 rounded hover:brightness-95 transition-colors">
                         Découvrir
                       </button>
                     </div>
