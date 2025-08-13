@@ -53,19 +53,48 @@ export default function HeroAnimated() {
           </div>
 
           <div className="mt-10 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/30 relative">
-              <div className="absolute inset-1 rounded-full bg-white/20" />
+            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/30 relative ripple-container">
+              <div className="ripple-wave"></div>
+              <div className="ripple-wave"></div>
+              <div className="ripple-wave"></div>
+              <div className="absolute inset-1 rounded-full bg-yellow-400 pulse-animation" />
             </div>
             <span className="text-sm">Explorer les thèmes et destinations</span>
           </div>
         </div>
 
-        {/* Colonne droite: motif + slots fixes */}
+        {/* Colonne droite: motif + slots fixes + lignes connectées */}
         <div className="relative h-[380px] md:h-[460px]">
           <div className="absolute right-0 top-6 w-[520px] h-[520px] max-w-full pointer-events-none select-none">
             {/* Motif de cercles (image) */}
             <Image src="/images/word-background.png" alt="ondas" fill className="object-contain opacity-90" priority />
           </div>
+
+          {/* Lignes connectées SVG */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 520 520">
+            <motion.line
+              x1="260" y1="260" x2="130" y2="130"
+              stroke="white" strokeWidth="1" opacity="0.5"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            />
+            <motion.line
+              x1="260" y1="260" x2="390" y2="100"
+              stroke="white" strokeWidth="1" opacity="0.5"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
+            />
+            <motion.line
+              x1="260" y1="260" x2="400" y2="400"
+              stroke="white" strokeWidth="1" opacity="0.5"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 2, delay: 1, repeat: Infinity, repeatType: "reverse" }}
+            />
+            {/* Ajoute plus de lignes si nécessaire pour matcher le design */}
+          </svg>
 
           {/* Slots fixes */}
           <div className="absolute inset-0">

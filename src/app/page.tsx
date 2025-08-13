@@ -48,111 +48,230 @@ export default function Home() {
       {/* Hero animé */}
       <HeroAnimated />
 
-      {/* Type de voyage Section */}
-      <section className="py-16 bg-gray-50">
+      {/* Nouvelle section: Liste des destinations avec compte de voyages */}
+      <section className="py-8 bg-gray-100">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold mb-6">TYPE DE VOYAGE</h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Que vous soyez en groupe, en solo ou en voyage d'affaires, nos différents types de voyage 
-                vous invitent à une expérience enrichissante et taillée sur mesure.
-              </p>
-            </div>
-            <div>
-              <Image
-                src="/images/type_de_voyage_banner.webp"
-                alt="Type de voyage"
-                width={600}
-                height={400}
-                className="rounded-lg"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {travelTypes.map((type) => (
-              <div key={type.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                {type.image_url && (
-                  <div className="relative h-48">
-                    <Image
-                      src={type.image_url}
-                      alt={type.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
-                  <p className="text-gray-600 mb-4">{type.short_description}</p>
-                  <Link 
-                    href={`/type-de-voyage/${type.slug}`}
-                    className="btn-accent text-black px-4 py-2 rounded hover:brightness-95 transition-colors inline-block"
-                  >
-                    Explorer
-                  </Link>
-                </div>
-              </div>
+          <h2 className="text-2xl font-bold mb-4">Nos destinations populaires</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {destinations.map((dest) => (
+              <Link key={dest.id} href={`/destinations/${dest.slug}`} className="block p-4 bg-white rounded shadow hover:shadow-md">
+                <span className="font-semibold">{dest.title.toUpperCase()}:</span> {dest.voyage_count || 0} voyages en {dest.title}
+              </Link>
             ))}
+          </div>
+          {/* Pagination placeholder */}
+          <div className="flex justify-center mt-4">
+            <nav className="flex space-x-2">
+              <button className="px-3 py-1 bg-gray-200 rounded">1</button>
+              <button className="px-3 py-1 bg-gray-200 rounded">2</button>
+              <span>...</span>
+              <button className="px-3 py-1 bg-gray-200 rounded">Suivant »</button>
+            </nav>
           </div>
         </div>
       </section>
 
-      {/* Destinations Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+      {/* Type de voyage Section - Intégration parfaite */}
+      <section className="relative bg-black text-white overflow-hidden h-[500px]">
+        <div className="container mx-auto px-4 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 h-full">
+            {/* Colonne gauche - Texte */}
+            <div className="relative flex flex-col justify-center px-8 lg:px-16">
+              {/* Icône circulaire exacte comme la capture */}
+              <div className="absolute top-8 left-8 w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center ripple-container">
+                <div className="ripple-wave"></div>
+                <div className="ripple-wave"></div>
+                <div className="ripple-wave"></div>
+                <div className="w-4 h-4 bg-yellow-400 rounded-full pulse-animation"></div>
+              </div>
+              
+              <div className="mt-16">
+                <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white tracking-wide">
+                  TYPE DE VOYAGE
+                </h2>
+                <p className="text-lg lg:text-xl text-gray-300 leading-relaxed max-w-md">
+                  Que vous soyez en groupe, en solo ou en voyage d'affaires, nos différents types de 
+                  voyage vous invitent à une expérience enrichissante et taillée sur mesure.
+                </p>
+              </div>
+            </div>
+            
+            {/* Colonne droite - Image pleine hauteur */}
+            <div className="relative h-full">
               <Image
-                src="/images/destinations_banner.webp"
-                alt="Destinations"
-                width={600}
-                height={400}
-                className="rounded-lg"
+                src="/images/a-la-une-3.jpg"
+                alt="Type de voyage - Vue urbaine"
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
-            <div>
-              <h2 className="text-4xl font-bold mb-6">LES DESTINATIONS</h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Voyagez au cœur des plus belles destinations du monde à travers des itinéraires 
-                captivants et soigneusement conçus pour vous.
-              </p>
-              <Link 
-                href="/destinations"
-                className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-block"
-              >
-                Voir toutes les destinations
-              </Link>
-            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-            {destinations.map((destination) => (
-              <Link 
-                key={destination.id}
-                href={`/destinations/${destination.slug}`}
-                className="group"
-              >
-                <div className="relative h-64 rounded-lg overflow-hidden">
-                  {destination.image_url && (
-                    <Image
-                      src={destination.image_url}
-                      alt={destination.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-semibold">{destination.title}</h3>
-                    <button className="mt-2 btn-accent text-black px-4 py-1 rounded text-sm hover:brightness-95 transition-colors">
-                      Explorer
-                    </button>
+      {/* Section Types de voyage - 3 cartes */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Circuits départs garantis */}
+            <div className="relative bg-cover bg-center h-[400px] rounded-lg overflow-hidden group cursor-pointer">
+              <Image
+                src="/images/circuits_departs_garantis.webp"
+                alt="Circuits départs garantis"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Nos circuits départs Garantis</h3>
+                  <p className="text-sm leading-relaxed">
+                    Voyagez l'esprit tranquille avec nos départs garantis, préparez vos valises, l'évasion commence ici!
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <button className="bg-yellow-400 text-black px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition-colors">
+                    Explorer
+                  </button>
+                  <div className="w-12 h-12 bg-gray-600/80 rounded-full flex items-center justify-center ripple-container">
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full pulse-animation"></div>
                   </div>
                 </div>
-              </Link>
-            ))}
+              </div>
+            </div>
+
+            {/* Voyages en individuel */}
+            <div className="relative bg-cover bg-center h-[400px] rounded-lg overflow-hidden group cursor-pointer">
+              <Image
+                src="/images/voyages_individuel.webp"
+                alt="Voyages en individuel"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Nos voyages en individuel</h3>
+                  <p className="text-sm leading-relaxed">
+                    Nos circuits individuels pour une aventure personnalisée à votre image et pour plonger librement dans chaque exploration.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <button className="bg-yellow-400 text-black px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition-colors">
+                    Explorer
+                  </button>
+                  <div className="w-12 h-12 bg-gray-600/80 rounded-full flex items-center justify-center ripple-container">
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full pulse-animation"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Voyages en groupe */}
+            <div className="relative bg-cover bg-center h-[400px] rounded-lg overflow-hidden group cursor-pointer">
+              <Image
+                src="/images/voyages_en_groupe.webp"
+                alt="Voyages en groupe"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Nos voyages en groupe</h3>
+                  <p className="text-sm leading-relaxed">
+                    Découvrez le monde ensemble avec nos voyages de groupe sur mesure, conçus pour des souvenirs partagés.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <button className="bg-yellow-400 text-black px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition-colors">
+                    Explorer
+                  </button>
+                  <div className="w-12 h-12 bg-gray-600/80 rounded-full flex items-center justify-center ripple-container">
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="ripple-wave"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full pulse-animation"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Destinations Section - Nouveau design */}
+      <section className="relative bg-black text-white overflow-hidden h-[500px]">
+        <div className="container mx-auto px-4 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full items-center">
+            {/* Colonne gauche - Image */}
+            <div className="relative h-full">
+              <Image
+                src="/images/a-la-une-1-1.webp"
+                alt="Destinations - Personnes qui trinquent"
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, 33vw"
+              />
+            </div>
+            
+            {/* Colonne centre - Texte */}
+            <div className="relative flex flex-col justify-center px-8 lg:px-16">
+              <div>
+                <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white tracking-wide">
+                  LES DESTINATIONS
+                </h2>
+                <p className="text-lg lg:text-xl text-gray-300 leading-relaxed mb-8 max-w-md">
+                  Voyagez au cœur des plus belles destinations du monde à travers des itinéraires 
+                  captivants et soigneusement conçus pour vous.
+                </p>
+                <Link 
+                  href="/destinations"
+                  className="bg-yellow-400 text-black px-6 py-3 rounded font-semibold hover:bg-yellow-300 transition-colors inline-block"
+                >
+                  Voir toutes les destinations
+                </Link>
+              </div>
+            </div>
+            
+            {/* Colonne droite - Animations */}
+            <div className="relative h-full flex items-center justify-center">
+              {/* Point jaune avec animation */}
+              <div className="absolute top-1/4 left-1/4 w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center ripple-container">
+                <div className="ripple-wave"></div>
+                <div className="ripple-wave"></div>
+                <div className="ripple-wave"></div>
+                <div className="w-4 h-4 bg-yellow-400 rounded-full pulse-animation"></div>
+              </div>
+              
+              {/* Trajectoire en pointillés */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400">
+                <path
+                  d="M100 100 Q200 50 300 150 T380 300"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeDasharray="8,8"
+                  fill="none"
+                  opacity="0.6"
+                />
+              </svg>
+              
+              {/* Avion animé */}
+              <div className="airplane-container">
+                <svg className="airplane" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </section>
