@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { Destination, ApiResponse } from '@/types';
+import type { ResultSetHeader } from 'mysql2';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,12 +11,12 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active');
 
     let query = 'SELECT * FROM destinations';
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     // Filtrer par statut actif si spécifié
     if (active !== null) {
       query += ' WHERE is_active = ?';
-      params.push(active === 'true');
+      params.push(active === 'true' ? 1 : 0);
     }
 
     // Ajouter l'ordre
@@ -23,12 +24,11 @@ export async function GET(request: NextRequest) {
 
     // Ajouter la pagination si spécifiée
     if (limit) {
-      query += ' LIMIT ?';
-      params.push(parseInt(limit));
-      
+      const nLimit = Math.max(0, parseInt(limit, 10) || 0);
+      query += ` LIMIT ${nLimit}`;
       if (offset) {
-        query += ' OFFSET ?';
-        params.push(parseInt(offset));
+        const nOffset = Math.max(0, parseInt(offset, 10) || 0);
+        query += ` OFFSET ${nOffset}`;
       }
     }
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     ];
 
     const [result] = await pool.execute(query, params);
-    const insertResult = result as any;
+    const insertResult = result as ResultSetHeader;
 
     const response: ApiResponse<{ id: number }> = {
       success: true,

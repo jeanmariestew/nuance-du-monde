@@ -4,10 +4,10 @@ import { TravelType, ApiResponse } from "@/types";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const query = "SELECT * FROM travel_types WHERE slug = ? AND is_active = true";
     const [rows] = await pool.execute(query, [slug]);
     const types = rows as TravelType[];

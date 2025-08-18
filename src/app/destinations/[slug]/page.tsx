@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import OfferCard from '@/components/cards/OfferCard';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Destination } from '@/types';
+import { Destination, Offer } from '@/types';
 
 export default function DestinationPage() {
   const params = useParams();
@@ -12,6 +13,9 @@ export default function DestinationPage() {
   const [destination, setDestination] = useState<Destination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [offersError, setOffersError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDestination = async () => {
@@ -34,6 +38,22 @@ export default function DestinationPage() {
 
     if (slug) {
       fetchDestination();
+      // Fetch offers for this destination
+      const fetchOffers = async () => {
+        setOffersLoading(true);
+        try {
+          const res = await fetch(`/api/offers?destination=${encodeURIComponent(slug)}`);
+          const data = await res.json();
+          if (data.success) setOffers(data.data as Offer[]);
+          else setOffersError(data.error || 'Aucune offre trouvée pour cette destination');
+        } catch (err) {
+          console.error('Erreur lors du chargement des offres pour la destination:', err);
+          setOffersError((err as Error).message || 'Erreur lors du chargement des offres');
+        } finally {
+          setOffersLoading(false);
+        }
+      };
+      fetchOffers();
     }
   }, [slug]);
 
@@ -118,24 +138,23 @@ export default function DestinationPage() {
             {/* Main Content */}
             <div className="lg:col-span-2">
               {destination.description && (
-                <div className="prose prose-lg max-w-none mb-8">
-                  <div className="text-gray-700 leading-relaxed">
-                    {destination.description.split('\n').map((paragraph, index) => (
-                      <p key={index} className="mb-4">{paragraph}</p>
-                    ))}
-                  </div>
+                <div className="prose max-w-none mb-10">
+                  <div
+                    className="text-gray-700 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: destination.description }}
+                  />
                 </div>
               )}
 
               {/* Available Dates */}
               {destination.available_dates && (
-                <div className="bg-blue-50 p-6 rounded-lg mb-8">
+                <div className="bg-blue-50 p-6 rounded-lg mb-12">
                   <h3 className="text-xl font-semibold mb-4">Dates disponibles</h3>
                   <div className="flex flex-wrap gap-2">
                     {(typeof destination.available_dates === 'string' 
                       ? JSON.parse(destination.available_dates) 
                       : destination.available_dates
-                    ).map((date: string, index: number) => (
+                    )?.map((date: string, index: number) => (
                       <span key={index} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
                         {date}
                       </span>
@@ -143,6 +162,27 @@ export default function DestinationPage() {
                   </div>
                 </div>
               )}
+
+              {/* Offers for this Destination */}
+              <div className="mb-12">
+                <h2 className="text-3xl font-bold mb-6">Offres au {destination.title}</h2>
+                {offersLoading && (
+                  <p className="text-gray-600">Chargement des offres…</p>
+                )}
+                {offersError && !offersLoading && (
+                  <p className="text-red-600 mb-4">{offersError}</p>
+                )}
+                {!offersLoading && !offersError && offers.length === 0 && (
+                  <p className="text-gray-600">Aucune offre n’est disponible pour cette destination pour le moment.</p>
+                )}
+                <div className="space-y-6">
+                  {offers.map((offer) => (
+                    <OfferCard key={offer.slug} offer={offer} />
+                  ))}
+                </div>
+              </div>
+
+              {/* End destination content */}
             </div>
 
             {/* Sidebar */}
@@ -183,8 +223,15 @@ export default function DestinationPage() {
                 </div>
 
                 <Link 
+                  href={`/offers?destination=${destination.slug}`}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center block"
+                >
+                  Voir les offres pour cette destination
+                </Link>
+
+                <Link 
                   href={`/demander-devis?destination=${destination.slug}`}
-                  className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold hover:brightness-95 transition-colors text-center block"
+                  className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold hover:brightness-95 transition-colors text-center block mt-3"
                 >
                   Demander un devis
                 </Link>

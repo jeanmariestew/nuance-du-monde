@@ -4,10 +4,10 @@ import { Destination, ApiResponse } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await context.params as { slug: string };
 
     const query = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
     const [rows] = await pool.execute(query, [slug]);
@@ -50,10 +50,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await context.params as { slug: string };
     const body = await request.json();
 
     const {
@@ -120,10 +120,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await context.params as { slug: string };
 
     const query = 'DELETE FROM destinations WHERE slug = ?';
     const [result] = await pool.execute(query, [slug]);

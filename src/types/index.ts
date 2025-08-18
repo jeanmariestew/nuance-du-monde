@@ -13,6 +13,35 @@ export interface TravelType {
   updated_at: string;
 }
 
+export interface Offer {
+  id?: number;
+  title: string;
+  slug: string;
+  subtitle?: string;
+  short_description?: string;
+  description?: string;
+  // image variants across DB and UI
+  image_url?: string; // generic alias used in some endpoints
+  banner_image_url?: string; // generic alias used in some pages
+  image_main?: string; // DB column
+  image_banner?: string; // DB column
+  // allow building slider
+  images?: string[];
+  duration_days?: number;
+  duration_nights?: number;
+  duration?: string; // sometimes stored as text
+  price_from?: number; // public pages may use price_from
+  price?: number; // DB column name in schema
+  price_currency?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  // Joined relations on detail endpoint
+  travel_types?: { id: number; title: string; slug?: string }[];
+  travel_themes?: { id: number; title: string; slug?: string }[];
+  destinations?: { id: number; title: string; slug?: string }[];
+}
+
 export interface Destination {
   id: number;
   title: string;
@@ -52,12 +81,14 @@ export interface Testimonial {
   id: number;
   client_name: string;
   client_avatar?: string;
+  image_url?: string;
   testimonial_text: string;
   rating?: number;
   destination_id?: number;
   travel_theme_id?: number;
   is_featured: boolean;
   is_active: boolean;
+  is_published?: boolean;
   created_at: string;
   updated_at: string;
   destination?: Destination;

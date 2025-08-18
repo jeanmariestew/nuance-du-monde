@@ -2,26 +2,32 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import NewsletterForm from '@/components/NewsletterForm';
 import HeroAnimated from '@/components/HeroAnimated';
 import { Destination, TravelType, TravelTheme, Testimonial } from '@/types';
+import DestinationCard from '@/components/cards/DestinationCard';
+import ThemeCard from '@/components/cards/ThemeCard';
+import { SLIDER_INTERVAL_MS } from '@/lib/ui';
 
 export default function Home() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
   const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const destSliderRef = useRef<HTMLDivElement>(null);
+  const themeSliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Charger les données depuis l'API
     const fetchData = async () => {
       try {
         const [destRes, typesRes, themesRes, testimonialsRes] = await Promise.all([
-          fetch('/api/destinations?active=true&limit=4'),
+          fetch('/api/destinations?active=true&limit=20'),
           fetch('/api/travel-types?active=true'),
-          fetch('/api/travel-themes?active=true&limit=4'),
-          fetch('/api/testimonials?featured=true&active=true&limit=6')
+          fetch('/api/travel-themes?active=true&limit=20'),
+          fetch('/api/testimonials?featured=true&active=true&published=true&limit=6')
         ]);
 
         const [destData, typesData, themesData, testimonialsData] = await Promise.all([
@@ -43,33 +49,81 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // Auto-scroll destinations slider
+  useEffect(() => {
+    const container = destSliderRef.current;
+    if (!container) return;
+
+    let timer: NodeJS.Timeout | null = null;
+    const start = () => {
+      stop();
+      timer = setInterval(() => {
+        if (!container) return;
+        const nearEnd =
+          container.scrollLeft + container.clientWidth >= container.scrollWidth - 8;
+        if (nearEnd) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+          return;
+        }
+        const step = getSingleCardStep(container);
+        container.scrollBy({ left: step, behavior: 'smooth' });
+      }, SLIDER_INTERVAL_MS);
+    };
+
+    const stop = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+
+    start();
+    container.addEventListener('mouseenter', stop);
+    container.addEventListener('mouseleave', start);
+    return () => {
+      stop();
+      container.removeEventListener('mouseenter', stop);
+      container.removeEventListener('mouseleave', start);
+    };
+  }, [destinations.length]);
+
+  // Helpers for nav buttons
+  const getSingleCardStep = (el: HTMLDivElement) => {
+    // step = 1 card width + gap (gap-6 = 24px)
+    const gapPx = 24;
+    const first = el.querySelector<HTMLElement>(':scope > *');
+    if (!first) return Math.max(320, Math.floor(el.clientWidth * 0.8));
+    return Math.ceil(first.offsetWidth + gapPx);
+  };
+
+  const scrollByAmount = (el: HTMLDivElement | null, dir: 'left' | 'right') => {
+    if (!el) return;
+    const step = getSingleCardStep(el);
+    el.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
+  };
+
+  // Auto-advance testimonials
+  useEffect(() => {
+    if (!testimonials.length) return;
+    const id = setInterval(() => {
+      setTestimonialIndex((i) => (i + 1) % testimonials.length);
+    }, SLIDER_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [testimonials.length]);
+
+  const prevTestimonial = () => {
+    if (!testimonials.length) return;
+    setTestimonialIndex((i) => (i - 1 + testimonials.length) % testimonials.length);
+  };
+  const nextTestimonial = () => {
+    if (!testimonials.length) return;
+    setTestimonialIndex((i) => (i + 1) % testimonials.length);
+  };
+
   return (
     <div>
       {/* Hero animé */}
       <HeroAnimated />
-
-      {/* Nouvelle section: Liste des destinations avec compte de voyages */}
-      <section className="py-8 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-4">Nos destinations populaires</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {destinations.map((dest) => (
-              <Link key={dest.id} href={`/destinations/${dest.slug}`} className="block p-4 bg-white rounded shadow hover:shadow-md">
-                <span className="font-semibold">{dest.title.toUpperCase()}:</span> {dest.voyage_count || 0} voyages en {dest.title}
-              </Link>
-            ))}
-          </div>
-          {/* Pagination placeholder */}
-          <div className="flex justify-center mt-4">
-            <nav className="flex space-x-2">
-              <button className="px-3 py-1 bg-gray-200 rounded">1</button>
-              <button className="px-3 py-1 bg-gray-200 rounded">2</button>
-              <span>...</span>
-              <button className="px-3 py-1 bg-gray-200 rounded">Suivant »</button>
-            </nav>
-          </div>
-        </div>
-      </section>
 
       {/* Type de voyage Section - Intégration parfaite */}
       <section className="relative bg-black text-white overflow-hidden h-[500px]">
@@ -275,102 +329,179 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Thèmes Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">LES THÈMES</h2>
-            <Link 
-              href="/themes"
-              className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-block"
-            >
-              Voir tous les thèmes
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {travelThemes.map((theme) => (
-              <Link 
-                key={theme.id}
-                href={`/themes/${theme.slug}`}
-                className="group"
+      {/* Destinations - Slider auto */}
+      {destinations.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold">Nos destinations</h2>
+              <Link
+                href="/destinations"
+                className="bg-yellow-500 text-gray-900 px-5 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
               >
-                <div className="relative h-64 rounded-lg overflow-hidden">
-                  {theme.image_url && (
-                    <Image
-                      src={theme.image_url}
-                      alt={theme.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-lg font-semibold">{theme.title}</h3>
-                    <button className="mt-2 btn-accent text-black px-4 py-1 rounded text-sm hover:brightness-95 transition-colors">
-                      Explorer
-                    </button>
-                  </div>
-                </div>
+                Voir tout
               </Link>
-            ))}
+            </div>
+
+            <div className="relative">
+              {/* Nav buttons (desktop only) */}
+              <button
+                aria-label="Précédent"
+                onClick={() => scrollByAmount(destSliderRef.current, 'left')}
+                className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M15 6l-6 6 6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                aria-label="Suivant"
+                onClick={() => scrollByAmount(destSliderRef.current, 'right')}
+                className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              <div
+                ref={destSliderRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 -mx-4 px-4"
+              >
+                {destinations.slice(0, 20).map((d) => (
+                  <div
+                    key={d.id}
+                    className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[46%] lg:w-[32%]"
+                  >
+                    <DestinationCard destination={d} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Thèmes Section - header + slider */}
+      {travelThemes.length > 0 && (
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            {/* Header style screenshot */}
+            <div className="relative mb-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <div className="relative h-40 rounded-3xl overflow-hidden bg-gradient-to-r from-yellow-200 via-white to-indigo-200 flex items-center justify-center">
+                <div className="absolute w-24 h-24 rounded-full bg-yellow-300/60 blur-2xl -left-6 top-6" />
+                <h2 className="text-3xl md:text-4xl font-bold tracking-wide">LES THÈMES</h2>
+                <Link
+                  href="/themes"
+                  className="absolute bottom-5 left-1/2 -translate-x-1/2 md:static md:translate-x-0 bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors ml-6"
+                >
+                  Voir tous les thèmes
+                </Link>
+              </div>
+              <div className="relative h-40 md:h-40 rounded-3xl overflow-hidden">
+                <Image src="/images/a-la-une-2.jpg" alt="Themes" fill className="object-cover" />
+              </div>
+            </div>
+
+            {/* Slider */}
+            <div className="relative">
+              {/* Nav buttons (desktop only) */}
+              <button
+                aria-label="Précédent"
+                onClick={() => scrollByAmount(themeSliderRef.current, 'left')}
+                className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M15 6l-6 6 6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                aria-label="Suivant"
+                onClick={() => scrollByAmount(themeSliderRef.current, 'right')}
+                className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              <div
+                ref={themeSliderRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 -mx-4 px-4"
+              >
+                {travelThemes.slice(0, 20).map((t) => (
+                  <div
+                    key={t.id}
+                    className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[46%] lg:w-[32%]"
+                  >
+                    <ThemeCard theme={t} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Témoignages Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">
-              ILS ONT VOYAGÉ AVEC NOUS _ INSPIREZ-VOUS DE LEURS AVIS
-            </h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
-              Découvrez comment nos séjours sur mesure ont transformé les voyages de nos clients en aventures inoubliables. 
-              Nous avons conçu des itinéraires personnalisés pour répondre à des besoins spécifiques, qu'il s'agisse de 
-              vacances en famille, de voyages romantiques ou d'expéditions culturelles.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-white p-6 rounded-lg shadow-lg">
-                <div className="flex items-center mb-4">
-                  {testimonial.client_avatar ? (
-                    <Image
-                      src={testimonial.client_avatar}
-                      alt={testimonial.client_name}
-                      width={50}
-                      height={50}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 font-semibold">
-                        {testimonial.client_name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="ml-4">
-                    <h4 className="font-semibold">{testimonial.client_name}</h4>
-                    {testimonial.rating && (
-                      <div className="flex text-yellow-400">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className={i < testimonial.rating! ? 'text-yellow-400' : 'text-gray-300'}>
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+      {testimonials.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+              {/* Left: heading and description */}
+              <div className="relative bg-white rounded-3xl p-8 md:p-10 shadow-sm overflow-hidden">
+                {/* subtle paper effect */}
+                <div className="absolute -left-10 -top-10 w-40 h-40 bg-gray-200/40 rounded-full" />
+                <div className="relative">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                    ILS ONT VOYAGÉ AVEC NOUS _ INSPIREZ-VOUS DE LEURS AVIS
+                  </h2>
+                  <p className="text-lg text-gray-700">
+                    Découvrez comment nos séjours sur mesure ont transformé les voyages de nos clients en aventures inoubliables.
+                    Nous avons conçu des itinéraires personnalisés pour répondre à des besoins spécifiques, qu'il s'agisse de
+                    vacances en famille, de voyages romantiques ou d'expéditions culturelles.
+                  </p>
                 </div>
-                <p className="text-gray-600 italic">"{testimonial.testimonial_text}"</p>
               </div>
-            ))}
+
+              {/* Right: image background with bubble card */}
+              <div className="relative rounded-3xl overflow-hidden min-h-[360px]">
+                <Image src={testimonials[testimonialIndex]?.image_url || '/images/a-la-une-4.jpg'} alt="Témoignages" fill className="object-cover" />
+
+                {/* speech bubble card */}
+                <div className="absolute bottom-6 left-6 right-6 md:right-10 md:left-auto max-w-xl bg-white rounded-2xl shadow-lg p-6">
+                  <div className="text-xl font-semibold mb-2">{testimonials[testimonialIndex]?.client_name}</div>
+                  <div className="text-gray-500 text-3xl leading-none">“</div>
+                  <p className="text-gray-700 mt-2">
+                    {testimonials[testimonialIndex]?.testimonial_text}
+                  </p>
+                  <div className="text-gray-500 text-3xl leading-none text-right">”</div>
+                </div>
+
+                {/* Nav buttons */}
+                <button
+                  aria-label="Témoignage précédent"
+                  onClick={prevTestimonial}
+                  className="hidden md:flex items-center justify-center absolute left-4 bottom-6 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M15 6l-6 6 6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <button
+                  aria-label="Témoignage suivant"
+                  onClick={nextTestimonial}
+                  className="hidden md:flex items-center justify-center absolute left-24 bottom-6 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" stroke="#C8A341" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Partenaires Section */}
       <section className="py-16 bg-gray-50">

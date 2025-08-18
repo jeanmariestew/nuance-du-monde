@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { TravelTheme } from "@/types";
+import { Offer, TravelTheme } from "@/types";
+import OfferCard from "@/components/cards/OfferCard";
 
 export default function ThemeDetailPage() {
   const params = useParams();
@@ -12,6 +13,9 @@ export default function ThemeDetailPage() {
   const [theme, setTheme] = useState<TravelTheme | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [offersError, setOffersError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTheme = async () => {
@@ -26,7 +30,24 @@ export default function ThemeDetailPage() {
         setLoading(false);
       }
     };
-    if (slug) fetchTheme();
+    if (slug) {
+      fetchTheme();
+      const fetchOffers = async () => {
+        setOffersLoading(true);
+        try {
+          const res = await fetch(`/api/offers?theme=${encodeURIComponent(slug)}`);
+          const data = await res.json();
+          if (data.success) setOffers(data.data as Offer[]);
+          else setOffersError(data.error || "Aucune offre trouvée pour ce thème");
+        } catch (err) {
+          console.error("Erreur lors du chargement des offres (thème):", err);
+          setOffersError((err as Error).message || "Erreur lors du chargement des offres");
+        } finally {
+          setOffersLoading(false);
+        }
+      };
+      fetchOffers();
+    }
   }, [slug]);
 
   if (loading) {
@@ -75,25 +96,36 @@ export default function ThemeDetailPage() {
         </div>
       </section>
 
-      <nav className="bg-gray-100 py-4">
+
+      <section className="py-6">
         <div className="container mx-auto px-4">
-          <ol className="flex space-x-2 text-sm">
-            <li>
-              <Link href="/" className="text-blue-600 hover:underline">
-                Accueil
-              </Link>
-            </li>
-            <li className="text-gray-500">/</li>
-            <li>
-              <Link href="/themes" className="text-blue-600 hover:underline">
-                Thèmes
-              </Link>
-            </li>
-            <li className="text-gray-500">/</li>
-            <li className="text-gray-700">{theme.title}</li>
-          </ol>
+          <Link
+            href={`/offers?theme=${theme.slug}`}
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Voir les offres pour ce thème
+          </Link>
         </div>
-      </nav>
+      </section>
+
+      {/* Offres pour ce thème */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce thème</h2>
+          {offersLoading && <div className="text-gray-600">Chargement des offres…</div>}
+          {offersError && <div className="text-red-600">{offersError}</div>}
+          {!offersLoading && !offersError && offers.length === 0 && (
+            <div className="text-gray-600">Aucune offre pour ce thème.</div>
+          )}
+          {offers.length > 0 && (
+            <div className="grid grid-cols-1 gap-6">
+              {offers.map((offer) => (
+                <OfferCard key={offer.slug} offer={offer} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {theme.description && (
         <section className="py-16">
