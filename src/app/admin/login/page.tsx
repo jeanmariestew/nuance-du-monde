@@ -1,5 +1,8 @@
 "use client";
 import { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
 
 export default function AdminLoginPage() {
   const [token, setToken] = useState("");
@@ -31,22 +34,37 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: '80px auto', padding: 24 }}>
-      <h1>Connexion Admin</h1>
-      <form onSubmit={onSubmit}>
-        <label style={{ display: 'block', marginBottom: 8 }}>ADMIN_TOKEN</label>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Saisir le token"
-          style={{ width: '100%', padding: 8, marginBottom: 12 }}
-        />
-        <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
-          {loading ? 'Connexion...' : 'Se connecter'}
-        </button>
-      </form>
-      {message && <p style={{ color: 'crimson', marginTop: 12 }}>{message}</p>}
+    <div className="w-full max-w-md p-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Connexion Admin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="space-y-3">
+            <div>
+              <label htmlFor="admin-token" className="block text-sm font-medium text-neutral-700">ADMIN_TOKEN</label>
+              <input
+                id="admin-token"
+                type="password"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Saisir le token"
+                className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+              />
+            </div>
+            {message && <p className="text-sm text-red-600">{message}</p>}
+            <CardFooter className="px-0">
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? (
+                  <span className="inline-flex items-center justify-center gap-2"><Spinner size={16} /> Connexion…</span>
+                ) : (
+                  'Se connecter'
+                )}
+              </Button>
+            </CardFooter>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

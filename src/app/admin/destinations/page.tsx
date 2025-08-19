@@ -1,6 +1,11 @@
 "use client";
 import useSWR from 'swr';
 import Link from 'next/link';
+import { Table, THead, TBody, Tr, Th, Td } from '@/components/ui/Table';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((r) => r.json());
 
@@ -22,53 +27,66 @@ export default function AdminDestinationsPage() {
     else alert(json.error || 'Erreur de suppression');
   };
   return (
-    <div style={{ maxWidth: 960, margin: '24px auto', padding: 24 }}>
-      <h1>Destinations</h1>
-      <p style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <a href="/admin">← Retour tableau de bord</a>
-        <a href="/admin/destinations/new" style={{ marginLeft: 'auto' }}>+ Nouvelle destination</a>
-      </p>
-      {isLoading && <p>Chargement…</p>}
-      {error && <p style={{ color: 'crimson' }}>Erreur de chargement</p>}
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-4 flex items-center gap-3">
+        <h1 className="text-2xl font-semibold">Destinations</h1>
+        <div className="ml-auto">
+          <Link href="/admin/destinations/new" className="inline-flex">
+            <Button>+ Nouvelle destination</Button>
+          </Link>
+        </div>
+      </div>
+
+      {isLoading && (
+        <div className="flex items-center gap-2 text-sm text-neutral-600"><Spinner /> Chargement…</div>
+      )}
+      {error && (
+        <p className="text-sm text-red-600">Erreur de chargement</p>
+      )}
+
       {data?.success && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Titre</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Slug</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Offres liées</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Actif</th>
-              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <THead>
+            <Tr>
+              <Th>Titre</Th>
+              <Th>Slug</Th>
+              <Th>Offres liées</Th>
+              <Th>Actif</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {data.data.map((d: AdminDestination) => (
-              <tr key={d.id}>
-                <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>{d.title}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>{d.slug}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>{d.offer_count}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>{d.is_active ? 'Oui' : 'Non'}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0', display: 'flex', gap: 8 }}>
-                  <Link href={`/admin/destinations/${d.id}`} aria-label="Modifier" title="Modifier" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-                    </svg>
-                  </Link>
-                  <button onClick={() => onDelete(d.id)} aria-label="Supprimer" title="Supprimer" style={{ background: 'none', border: '1px solid #eee', borderRadius: 4, padding: 6, cursor: 'pointer', color: 'crimson', display: 'inline-flex', alignItems: 'center' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                      <path d="M10 11v6" />
-                      <path d="M14 11v6" />
-                      <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
+              <Tr key={d.id}>
+                <Td className="font-medium">{d.title}</Td>
+                <Td>{d.slug}</Td>
+                <Td>{d.offer_count}</Td>
+                <Td>
+                  {d.is_active ? <Badge variant="success">Oui</Badge> : <Badge variant="muted">Non</Badge>}
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/admin/destinations/${d.id}`} aria-label="Modifier" title="Modifier" className="inline-flex">
+                      <Button variant="ghost" size="sm" iconLeft={<Pencil className="h-4 w-4" />}>
+                        <span className="sr-only">Modifier</span>
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => onDelete(d.id)}
+                      aria-label="Supprimer"
+                      title="Supprimer"
+                      iconLeft={<Trash2 className="h-4 w-4" />}
+                    >
+                      <span className="sr-only">Supprimer</span>
+                    </Button>
+                  </div>
+                </Td>
+              </Tr>
             ))}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       )}
     </div>
   );

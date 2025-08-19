@@ -1,5 +1,9 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 async function jsonFetch(url: string, init?: RequestInit) {
   const res = await fetch(url, { credentials: 'include', ...(init || {}) });
@@ -128,171 +132,230 @@ export default function AdminOfferEditPage({ params }: { params: { id: string } 
     }
   }
 
-  if (loading) return <div style={{ maxWidth: 960, margin: '24px auto', padding: 24 }}><p>Chargement…</p></div>;
-  if (error) return <div style={{ maxWidth: 960, margin: '24px auto', padding: 24 }}><p style={{ color: 'crimson' }}>{error}</p></div>;
+  if (loading) return (
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="flex items-center gap-2 text-sm text-neutral-600"><Spinner /> Chargement…</div>
+    </div>
+  );
+  if (error) return (
+    <div className="mx-auto max-w-6xl p-6">
+      <p className="text-sm text-red-600">{error}</p>
+    </div>
+  );
   if (!offer) return null;
 
   return (
-    <div style={{ maxWidth: 960, margin: '24px auto', padding: 24 }}>
-      <h1>Modifier l'offre</h1>
-      <p style={{ display: 'flex', gap: 12 }}>
-        <a href="/admin/offers">← Retour</a>
-      </p>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-4 flex items-center gap-3">
+        <h1 className="text-2xl font-semibold">Modifier l'offre</h1>
+        <div className="ml-auto">
+          <Link
+            href="/admin/offers"
+            className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-300 h-10 px-4 text-sm"
+          >
+            ← Retour
+          </Link>
+        </div>
+      </div>
 
-      <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
-        <label>
-          Titre
-          <input
-            type="text"
-            value={offer.title}
-            onChange={(e) => setOffer({ ...(offer as OfferData), title: e.target.value })}
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <label>
-          Slug
-          <input
-            type="text"
-            value={offer.slug}
-            onChange={(e) => setOffer({ ...(offer as OfferData), slug: e.target.value })}
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <label>
-          Résumé
-          <textarea
-            value={offer.summary || ''}
-            onChange={(e) => setOffer({ ...(offer as OfferData), summary: e.target.value })}
-            style={{ width: '100%', padding: 8, marginTop: 4, minHeight: 80 }}
-          />
-        </label>
-        <label>
-          Description
-          <textarea
-            value={offer.description || ''}
-            onChange={(e) => setOffer({ ...(offer as OfferData), description: e.target.value })}
-            style={{ width: '100%', padding: 8, marginTop: 4, minHeight: 140 }}
-          />
-        </label>
-        <div style={{ border: '1px solid #eee', padding: 12 }}>
-          <div style={{ marginBottom: 8, fontWeight: 600 }}>Image principale</div>
-          <div style={{ display: 'grid', gap: 8 }}>
-            <label>
-              URL de l'image
+      <div className="grid gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Informations générales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              <label className="text-sm">
+                Titre
+                <input
+                  type="text"
+                  value={offer.title}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), title: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+              <label className="text-sm">
+                Slug
+                <input
+                  type="text"
+                  value={offer.slug}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), slug: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+              <label className="text-sm">
+                Résumé
+                <textarea
+                  value={offer.summary || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), summary: e.target.value })}
+                  className="mt-1 w-full min-h-[80px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+              <label className="text-sm">
+                Description
+                <textarea
+                  value={offer.description || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), description: e.target.value })}
+                  className="mt-1 w-full min-h-[140px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Image principale</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              <label className="text-sm">
+                URL de l'image
+                <input
+                  type="text"
+                  value={offer.image_url || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
+                  placeholder="/uploads/nom-de-fichier.jpg"
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+              <label className="text-sm">
+                Sélectionner une image existante
+                <select
+                  value={offer.image_url || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                >
+                  <option value="">-- choisir --</option>
+                  {uploads.map((f) => (
+                    <option key={f.url} value={f.url}>{f.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm">
+                Importer une nouvelle image
+                <input type="file" accept="image/*" onChange={onUploadFile} disabled={uploading} className="mt-1 block" />
+              </label>
+              {offer.image_url ? (
+                <div className="mt-1">
+                  <div className="text-xs text-neutral-600">Aperçu</div>
+                  <img src={offer.image_url} alt="aperçu" className="mt-1 max-w-full rounded-md border border-neutral-200" />
+                </div>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Statut et prix</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <label className="flex items-center gap-2 text-sm">
               <input
-                type="text"
-                value={offer.image_url || ''}
-                onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
-                placeholder="/uploads/nom-de-fichier.jpg"
-                style={{ width: '100%', padding: 8, marginTop: 4 }}
+                type="checkbox"
+                checked={!!offer.is_active}
+                onChange={(e) => setOffer({ ...(offer as OfferData), is_active: e.target.checked ? 1 : 0 })}
+                className="h-4 w-4"
               />
+              Actif
             </label>
-            <label>
-              Sélectionner une image existante
-              <select
-                value={offer.image_url || ''}
-                onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
-                style={{ width: '100%', padding: 8, marginTop: 4 }}
-              >
-                <option value="">-- choisir --</option>
-                {uploads.map((f) => (
-                  <option key={f.url} value={f.url}>{f.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Importer une nouvelle image
-              <input type="file" accept="image/*" onChange={onUploadFile} disabled={uploading} style={{ display: 'block', marginTop: 4 }} />
-            </label>
-            {offer.image_url ? (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>Aperçu</div>
-                <img src={offer.image_url} alt="aperçu" style={{ maxWidth: '100%', border: '1px solid #eee' }} />
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input
-            type="checkbox"
-            checked={!!offer.is_active}
-            onChange={(e) => setOffer({ ...(offer as OfferData), is_active: e.target.checked ? 1 : 0 })}
-          />
-          Actif
-        </label>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <label style={{ flex: 1 }}>
-            Prix
-            <input
-              type="number"
-              value={offer.price ?? ''}
-              onChange={(e) => setOffer({ ...(offer as OfferData), price: e.target.value === '' ? null : Number(e.target.value) })}
-              style={{ width: '100%', padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label style={{ width: 160 }}>
-            Devise
-            <input
-              type="text"
-              value={offer.price_currency || 'EUR'}
-              onChange={(e) => setOffer({ ...(offer as OfferData), price_currency: e.target.value })}
-              style={{ width: '100%', padding: 8, marginTop: 4 }}
-            />
-          </label>
-        </div>
-
-        <fieldset style={{ border: '1px solid #ddd', padding: 12 }}>
-          <legend>Types</legend>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-            {types.map((t) => (
-              <label key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div className="mt-3 grid gap-3 md:grid-cols-[1fr,160px]">
+              <label className="text-sm">
+                Prix
                 <input
-                  type="checkbox"
-                  checked={offer.typeIds.includes(t.id)}
-                  onChange={() => setOffer({ ...(offer as OfferData), typeIds: toggleId(offer.typeIds, t.id) })}
+                  type="number"
+                  value={offer.price ?? ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), price: e.target.value === '' ? null : Number(e.target.value) })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
-                {t.title}
               </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset style={{ border: '1px solid #ddd', padding: 12 }}>
-          <legend>Thèmes</legend>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-            {themes.map((t) => (
-              <label key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <label className="text-sm">
+                Devise
                 <input
-                  type="checkbox"
-                  checked={offer.themeIds.includes(t.id)}
-                  onChange={() => setOffer({ ...(offer as OfferData), themeIds: toggleId(offer.themeIds, t.id) })}
+                  type="text"
+                  value={offer.price_currency || 'EUR'}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), price_currency: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
-                {t.title}
               </label>
-            ))}
-          </div>
-        </fieldset>
+            </div>
+          </CardContent>
+        </Card>
 
-        <fieldset style={{ border: '1px solid #ddd', padding: 12 }}>
-          <legend>Destinations</legend>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-            {destinations.map((d) => (
-              <label key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input
-                  type="checkbox"
-                  checked={offer.destinationIds.includes(d.id)}
-                  onChange={() => setOffer({ ...(offer as OfferData), destinationIds: toggleId(offer.destinationIds, d.id) })}
-                />
-                {d.title}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <Card>
+          <CardHeader>
+            <CardTitle>Types</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {types.map((t) => (
+                <label key={t.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={offer.typeIds.includes(t.id)}
+                    onChange={() => setOffer({ ...(offer as OfferData), typeIds: toggleId(offer.typeIds, t.id) })}
+                    className="h-4 w-4"
+                  />
+                  {t.title}
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <button onClick={save} disabled={!canSave || saving}>{saving ? 'Enregistrement…' : 'Enregistrer'}</button>
-          {status && <span>{status}</span>}
-          {error && <span style={{ color: 'crimson' }}>{error}</span>}
+        <Card>
+          <CardHeader>
+            <CardTitle>Thèmes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {themes.map((t) => (
+                <label key={t.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={offer.themeIds.includes(t.id)}
+                    onChange={() => setOffer({ ...(offer as OfferData), themeIds: toggleId(offer.themeIds, t.id) })}
+                    className="h-4 w-4"
+                  />
+                  {t.title}
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Destinations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {destinations.map((d) => (
+                <label key={d.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={offer.destinationIds.includes(d.id)}
+                    onChange={() => setOffer({ ...(offer as OfferData), destinationIds: toggleId(offer.destinationIds, d.id) })}
+                    className="h-4 w-4"
+                  />
+                  {d.title}
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center gap-3">
+          <Button onClick={save} disabled={!canSave || saving}>
+            {saving ? (
+              <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
+            ) : (
+              'Enregistrer'
+            )}
+          </Button>
+          {status && <span className="text-sm text-neutral-700">{status}</span>}
+          {error && <span className="text-sm text-red-600">{error}</span>}
         </div>
       </div>
     </div>

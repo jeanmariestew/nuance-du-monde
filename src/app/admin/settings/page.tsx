@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -45,28 +48,39 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: '24px auto', padding: 24 }}>
-      <h1>Paramètres</h1>
-      <p><a href="/admin">← Retour tableau de bord</a></p>
+    <div className="mx-auto max-w-xl">
+      <div className="mb-4 flex items-center gap-3">
+        <h1 className="text-2xl font-semibold">Paramètres</h1>
+      </div>
       {loading ? (
-        <p>Chargement…</p>
+        <div className="flex items-center gap-2 text-sm text-neutral-600"><Spinner /> Chargement…</div>
       ) : (
-        <div style={{ marginTop: 16 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <input
-              type="checkbox"
-              checked={maintenance}
-              onChange={(e) => setMaintenance(e.target.checked)}
-            />
-            Mode maintenance
-          </label>
-          <div style={{ marginTop: 16 }}>
-            <button onClick={save} disabled={saving}>
-              {saving ? 'Enregistrement…' : 'Enregistrer'}
-            </button>
-          </div>
-          {status && <p style={{ marginTop: 12 }}>{status}</p>}
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Général</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={maintenance}
+                onChange={(e) => setMaintenance(e.target.checked)}
+                className="size-4"
+              />
+              Mode maintenance
+            </label>
+            {status && <p className="mt-3 text-sm text-neutral-700">{status}</p>}
+          </CardContent>
+          <CardFooter>
+            <Button onClick={save} disabled={saving}>
+              {saving ? (
+                <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
+              ) : (
+                'Enregistrer'
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       )}
     </div>
   );
