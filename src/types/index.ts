@@ -27,15 +27,17 @@ export interface Offer {
   image_banner?: string; // DB column
   // allow building slider
   images?: string[];
-  duration_days?: number;
-  duration_nights?: number;
-  duration?: string; // sometimes stored as text
+  duration_days?: number; // DB column
+  duration_nights?: number; // DB column
+  duration?: string; // sometimes stored as text (legacy)
   price_from?: number; // public pages may use price_from
   price?: number; // DB column name in schema
   price_currency?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+  // Available dates for this offer
+  available_dates?: string[];
   // Joined relations on detail endpoint
   travel_types?: { id: number; title: string; slug?: string }[];
   travel_themes?: { id: number; title: string; slug?: string }[];
@@ -137,8 +139,8 @@ export interface NewsletterSubscription {
 export interface Partner {
   id: number;
   name: string;
-  description?: string;
-  logo_url?: string;
+  agency: string;
+  image_url?: string;
   website_url?: string;
   sort_order: number;
   is_active: boolean;

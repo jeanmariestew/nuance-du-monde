@@ -45,12 +45,21 @@ export default function DestinationsPage() {
       <section className="relative h-96 flex items-center justify-center">
         <div className="absolute inset-0">
           <Image
-            src="/images/destinations_banner.webp"
+            src="/images/destination_fond.png"
             alt="Les destinations"
             fill
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="absolute inset-0 bg-black/30 bg-opacity-50"></div>
+        </div>
+        {/* Floating decorative image */}
+        <div className="absolute top-8 right-8 w-20 h-20 opacity-70 z-5">
+          <Image
+            src="/images/footer_bg.png"
+            alt=""
+            fill
+            className="object-contain"
+          />
         </div>
         
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
@@ -62,7 +71,7 @@ export default function DestinationsPage() {
         </div>
       </section>
 
-      {/* Testimonial */}
+      {/* Testimonial
       <section className="py-8 bg-blue-50">
         <div className="container mx-auto px-4 text-center">
           <blockquote className="text-lg italic text-gray-700">
@@ -70,7 +79,7 @@ export default function DestinationsPage() {
           </blockquote>
           <cite className="block mt-2 font-semibold">Jenny Wilson</cite>
         </div>
-      </section>
+      </section> */}
 
       {/* Destinations Grid */}
       <section className="py-16">
@@ -93,9 +102,9 @@ export default function DestinationsPage() {
                 >
                   <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                     <div className="relative h-48">
-                      {destination.image_url ? (
+                      {destination.banner_image_url ? (
                         <Image
-                          src={destination.image_url}
+                          src={destination.banner_image_url}
                           alt={destination.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -106,9 +115,6 @@ export default function DestinationsPage() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <div className="absolute bottom-4 left-4 text-white">
-                        <h3 className="text-xl font-semibold">{destination.title}</h3>
-                      </div>
                     </div>
                     
                     <div className="p-6">
@@ -131,10 +137,6 @@ export default function DestinationsPage() {
                           </div>
                         )}
                       </div>
-                      
-                      <button className="w-full mt-4 btn-accent text-black py-2 rounded hover:brightness-95 transition-colors">
-                        Découvrir
-                      </button>
                     </div>
                   </div>
                 </Link>
@@ -142,7 +144,7 @@ export default function DestinationsPage() {
             </div>
           )}
 
-          {/* Pagination placeholder */}
+          {/* Pagination placeholder
           <div className="flex justify-center mt-12">
             <nav className="flex space-x-2">
               <button className="px-3 py-2 bg-blue-600 text-white rounded">1</button>
@@ -152,11 +154,11 @@ export default function DestinationsPage() {
               <button className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">6</button>
               <button className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Suivant »</button>
             </nav>
-          </div>
+          </div> */}
         </div>
       </section>
 
-      {/* Type de voyage Section */}
+      {/* Type de voyage Section
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Type de voyage</h2>
@@ -165,9 +167,9 @@ export default function DestinationsPage() {
             vous invitent à une expérience enrichissante et taillée sur mesure.
           </p>
         </div>
-      </section>
+      </section>*/}
 
-      {/* Les thèmes Section */}
+      {/* Les thèmes Section 
       <section className="py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Les thèmes</h2>
@@ -177,12 +179,12 @@ export default function DestinationsPage() {
           </p>
           <Link 
             href="/themes"
-            className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-block"
+            className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-[#d9a900] transition-colors inline-block"
           >
             Voir toutes les destinations
           </Link>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

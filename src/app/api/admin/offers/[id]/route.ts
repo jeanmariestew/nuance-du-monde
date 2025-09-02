@@ -20,15 +20,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     is_active: row.is_active,
     price: row.price,
     price_currency: row.price_currency,
+    duration_days: row.duration_days,
+    duration_nights: row.duration_nights,
   } as any;
   const [types] = await pool.query('SELECT travel_type_id FROM offer_travel_types WHERE offer_id = ?', [id]);
   const [themes] = await pool.query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
   const [dests] = await pool.query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]);
+  const [dates] = await pool.query('SELECT departure_date FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
   return NextResponse.json({ success: true, data: {
     ...offer,
     typeIds: (types as any[]).map(r => r.travel_type_id),
     themeIds: (themes as any[]).map(r => r.travel_theme_id),
     destinationIds: (dests as any[]).map(r => r.destination_id),
+    available_dates: (dates as any[]).map(r => r.departure_date),
   }});
 }
 
@@ -47,6 +51,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     is_active = 1,
     price = null,
     price_currency = 'EUR',
+    duration_days = null,
+    duration_nights = null,
+    available_dates = [] as string[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -57,13 +64,31 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     await conn.beginTransaction();
     await conn.query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, image_main=?, is_active=?, price=?, price_currency=? WHERE id=?`,
-      [title, slug, summary, description, image_url, is_active ? 1 : 0, price, price_currency, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, image_main=?, is_active=?, price=?, price_currency=?, duration_days=?, duration_nights=? WHERE id=?`,
+      [title, slug, summary, description, image_url, is_active ? 1 : 0, price, price_currency, duration_days, duration_nights, id]
     );
 
     await conn.query('DELETE FROM offer_travel_types WHERE offer_id = ?', [id]);
     await conn.query('DELETE FROM offer_travel_themes WHERE offer_id = ?', [id]);
     await conn.query('DELETE FROM offer_destinations WHERE offer_id = ?', [id]);
+    await conn.query('DELETE FROM offer_dates WHERE offer_id = ?', [id]);
+
+    // Save available dates
+    if (Array.isArray(available_dates) && available_dates.length > 0) {
+      console.log('Sauvegarde des dates:', available_dates);
+      const validDates = available_dates.filter(date => date && date.trim());
+      
+      if (validDates.length > 0) {
+        const placeholders = validDates.map(() => '(?, ?)').join(', ');
+        const values = validDates.flatMap((date: string) => [id, date]);
+        
+        await conn.query(
+          `INSERT INTO offer_dates (offer_id, departure_date) VALUES ${placeholders}`,
+          values
+        );
+        console.log('Dates sauvegardées:', validDates.length, 'dates pour l\'offre', id);
+      }
+    }
 
     if (Array.isArray(typeIds) && typeIds.length) {
       await conn.query(

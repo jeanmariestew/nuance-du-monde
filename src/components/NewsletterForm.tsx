@@ -65,7 +65,7 @@ const NewsletterForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-[#d9a900] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Inscription...' : 'M\'informer →'}
             </button>

@@ -49,6 +49,8 @@ export async function GET(
       );
 
       const images = [offer.image_banner, offer.image_main].filter(Boolean);
+      const availableDates = (dates as any[]).map(d => d.departure_date);
+      
       return NextResponse.json({
         success: true,
         data: {
@@ -57,6 +59,7 @@ export async function GET(
           banner_image_url: offer.image_banner ?? offer.banner_image_url,
           image_url: offer.image_main ?? offer.image_url,
           price_from: offer.price_from ?? offer.price ?? null,
+          available_dates: availableDates,
           images,
           travel_types: types,
           travel_themes: themes,

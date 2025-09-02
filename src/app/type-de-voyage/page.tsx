@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TravelType } from "@/types";
+import TravelTypesSection from "@/components/TravelTypesSection";
+import ValuesSection from "@/components/ValuesSection";
 
 export default function TravelTypesPage() {
   const [types, setTypes] = useState<TravelType[]>([]);
@@ -36,18 +38,27 @@ export default function TravelTypesPage() {
   }
 
   return (
-    <div>
-      <section className="relative h-80 flex items-center justify-center">
+    <div className="flex flex-col gap-y-10">
+      <section className="relative h-96 flex items-center justify-start">
         <div className="absolute inset-0">
-          <Image src="/images/type_de_voyage_banner.webp" alt="Type de voyage" fill className="object-cover" />
-          <div className="absolute inset-0 bg-black/50" />
+          <Image src="/images/photo_type-de-voyage.png" alt="Type de voyage" fill className="object-cover" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold">TYPE DE VOYAGE</h1>
+        <div className="relative z-10 text-left text-white px-8 max-w-2xl">
+          <div className="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4">
+            Catégorie
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">TYPE DE VOYAGE</h1>
+          <p className="text-lg leading-relaxed">
+            Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos différents types de voyage vous invitent à une expérience enrichissante et taillée sur mesure.
+          </p>
         </div>
       </section>
 
-      <section className="py-16">
+      <TravelTypesSection travelTypes={types}/>
+      <ValuesSection />
+
+      {/* <section className="py-16">
         <div className="container mx-auto px-4">
           {types.length === 0 ? (
             <div className="text-center py-12">
@@ -68,7 +79,7 @@ export default function TravelTypesPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">Pas d'image</span>
+                          <span className="text-gray-400">Pas d&apos;image</span>
                         </div>
                       )}
                     </div>
@@ -84,7 +95,7 @@ export default function TravelTypesPage() {
             </div>
           )}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

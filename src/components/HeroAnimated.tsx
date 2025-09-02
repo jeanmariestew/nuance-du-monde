@@ -57,7 +57,7 @@ export default function HeroAnimated() {
               <div className="ripple-wave"></div>
               <div className="ripple-wave"></div>
               <div className="ripple-wave"></div>
-              <div className="absolute inset-1 rounded-full bg-yellow-400 pulse-animation" />
+              <div className="absolute inset-1 rounded-full bg-[#d9a900] pulse-animation" />
             </div>
             <span className="text-sm">Explorer les thèmes et destinations</span>
           </div>
@@ -118,11 +118,6 @@ export default function HeroAnimated() {
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-        <Link href="/destinations" className="inline-block btn-accent text-black px-6 py-3 rounded-full font-semibold transition-colors hover:brightness-95">
-          Explorer les thèmes et destinations
-        </Link>
-      </div>
     </section>
   );
 }

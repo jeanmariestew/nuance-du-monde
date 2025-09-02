@@ -111,3 +111,33 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Partners table
+CREATE TABLE IF NOT EXISTS partners (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(191) NOT NULL,
+  agency VARCHAR(191) NOT NULL,
+  image_url VARCHAR(1024) NULL,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY ix_partners_sort_order (sort_order),
+  KEY ix_partners_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Testimonials table
+CREATE TABLE IF NOT EXISTS testimonials (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(191) NOT NULL,
+  content TEXT NOT NULL,
+  image_url VARCHAR(1024) NULL,
+  is_featured TINYINT(1) NOT NULL DEFAULT 0,
+  is_published TINYINT(1) NOT NULL DEFAULT 1,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY ix_testimonials_featured (is_featured),
+  KEY ix_testimonials_published (is_published),
+  KEY ix_testimonials_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

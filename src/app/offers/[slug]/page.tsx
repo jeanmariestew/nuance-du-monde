@@ -14,6 +14,9 @@ interface OfferDetail {
   image_main?: string;
   price?: number;
   price_currency?: string;
+  duration_days?: number;
+  duration_nights?: number;
+  available_dates?: string[];
   travel_types?: Array<{ id: number; title: string; slug: string }>;
   travel_themes?: Array<{ id: number; title: string; slug: string }>;
   destinations?: Array<{ id: number; title: string; slug: string }>;
@@ -97,19 +100,6 @@ export default function OfferDetailPage() {
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line">{offer.description}</div>
               </div>
             )}
-
-            {offer.dates && offer.dates.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Dates de départ</h2>
-                <ul className="space-y-2">
-                  {offer.dates.map((d) => (
-                    <li key={d.id} className="text-gray-700">
-                      {new Date(d.departure_date).toLocaleDateString()} {d.return_date ? `→ ${new Date(d.return_date).toLocaleDateString()}` : ""}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
 
           <aside className="lg:col-span-1">
@@ -118,6 +108,52 @@ export default function OfferDetailPage() {
                 <div className="mb-4">
                   <span className="text-sm text-gray-600">À partir de</span>
                   <div className="text-2xl font-bold text-blue-600">{offer.price} {offer.price_currency}</div>
+                  <span className="text-sm text-gray-600">/ personne</span>
+                </div>
+              )}
+
+              {(offer.duration_days || offer.duration_nights) && (
+                <div className="mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm text-gray-700">
+                    {offer.duration_days && `${offer.duration_days} jours`}
+                    {offer.duration_days && offer.duration_nights && ' et '}
+                    {offer.duration_nights && `${offer.duration_nights} nuits`}
+                  </span>
+                </div>
+              )}
+
+              {offer.available_dates && offer.available_dates.length > 0 && (
+                <div className="mb-6">
+                  <div className="text-sm font-medium text-gray-800 mb-2">
+                    <strong>Départs garantis</strong> du {new Date(offer.available_dates[0]).toLocaleDateString('fr-FR', { 
+                      day: '2-digit', 
+                      month: '2-digit', 
+                      year: 'numeric' 
+                    })} au {new Date(offer.available_dates[offer.available_dates.length - 1]).toLocaleDateString('fr-FR', { 
+                      day: '2-digit', 
+                      month: '2-digit', 
+                      year: 'numeric' 
+                    })}
+                  </div>
+                  {offer.available_dates.length > 1 && (
+                    <div className="mt-2">
+                      <div className="text-sm font-medium text-gray-800 mb-1"><strong>Autres dates du :</strong></div>
+                      <div className="space-y-1">
+                        {offer.available_dates.map((date, index) => (
+                          <div key={index} className="text-sm text-gray-700">
+                            {new Date(date).toLocaleDateString('fr-FR', { 
+                              day: '2-digit', 
+                              month: '2-digit', 
+                              year: 'numeric' 
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

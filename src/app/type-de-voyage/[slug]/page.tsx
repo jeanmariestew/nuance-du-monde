@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Offer, TravelType } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
+import TravelCard from "@/components/TravelCard";
 
 export default function TravelTypeDetailPage() {
   const params = useParams();
@@ -96,7 +97,7 @@ export default function TravelTypeDetailPage() {
       </section>
 
 
-      <section className="py-6">
+      {/* <section className="py-6">
         <div className="container mx-auto px-4">
           <Link
             href={`/offers?type=${type.slug}`}
@@ -105,11 +106,11 @@ export default function TravelTypeDetailPage() {
             Voir les offres pour ce type
           </Link>
         </div>
-      </section>
+      </section> */}
 
       {/* Offres pour ce type */}
       <section className="py-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-6xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce type</h2>
           {offersLoading && (
             <div className="text-gray-600">Chargement des offres…</div>
@@ -121,7 +122,7 @@ export default function TravelTypeDetailPage() {
             <div className="text-gray-600">Aucune offre pour ce type.</div>
           )}
           {offers.length > 0 && (
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-2 gap-6">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />
               ))}
@@ -130,15 +131,6 @@ export default function TravelTypeDetailPage() {
         </div>
       </section>
 
-      {type.description && (
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="prose prose-lg max-w-none">
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">{type.description}</div>
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   );
 }

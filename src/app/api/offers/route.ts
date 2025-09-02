@@ -47,10 +47,29 @@ export async function GET(req: Request) {
       price?: number | null;
       price_from?: number | null;
       price_currency?: string | null;
+      duration_days?: number | null;
+      duration_nights?: number | null;
       banner_image_url?: string | null;
       image_url?: string | null;
       [key: string]: unknown;
     };
+    
+    // Fetch available dates for all offers
+    const offerIds = (rows as OfferRow[]).map(o => o.id);
+    let availableDatesMap: Record<number, string[]> = {};
+    
+    if (offerIds.length > 0) {
+      const [datesRows] = await pool.query(
+        `SELECT offer_id, departure_date FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
+        offerIds
+      );
+      availableDatesMap = (datesRows as any[]).reduce((acc, row) => {
+        if (!acc[row.offer_id]) acc[row.offer_id] = [];
+        acc[row.offer_id].push(row.departure_date);
+        return acc;
+      }, {} as Record<number, string[]>);
+    }
+    
     const data = (rows as OfferRow[]).map((o) => {
       const images = [o.image_banner, o.image_main].filter(Boolean) as string[];
       return {
@@ -59,6 +78,7 @@ export async function GET(req: Request) {
         banner_image_url: o.image_banner ?? o.banner_image_url,
         image_url: o.image_main ?? o.image_url,
         price_from: o.price_from ?? o.price ?? null,
+        available_dates: availableDatesMap[o.id] || [],
         images,
       };
     });

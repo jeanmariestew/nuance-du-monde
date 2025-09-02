@@ -30,8 +30,8 @@ export default function DestinationCard({ destination }: Props) {
       <div className="absolute inset-x-0 bottom-0 p-6">
         <h3 className="text-white text-3xl font-bold drop-shadow-sm">{destination.title}</h3>
         <Link
-          href={`/demander-devis?destination=${encodeURIComponent(destination.slug)}`}
-          className="inline-block mt-4 px-6 py-2 rounded-xl bg-yellow-500 text-white font-semibold shadow hover:bg-yellow-400 transition-colors"
+          href={`/destinations/${destination.slug}`}
+          className="inline-block mt-4 px-6 py-2 rounded-xl bg-yellow-500 text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"
         >
           Explorer
         </Link>

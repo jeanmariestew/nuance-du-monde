@@ -33,7 +33,7 @@ export default function ThemeCard({ theme }: Props) {
         </h3>
         <Link
           href={`/themes/${encodeURIComponent(theme.slug)}`}
-          className="inline-block mt-3 px-5 py-2 rounded-xl bg-yellow-500 text-white font-semibold shadow hover:bg-yellow-400 transition-colors"
+          className="inline-block mt-3 px-5 py-2 rounded-xl bg-yellow-500 text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"
         >
           Explorer
         </Link>

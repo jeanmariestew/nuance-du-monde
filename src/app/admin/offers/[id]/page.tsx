@@ -26,13 +26,16 @@ type OfferData = {
   is_active: 0 | 1;
   price: number | null;
   price_currency: string | null;
+  duration_days: number | null;
+  duration_nights: number | null;
+  available_dates: string[];
   typeIds: number[];
   themeIds: number[];
   destinationIds: number[];
 };
 
-export default function AdminOfferEditPage({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export default function AdminOfferEditPage({ params }: { params: Promise<{ id: string }> }) {
+  const [id, setId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +52,17 @@ export default function AdminOfferEditPage({ params }: { params: { id: string } 
     let mounted = true;
     (async () => {
       try {
+        const resolvedParams = await params;
+        const resolvedId = Number(resolvedParams.id);
+        setId(resolvedId);
+        
+        if (!resolvedId) {
+          if (mounted) setError('ID invalide');
+          return;
+        }
+        
         const [o, t, th, d] = await Promise.all([
-          jsonFetch(`/api/admin/offers/${id}`),
+          jsonFetch(`/api/admin/offers/${resolvedId}`),
           jsonFetch(`/api/admin/travel-types`),
           jsonFetch(`/api/admin/travel-themes`),
           jsonFetch(`/api/admin/destinations`),
@@ -72,23 +84,26 @@ export default function AdminOfferEditPage({ params }: { params: { id: string } 
       }
     })();
     return () => { mounted = false; };
-  }, [id]);
+  }, [params]);
 
   const canSave = useMemo(() => !!offer?.title && !!offer?.slug, [offer]);
 
   async function save() {
-    if (!offer) return;
+    if (!offer || !id) return;
     setSaving(true);
     setError(null);
     setStatus(null);
     try {
-      await jsonFetch(`/api/admin/offers/${id}` , {
+      console.log('Données à sauvegarder:', offer);
+      const response = await jsonFetch(`/api/admin/offers/${id}` , {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(offer),
       });
-      setStatus('Offre enregistrée');
+      console.log('Réponse API:', response);
+      setStatus('Offre enregistrée avec succès');
     } catch (e: any) {
+      console.error('Erreur sauvegarde:', e);
       setError(e.message || 'Erreur de sauvegarde');
     } finally {
       setSaving(false);
@@ -280,6 +295,26 @@ export default function AdminOfferEditPage({ params }: { params: { id: string } 
                 />
               </label>
             </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <label className="text-sm">
+                Durée (jours)
+                <input
+                  type="number"
+                  value={offer.duration_days ?? ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), duration_days: e.target.value === '' ? null : Number(e.target.value) })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+              <label className="text-sm">
+                Durée (nuits)
+                <input
+                  type="number"
+                  value={offer.duration_nights ?? ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), duration_nights: e.target.value === '' ? null : Number(e.target.value) })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+            </div>
           </CardContent>
         </Card>
 
@@ -346,7 +381,74 @@ export default function AdminOfferEditPage({ params }: { params: { id: string } 
           </CardContent>
         </Card>
 
-        <div className="flex items-center gap-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Dates de départ disponibles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              <div className="text-sm text-neutral-600">
+                Gérez les dates de départ disponibles pour cette offre. 
+                <span className="font-medium text-orange-600">N&apos;oubliez pas de cliquer sur &quot;Enregistrer&quot; en bas pour sauvegarder vos modifications.</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  id="new-date-input"
+                  min={new Date().toISOString().split('T')[0]}
+                  className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+                <Button
+                  onClick={() => {
+                    const input = document.getElementById('new-date-input') as HTMLInputElement;
+                    if (input.value) {
+                      if (offer.available_dates.includes(input.value)) {
+                        setError('Cette date existe déjà');
+                        return;
+                      }
+                      const newDates = [...offer.available_dates, input.value].sort();
+                      setOffer({ 
+                        ...(offer as OfferData), 
+                        available_dates: newDates
+                      });
+                      input.value = '';
+                      setStatus('Date ajoutée - cliquez sur Enregistrer pour sauvegarder');
+                    }
+                  }}
+                  className="px-4 py-2 text-sm"
+                >
+                  Ajouter
+                </Button>
+              </div>
+              <div className="grid gap-2">
+                {offer.available_dates.length > 0 ? (
+                  offer.available_dates.map((date, index) => (
+                    <div key={index} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
+                      <span className="text-sm">{new Date(date).toLocaleDateString('fr-FR')}</span>
+                      <button
+                        onClick={() => {
+                          const updatedDates = offer.available_dates.filter((_, i) => i !== index);
+                          setOffer({ 
+                            ...(offer as OfferData), 
+                            available_dates: updatedDates
+                          });
+                          setStatus('Date supprimée - cliquez sur Enregistrer pour sauvegarder');
+                        }}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-neutral-500 italic">Aucune date de départ configurée</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center gap-3 bg-yellow-500">
           <Button onClick={save} disabled={!canSave || saving}>
             {saving ? (
               <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
