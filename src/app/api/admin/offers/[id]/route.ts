@@ -16,10 +16,17 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     slug: row.slug,
     summary: row.short_description || '',
     description: row.description || '',
-    image_url: row.image_main || '',
     is_active: row.is_active,
     price: row.price,
     price_currency: row.price_currency,
+    promotional_price: row.promotional_price,
+    promotional_price_currency: row.promotional_price_currency,
+    promotion_start_date: row.promotion_start_date,
+    promotion_end_date: row.promotion_end_date,
+    promotion_description: row.promotion_description,
+    price_includes: row.price_includes,
+    price_excludes: row.price_excludes,
+    label: row.label,
     duration_days: row.duration_days,
     duration_nights: row.duration_nights,
   } as any;
@@ -27,12 +34,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const [themes] = await pool.query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
   const [dests] = await pool.query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]);
   const [dates] = await pool.query('SELECT departure_date FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
+  const [images] = await pool.query('SELECT id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id = ? ORDER BY sort_order ASC, id ASC', [id]);
   return NextResponse.json({ success: true, data: {
     ...offer,
     typeIds: (types as any[]).map(r => r.travel_type_id),
     themeIds: (themes as any[]).map(r => r.travel_theme_id),
     destinationIds: (dests as any[]).map(r => r.destination_id),
     available_dates: (dates as any[]).map(r => r.departure_date),
+    images: images as any[],
   }});
 }
 
@@ -47,10 +56,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     slug,
     summary = '',
     description = '',
-    image_url = '',
+    images = [] as any[],
     is_active = 1,
     price = null,
     price_currency = 'EUR',
+    promotional_price = null,
+    promotional_price_currency = 'EUR',
+    promotion_start_date = null,
+    promotion_end_date = null,
+    promotion_description = null,
+    price_includes = null,
+    price_excludes = null,
+    label = null,
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
@@ -64,14 +81,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     await conn.beginTransaction();
     await conn.query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, image_main=?, is_active=?, price=?, price_currency=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, description, image_url, is_active ? 1 : 0, price, price_currency, duration_days, duration_nights, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, duration_days=?, duration_nights=? WHERE id=?`,
+      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights, id]
     );
 
     await conn.query('DELETE FROM offer_travel_types WHERE offer_id = ?', [id]);
     await conn.query('DELETE FROM offer_travel_themes WHERE offer_id = ?', [id]);
     await conn.query('DELETE FROM offer_destinations WHERE offer_id = ?', [id]);
     await conn.query('DELETE FROM offer_dates WHERE offer_id = ?', [id]);
+    await conn.query('DELETE FROM offer_images WHERE offer_id = ?', [id]);
 
     // Save available dates
     if (Array.isArray(available_dates) && available_dates.length > 0) {
@@ -110,6 +128,25 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
          VALUES ${destinationIds.map(() => '(?, ?)').join(', ')}`,
         destinationIds.flatMap((did: number) => [id, did])
       );
+    }
+
+    // Save images
+    if (Array.isArray(images) && images.length > 0) {
+      const validImages = images.filter(img => img && img.image_url);
+      if (validImages.length > 0) {
+        const placeholders = validImages.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const values = validImages.flatMap((img: any, index: number) => [
+          id,
+          img.image_url,
+          img.image_type || 'gallery',
+          img.alt_text || '',
+          img.sort_order !== undefined ? img.sort_order : index
+        ]);
+        await conn.query(
+          `INSERT INTO offer_images (offer_id, image_url, image_type, alt_text, sort_order) VALUES ${placeholders}`,
+          values
+        );
+      }
     }
 
     await conn.commit();

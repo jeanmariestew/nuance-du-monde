@@ -182,67 +182,6 @@ export default function DestinationPage() {
                 </div>
               </div>
 
-              {/* End destination content */}
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20">
-                <h3 className="text-xl font-semibold mb-6">Informations du voyage</h3>
-                
-                {destination.price_from && (
-                  <div className="mb-4">
-                    <span className="text-sm text-gray-600">À partir de</span>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {destination.price_from} {destination.price_currency}
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-4 mb-6">
-                  {destination.duration_days && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Durée:</span>
-                      <span className="font-semibold">
-                        {destination.duration_days} jours / {destination.duration_nights} nuits
-                      </span>
-                    </div>
-                  )}
-
-                  {destination.group_size_min && destination.group_size_max && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Taille du groupe:</span>
-                      <span className="font-semibold">
-                        {destination.group_size_min === destination.group_size_max 
-                          ? `${destination.group_size_min} personnes`
-                          : `${destination.group_size_min}-${destination.group_size_max} personnes`
-                        }
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <Link 
-                  href={`/offers?destination=${destination.slug}`}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center block"
-                >
-                  Voir les offres pour cette destination
-                </Link>
-
-                <Link 
-                  href={`/demander-devis?destination=${destination.slug}`}
-                  className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold  transition-colors text-center block mt-3"
-                >
-                  Demander un devis
-                </Link>
-
-                <Link 
-                  href="/contact"
-                  className="w-full mt-3 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center block"
-                >
-                  Nous contacter
-                </Link>
-              </div>
             </div>
           </div>
         </div>

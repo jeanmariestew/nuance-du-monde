@@ -33,6 +33,17 @@ export interface Offer {
   price_from?: number; // public pages may use price_from
   price?: number; // DB column name in schema
   price_currency?: string;
+  // Promotional pricing fields
+  promotional_price?: number;
+  promotional_price_currency?: string;
+  promotion_start_date?: string;
+  promotion_end_date?: string;
+  promotion_description?: string;
+  // Price inclusions and exclusions
+  price_includes?: string;
+  price_excludes?: string;
+  // Offer label
+  label?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;

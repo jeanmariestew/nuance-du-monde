@@ -11,7 +11,10 @@ export async function GET(req: Request) {
     const parts: string[] = [];
     const params: (string | number)[] = [];
 
-    let sql = `SELECT DISTINCT o.* FROM offers o`;
+    let sql = `SELECT DISTINCT o.*, 
+      (SELECT oi.image_url FROM offer_images oi WHERE oi.offer_id = o.id AND oi.image_type = 'main' ORDER BY oi.sort_order LIMIT 1) as image_main,
+      (SELECT oi.image_url FROM offer_images oi WHERE oi.offer_id = o.id AND oi.image_type = 'banner' ORDER BY oi.sort_order LIMIT 1) as image_banner
+    FROM offers o`;
 
     if (destination) {
       sql += `\nJOIN offer_destinations od ON od.offer_id = o.id\nJOIN destinations d ON d.id = od.destination_id`;
@@ -47,6 +50,13 @@ export async function GET(req: Request) {
       price?: number | null;
       price_from?: number | null;
       price_currency?: string | null;
+      promotional_price?: number | null;
+      promotional_price_currency?: string | null;
+      promotion_start_date?: string | null;
+      promotion_end_date?: string | null;
+      promotion_description?: string | null;
+      price_includes?: string | null;
+      price_excludes?: string | null;
       duration_days?: number | null;
       duration_nights?: number | null;
       banner_image_url?: string | null;
@@ -54,9 +64,10 @@ export async function GET(req: Request) {
       [key: string]: unknown;
     };
     
-    // Fetch available dates for all offers
+    // Fetch available dates and images for all offers
     const offerIds = (rows as OfferRow[]).map(o => o.id);
     let availableDatesMap: Record<number, string[]> = {};
+    let imagesMap: Record<number, any[]> = {};
     
     if (offerIds.length > 0) {
       const [datesRows] = await pool.query(
@@ -68,18 +79,32 @@ export async function GET(req: Request) {
         acc[row.offer_id].push(row.departure_date);
         return acc;
       }, {} as Record<number, string[]>);
+      
+      // Fetch all images for offers
+      const [imagesRows] = await pool.query(
+        `SELECT offer_id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY sort_order, id`,
+        offerIds
+      );
+      imagesMap = (imagesRows as any[]).reduce((acc, row) => {
+        if (!acc[row.offer_id]) acc[row.offer_id] = [];
+        acc[row.offer_id].push(row);
+        return acc;
+      }, {} as Record<number, any[]>);
     }
     
     const data = (rows as OfferRow[]).map((o) => {
-      const images = [o.image_banner, o.image_main].filter(Boolean) as string[];
+      const offerImages = imagesMap[o.id] || [];
+      const mainImage = offerImages.find(img => img.image_type === 'main')?.image_url || o.image_main;
+      const bannerImage = offerImages.find(img => img.image_type === 'banner')?.image_url || o.image_banner;
+      
       return {
         ...o,
         // convenience aliases for frontend components
-        banner_image_url: o.image_banner ?? o.banner_image_url,
-        image_url: o.image_main ?? o.image_url,
+        banner_image_url: bannerImage,
+        image_url: mainImage,
         price_from: o.price_from ?? o.price ?? null,
         available_dates: availableDatesMap[o.id] || [],
-        images,
+        images: offerImages,
       };
     });
     return NextResponse.json({ success: true, data });

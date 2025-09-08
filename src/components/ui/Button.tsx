@@ -4,7 +4,8 @@ import React from "react";
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   iconLeft?: React.ReactNode;
@@ -15,12 +16,16 @@ function cn(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
 
-const base = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+const base =
+  "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none text-black border-black border-1 justify-center align-center flex";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-[--color-primary] text-white hover:brightness-110 focus-visible:ring-[--color-primary]",
-  secondary: "bg-neutral-900 text-white hover:bg-neutral-800 focus-visible:ring-neutral-900",
-  ghost: "bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-300",
+  primary:
+    "bg-[--color-primary] hover:brightness-110 focus-visible:ring-[--color-primary]",
+  secondary:
+    "bg-neutral-900 text-white hover:bg-neutral-800 focus-visible:ring-neutral-900",
+  ghost:
+    "bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-300",
   danger: "bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-600",
 };
 

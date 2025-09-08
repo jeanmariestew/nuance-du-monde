@@ -5,15 +5,36 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+interface OfferImage {
+  id?: number;
+  image_url: string;
+  image_type: 'main' | 'gallery' | 'banner';
+  alt_text: string;
+  sort_order: number;
+}
+
 interface OfferDetail {
   id: number;
   title: string;
   slug: string;
+  subtitle?: string;
   short_description?: string;
   description?: string;
   image_main?: string;
+  image_banner?: string;
+  image_url?: string;
+  banner_image_url?: string;
+  images?: OfferImage[];
   price?: number;
   price_currency?: string;
+  promotional_price?: number;
+  promotional_price_currency?: string;
+  promotion_start_date?: string;
+  promotion_end_date?: string;
+  promotion_description?: string;
+  price_includes?: string;
+  price_excludes?: string;
+  label?: string;
   duration_days?: number;
   duration_nights?: number;
   available_dates?: string[];
@@ -75,8 +96,13 @@ export default function OfferDetailPage() {
     <div>
       <section className="relative h-80 flex items-center justify-center">
         <div className="absolute inset-0">
-          {offer.image_main ? (
-            <Image src={offer.image_main} alt={offer.title} fill className="object-cover" />
+          {(offer.banner_image_url || offer.image_banner || offer.image_url || offer.image_main) ? (
+            <Image 
+              src={offer.banner_image_url || offer.image_banner || offer.image_url || offer.image_main || ''} 
+              alt={offer.title} 
+              fill 
+              className="object-cover" 
+            />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
           )}
@@ -94,20 +120,56 @@ export default function OfferDetailPage() {
       <section className="py-16">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
+            {offer.label && (
+              <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+                {offer.label}
+              </div>
+            )}
+            
             {offer.description && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Description</h2>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line">{offer.description}</div>
               </div>
             )}
+
+            {offer.price_includes && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-4 text-green-700">Nos tarifs comprennent</h2>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                  {offer.price_includes}
+                </div>
+              </div>
+            )}
+
+            {offer.price_excludes && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-4 text-red-700">Nos tarifs ne comprennent pas</h2>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                  {offer.price_excludes}
+                </div>
+              </div>
+            )}
           </div>
 
           <aside className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20 space-y-4">
-              {offer.price && offer.price_currency && (
+              {(offer.promotional_price || offer.price) && offer.price_currency && (
                 <div className="mb-4">
                   <span className="text-sm text-gray-600">À partir de</span>
-                  <div className="text-2xl font-bold text-blue-600">{offer.price} {offer.price_currency}</div>
+                  {offer.promotional_price ? (
+                    <div>
+                      <div className="text-2xl font-bold text-red-600">{offer.promotional_price} {offer.promotional_price_currency || offer.price_currency}</div>
+                      {offer.price && (
+                        <div className="text-lg text-gray-500 line-through">{offer.price} {offer.price_currency}</div>
+                      )}
+                      {offer.promotion_description && (
+                        <div className="text-sm text-red-600 font-medium">{offer.promotion_description}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-2xl font-bold text-blue-600">{offer.price} {offer.price_currency}</div>
+                  )}
                   <span className="text-sm text-gray-600">/ personne</span>
                 </div>
               )}

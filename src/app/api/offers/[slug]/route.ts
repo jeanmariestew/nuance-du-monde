@@ -47,8 +47,13 @@ export async function GET(
         `SELECT * FROM offer_dates WHERE offer_id = ? ORDER BY departure_date ASC`,
         [offer.id]
       );
+      const [images] = await conn.query(
+        `SELECT id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id = ? ORDER BY sort_order, id`,
+        [offer.id]
+      );
 
-      const images = [offer.image_banner, offer.image_main].filter(Boolean);
+      const mainImage = (images as any[]).find(img => img.image_type === 'main')?.image_url || offer.image_main;
+      const bannerImage = (images as any[]).find(img => img.image_type === 'banner')?.image_url || offer.image_banner;
       const availableDates = (dates as any[]).map(d => d.departure_date);
       
       return NextResponse.json({
@@ -56,11 +61,11 @@ export async function GET(
         data: {
           ...offer,
           // convenience aliases
-          banner_image_url: offer.image_banner ?? offer.banner_image_url,
-          image_url: offer.image_main ?? offer.image_url,
+          banner_image_url: bannerImage,
+          image_url: mainImage,
           price_from: offer.price_from ?? offer.price ?? null,
           available_dates: availableDates,
-          images,
+          images: images as any[],
           travel_types: types,
           travel_themes: themes,
           destinations: dests,

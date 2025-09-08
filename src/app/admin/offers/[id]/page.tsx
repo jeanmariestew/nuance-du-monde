@@ -16,16 +16,32 @@ async function jsonFetch(url: string, init?: RequestInit) {
 
 type RefItem = { id: number; title: string; slug: string };
 
+type OfferImage = {
+  id?: number;
+  image_url: string;
+  image_type: 'main' | 'gallery' | 'banner';
+  alt_text: string;
+  sort_order: number;
+};
+
 type OfferData = {
   id: number;
   title: string;
   slug: string;
   summary: string;
   description: string;
-  image_url: string;
+  images: OfferImage[];
   is_active: 0 | 1;
   price: number | null;
   price_currency: string | null;
+  promotional_price: number | null;
+  promotional_price_currency: string | null;
+  promotion_start_date: string | null;
+  promotion_end_date: string | null;
+  promotion_description: string | null;
+  price_includes: string | null;
+  price_excludes: string | null;
+  label: string | null;
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
@@ -135,7 +151,13 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       if (!res.ok || data?.success === false) throw new Error(data?.error || `Erreur upload (${res.status})`);
       await refreshUploads();
       if (data.url && offer) {
-        setOffer({ ...offer, image_url: data.url });
+        const newImage: OfferImage = {
+          image_url: data.url,
+          image_type: 'gallery',
+          alt_text: '',
+          sort_order: offer.images.length
+        };
+        setOffer({ ...offer, images: [...offer.images, newImage] });
       }
       setStatus('Image téléversée');
     } catch (err: any) {
@@ -214,49 +236,170 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   className="mt-1 w-full min-h-[140px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
               </label>
+              <label className="text-sm">
+                Label de l'offre
+                <input
+                  type="text"
+                  value={offer.label || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), label: e.target.value || null })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="Ex: Nouveau, Populaire, Exclusif..."
+                />
+              </label>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Image principale</CardTitle>
+            <CardTitle>Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3">
-              <label className="text-sm">
-                URL de l'image
-                <input
-                  type="text"
-                  value={offer.image_url || ''}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
-                  placeholder="/uploads/nom-de-fichier.jpg"
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                />
-              </label>
-              <label className="text-sm">
-                Sélectionner une image existante
-                <select
-                  value={offer.image_url || ''}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), image_url: e.target.value })}
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                >
-                  <option value="">-- choisir --</option>
-                  {uploads.map((f) => (
-                    <option key={f.url} value={f.url}>{f.name}</option>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <label className="text-sm">
+                  Ajouter une image par URL
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="text"
+                      id="image-url-input"
+                      placeholder="/uploads/nom-de-fichier.jpg"
+                      className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    />
+                    <select
+                      id="image-type-select"
+                      className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    >
+                      <option value="gallery">Galerie</option>
+                      <option value="main">Principale</option>
+                      <option value="banner">Bannière</option>
+                    </select>
+                    <Button
+                      onClick={() => {
+                        const urlInput = document.getElementById('image-url-input') as HTMLInputElement;
+                        const typeSelect = document.getElementById('image-type-select') as HTMLSelectElement;
+                        if (urlInput.value) {
+                          const newImage: OfferImage = {
+                            image_url: urlInput.value,
+                            image_type: typeSelect.value as 'main' | 'gallery' | 'banner',
+                            alt_text: '',
+                            sort_order: offer.images.length
+                          };
+                          setOffer({ ...(offer as OfferData), images: [...offer.images, newImage] });
+                          urlInput.value = '';
+                        }
+                      }}
+                      className="px-4 py-2 text-sm"
+                    >
+                      Ajouter
+                    </Button>
+                  </div>
+                </label>
+                <label className="text-sm">
+                  Sélectionner une image existante
+                  <div className="flex gap-2 mt-1">
+                    <select
+                      id="existing-image-select"
+                      className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    >
+                      <option value="">-- choisir --</option>
+                      {uploads.map((f) => (
+                        <option key={f.url} value={f.url}>{f.name}</option>
+                      ))}
+                    </select>
+                    <select
+                      id="existing-image-type-select"
+                      className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    >
+                      <option value="gallery">Galerie</option>
+                      <option value="main">Principale</option>
+                      <option value="banner">Bannière</option>
+                    </select>
+                    <Button
+                      onClick={() => {
+                        const urlSelect = document.getElementById('existing-image-select') as HTMLSelectElement;
+                        const typeSelect = document.getElementById('existing-image-type-select') as HTMLSelectElement;
+                        if (urlSelect.value) {
+                          const newImage: OfferImage = {
+                            image_url: urlSelect.value,
+                            image_type: typeSelect.value as 'main' | 'gallery' | 'banner',
+                            alt_text: '',
+                            sort_order: offer.images.length
+                          };
+                          setOffer({ ...(offer as OfferData), images: [...offer.images, newImage] });
+                          urlSelect.value = '';
+                        }
+                      }}
+                      className="px-4 py-2 text-sm"
+                    >
+                      Ajouter
+                    </Button>
+                  </div>
+                </label>
+                <label className="text-sm">
+                  Importer une nouvelle image
+                  <input type="file" accept="image/*" onChange={onUploadFile} disabled={uploading} className="mt-1 block" />
+                </label>
+              </div>
+              
+              {offer.images.length > 0 && (
+                <div className="grid gap-3">
+                  <div className="text-sm font-medium">Images ajoutées ({offer.images.length})</div>
+                  {offer.images.map((img, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 border border-neutral-200 rounded-md">
+                      <img src={img.image_url} alt={img.alt_text} className="w-16 h-16 object-cover rounded" />
+                      <div className="flex-1 grid gap-2">
+                        <div className="flex gap-2">
+                          <select
+                            value={img.image_type}
+                            onChange={(e) => {
+                              const updatedImages = [...offer.images];
+                              updatedImages[index].image_type = e.target.value as 'main' | 'gallery' | 'banner';
+                              setOffer({ ...(offer as OfferData), images: updatedImages });
+                            }}
+                            className="text-sm rounded border border-neutral-300 px-2 py-1"
+                          >
+                            <option value="gallery">Galerie</option>
+                            <option value="main">Principale</option>
+                            <option value="banner">Bannière</option>
+                          </select>
+                          <input
+                            type="number"
+                            value={img.sort_order}
+                            onChange={(e) => {
+                              const updatedImages = [...offer.images];
+                              updatedImages[index].sort_order = Number(e.target.value);
+                              setOffer({ ...(offer as OfferData), images: updatedImages });
+                            }}
+                            placeholder="Ordre"
+                            className="w-20 text-sm rounded border border-neutral-300 px-2 py-1"
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          value={img.alt_text}
+                          onChange={(e) => {
+                            const updatedImages = [...offer.images];
+                            updatedImages[index].alt_text = e.target.value;
+                            setOffer({ ...(offer as OfferData), images: updatedImages });
+                          }}
+                          placeholder="Texte alternatif"
+                          className="text-sm rounded border border-neutral-300 px-2 py-1"
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updatedImages = offer.images.filter((_, i) => i !== index);
+                          setOffer({ ...(offer as OfferData), images: updatedImages });
+                        }}
+                        className="text-red-600 hover:text-red-800 text-sm px-2 py-1"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
                   ))}
-                </select>
-              </label>
-              <label className="text-sm">
-                Importer une nouvelle image
-                <input type="file" accept="image/*" onChange={onUploadFile} disabled={uploading} className="mt-1 block" />
-              </label>
-              {offer.image_url ? (
-                <div className="mt-1">
-                  <div className="text-xs text-neutral-600">Aperçu</div>
-                  <img src={offer.image_url} alt="aperçu" className="mt-1 max-w-full rounded-md border border-neutral-200" />
                 </div>
-              ) : null}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -312,6 +455,95 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   value={offer.duration_nights ?? ''}
                   onChange={(e) => setOffer({ ...(offer as OfferData), duration_nights: e.target.value === '' ? null : Number(e.target.value) })}
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                />
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Prix en promotion</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              <div className="grid gap-3 md:grid-cols-[1fr,160px]">
+                <label className="text-sm">
+                  Prix promotionnel
+                  <input
+                    type="number"
+                    value={offer.promotional_price ?? ''}
+                    onChange={(e) => setOffer({ ...(offer as OfferData), promotional_price: e.target.value === '' ? null : Number(e.target.value) })}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="Laisser vide si pas de promotion"
+                  />
+                </label>
+                <label className="text-sm">
+                  Devise
+                  <input
+                    type="text"
+                    value={offer.promotional_price_currency || 'EUR'}
+                    onChange={(e) => setOffer({ ...(offer as OfferData), promotional_price_currency: e.target.value })}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  />
+                </label>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="text-sm">
+                  Date de début de promotion
+                  <input
+                    type="date"
+                    value={offer.promotion_start_date || ''}
+                    onChange={(e) => setOffer({ ...(offer as OfferData), promotion_start_date: e.target.value || null })}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  />
+                </label>
+                <label className="text-sm">
+                  Date de fin de promotion
+                  <input
+                    type="date"
+                    value={offer.promotion_end_date || ''}
+                    onChange={(e) => setOffer({ ...(offer as OfferData), promotion_end_date: e.target.value || null })}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  />
+                </label>
+              </div>
+              <label className="text-sm">
+                Description de la promotion
+                <input
+                  type="text"
+                  value={offer.promotion_description || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), promotion_description: e.target.value || null })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="Ex: Offre spéciale été, Réduction early bird..."
+                />
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Inclusions et exclusions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              <label className="text-sm">
+                Nos tarifs comprennent
+                <textarea
+                  value={offer.price_includes || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), price_includes: e.target.value || null })}
+                  className="mt-1 w-full min-h-[120px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="• Hébergement en pension complète&#10;• Vols internationaux&#10;• Transferts aéroport&#10;• Guide francophone&#10;• Assurance voyage..."
+                />
+              </label>
+              <label className="text-sm">
+                Nos tarifs ne comprennent pas
+                <textarea
+                  value={offer.price_excludes || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), price_excludes: e.target.value || null })}
+                  className="mt-1 w-full min-h-[120px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="• Boissons alcoolisées&#10;• Pourboires&#10;• Dépenses personnelles&#10;• Excursions optionnelles&#10;• Visa (si requis)..."
                 />
               </label>
             </div>

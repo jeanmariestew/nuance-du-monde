@@ -21,10 +21,21 @@ export async function POST(req: Request) {
     slug,
     summary = '',
     description = '',
-    image_url = '',
+    images = [] as any[],
     is_active = 1,
     price = null,
     price_currency = 'EUR',
+    promotional_price = null,
+    promotional_price_currency = 'EUR',
+    promotion_start_date = null,
+    promotion_end_date = null,
+    promotion_description = null,
+    price_includes = null,
+    price_excludes = null,
+    label = null,
+    duration_days = null,
+    duration_nights = null,
+    available_dates = [] as string[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -36,9 +47,9 @@ export async function POST(req: Request) {
   try {
     await conn.beginTransaction();
     const [res]: any = await conn.query(
-      `INSERT INTO offers (title, slug, short_description, description, image_main, is_active, price, price_currency)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, summary, description, image_url, is_active ? 1 : 0, price, price_currency]
+      `INSERT INTO offers (title, slug, short_description, description, is_active, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights]
     );
     const offerId = res.insertId as number;
 
@@ -64,8 +75,40 @@ export async function POST(req: Request) {
       );
     }
 
+    // Save available dates
+    if (Array.isArray(available_dates) && available_dates.length > 0) {
+      const validDates = available_dates.filter(date => date && date.trim());
+      if (validDates.length > 0) {
+        const placeholders = validDates.map(() => '(?, ?)').join(', ');
+        const values = validDates.flatMap((date: string) => [offerId, date]);
+        await conn.query(
+          `INSERT INTO offer_dates (offer_id, departure_date) VALUES ${placeholders}`,
+          values
+        );
+      }
+    }
+
+    // Save images
+    if (Array.isArray(images) && images.length > 0) {
+      const validImages = images.filter(img => img && img.image_url);
+      if (validImages.length > 0) {
+        const placeholders = validImages.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const values = validImages.flatMap((img: any, index: number) => [
+          offerId,
+          img.image_url,
+          img.image_type || 'gallery',
+          img.alt_text || '',
+          img.sort_order !== undefined ? img.sort_order : index
+        ]);
+        await conn.query(
+          `INSERT INTO offer_images (offer_id, image_url, image_type, alt_text, sort_order) VALUES ${placeholders}`,
+          values
+        );
+      }
+    }
+
     await conn.commit();
-    return NextResponse.json({ success: true, id: offerId });
+    return NextResponse.json({ success: true, data: { id: offerId } });
   } catch (e: any) {
     await conn.rollback();
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
