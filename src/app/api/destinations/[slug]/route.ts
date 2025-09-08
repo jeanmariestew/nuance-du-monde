@@ -4,10 +4,10 @@ import { Destination, ApiResponse } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params as { slug: string };
+    const { slug } = await context.params;
 
     const query = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
     const [rows] = await pool.execute(query, [slug]);
@@ -24,7 +24,7 @@ export async function GET(
     const destination = destinations[0];
 
     // Parser les dates disponibles si elles existent
-    if (destination.available_dates) {
+    if (destination.available_dates && typeof destination.available_dates === 'string') {
       try {
         destination.available_dates = JSON.parse(destination.available_dates);
       } catch (e) {
@@ -50,10 +50,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params as { slug: string };
+    const { slug } = await context.params;
     const body = await request.json();
 
     const {
@@ -120,10 +120,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params as { slug: string };
+    const { slug } = await context.params;
 
     const query = 'DELETE FROM destinations WHERE slug = ?';
     const [result] = await pool.execute(query, [slug]);

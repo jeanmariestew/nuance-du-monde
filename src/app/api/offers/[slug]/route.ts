@@ -3,10 +3,10 @@ import pool from '@/lib/db';
 
 export async function GET(
   _req: Request,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params as { slug: string };
+    const { slug } = await context.params;
     const conn = await pool.getConnection();
     try {
       const [offerRows] = await conn.query(
