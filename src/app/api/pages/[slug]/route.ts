@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import pool from '@/lib/db';
 import { Page, ApiResponse } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await params;
+    const { slug } = params;
 
-    const squery = 'SELECT * FROM pages WHERE slug = ? AND is_active = true';
-    const rows = await query(squery, [slug]);
+    const query = 'SELECT * FROM pages WHERE slug = ? AND is_active = true';
+    const [rows] = await pool.execute(query, [slug]);
     const pages = rows as Page[];
 
     if (pages.length === 0) {

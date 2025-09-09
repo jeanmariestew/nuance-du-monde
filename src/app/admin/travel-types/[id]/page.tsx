@@ -7,9 +7,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 export default function EditTravelTypePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const [id, setId] = useState<number | null>(null);
+  const id = Number(params.id);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -26,15 +26,7 @@ export default function EditTravelTypePage({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Resolve params
   useEffect(() => {
-    params.then(({ id: paramId }) => {
-      setId(Number(paramId));
-    });
-  }, [params]);
-
-  useEffect(() => {
-    if (id === null) return;
     let mounted = true;
     (async () => {
       try {
@@ -167,7 +159,7 @@ export default function EditTravelTypePage({
           </button>
         </div>
       </div>
-      {loading || id === null ? (
+      {loading ? (
         <div className="p-4 text-sm text-neutral-600 inline-flex items-center gap-2">
           <Spinner /> Chargement…
         </div>

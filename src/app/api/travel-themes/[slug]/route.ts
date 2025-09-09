@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import pool from "@/lib/db";
 import { TravelTheme, ApiResponse } from "@/types";
-import { query } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await context.params;
-    const squery = "SELECT * FROM travel_themes WHERE slug = ? AND is_active = true";
-    const rows = await query(squery, [slug]);
+    const { slug } = await context.params as { slug: string };
+    const query = "SELECT * FROM travel_themes WHERE slug = ? AND is_active = true";
+    const [rows] = await pool.execute(query, [slug]);
     const themes = rows as TravelTheme[];
 
     if (themes.length === 0) {

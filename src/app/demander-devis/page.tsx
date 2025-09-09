@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Destination, TravelType, TravelTheme } from '@/types';
 
-function DemanderDevisForm() {
+export default function DemanderDevisPage() {
   const searchParams = useSearchParams();
   const destinationSlug = searchParams.get('destination');
 
@@ -378,25 +378,6 @@ function DemanderDevisForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function DemanderDevisPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-800 mb-4">Demander un devis</h1>
-              <p className="text-lg text-gray-600">Chargement...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    }>
-      <DemanderDevisForm />
-    </Suspense>
   );
 }
 

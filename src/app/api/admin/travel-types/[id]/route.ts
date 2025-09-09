@@ -1,22 +1,23 @@
 import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import pool from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic'; // Prevent static optimization
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const { id: paramId } = await params;
-    const id = Number(paramId);
+    const id = Number(params.id);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
     
-    const rows = await query('SELECT * FROM travel_types WHERE id = ?', [id]);
+    connection = await pool.getConnection();
+    const [rows] = await connection.query('SELECT * FROM travel_types WHERE id = ?', [id]);
     const items = rows as unknown[];
     
     if (!items.length) {
@@ -30,18 +31,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       { success: false, error: 'Database error' }, 
       { status: 500 }
     );
+  } finally {
+    if (connection) connection.release();
   }
 }
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const { id: paramId } = await params;
-    const id = Number(paramId);
+    const id = Number(params.id);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
@@ -61,7 +63,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
     }
     
-    await query(
+    connection = await pool.getConnection();
+    await connection.query(
       `UPDATE travel_types 
        SET title=?, slug=?, description=?, short_description=?, image_url=?, sort_order=?, is_active=?, updated_at=NOW() 
        WHERE id=?`,
@@ -75,22 +78,25 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       { success: false, error: error || 'Database error' }, 
       { status: 500 }
     );
+  } finally {
+    if (connection) connection.release();
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const { id: paramId } = await params;
-    const id = Number(paramId);
+    const id = Number(params.id);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
     
-    await query('DELETE FROM travel_types WHERE id = ?', [id]);
+    connection = await pool.getConnection();
+    await connection.query('DELETE FROM travel_types WHERE id = ?', [id]);
     
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -99,5 +105,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
       { success: false, error: error || 'Database error' }, 
       { status: 500 }
     );
+  } finally {
+    if (connection) connection.release();
   }
 }

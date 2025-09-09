@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import pool from '@/lib/db';
 import { Destination, ApiResponse } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = await context.params as { slug: string };
 
-    const squery = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
-    const rows = await query(squery, [slug]);
+    const query = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
+    const [rows] = await pool.execute(query, [slug]);
     const destinations = rows as Destination[];
 
     if (destinations.length === 0) {
@@ -24,7 +24,7 @@ export async function GET(
     const destination = destinations[0];
 
     // Parser les dates disponibles si elles existent
-    if (destination.available_dates && typeof destination.available_dates === 'string') {
+    if (destination.available_dates) {
       try {
         destination.available_dates = JSON.parse(destination.available_dates);
       } catch (e) {
@@ -50,10 +50,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = await context.params as { slug: string };
     const body = await request.json();
 
     const {
@@ -73,7 +73,7 @@ export async function PUT(
       is_active
     } = body;
 
-    const squery = `
+    const query = `
       UPDATE destinations SET
         title = ?, description = ?, short_description = ?, image_url = ?,
         banner_image_url = ?, price_from = ?, price_currency = ?,
@@ -91,7 +91,7 @@ export async function PUT(
       sort_order, is_active, slug
     ];
 
-    const result = await query(squery, params);
+    const [result] = await pool.execute(query, params);
     const updateResult = result as any;
 
     if (updateResult.affectedRows === 0) {
@@ -120,13 +120,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = await context.params as { slug: string };
 
-    const squery = 'DELETE FROM destinations WHERE slug = ?';
-    const result = await query(squery, [slug]);
+    const query = 'DELETE FROM destinations WHERE slug = ?';
+    const [result] = await pool.execute(query, [slug]);
     const deleteResult = result as any;
 
     if (deleteResult.affectedRows === 0) {

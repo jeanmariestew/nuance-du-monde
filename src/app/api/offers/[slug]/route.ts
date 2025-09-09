@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import pool from '@/lib/db';
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await context.params;
+    const { slug } = await context.params as { slug: string };
+    const conn = await pool.getConnection();
     try {
-      const offerRows = await query(
+      const [offerRows] = await conn.query(
         'SELECT * FROM offers WHERE slug = ? AND is_active = 1 LIMIT 1',
         [slug]
       );
@@ -21,32 +22,32 @@ export async function GET(
       }
       const offer = offers[0];
 
-      const types = await query(
+      const [types] = await conn.query(
         `SELECT tt.*
          FROM offer_travel_types ott
          JOIN travel_types tt ON tt.id = ott.travel_type_id
          WHERE ott.offer_id = ?`,
         [offer.id]
       );
-      const themes = await query(
+      const [themes] = await conn.query(
         `SELECT th.*
          FROM offer_travel_themes oth
          JOIN travel_themes th ON th.id = oth.travel_theme_id
          WHERE oth.offer_id = ?`,
         [offer.id]
       );
-      const dests = await query(
+      const [dests] = await conn.query(
         `SELECT d.*
          FROM offer_destinations od
          JOIN destinations d ON d.id = od.destination_id
          WHERE od.offer_id = ?`,
         [offer.id]
       );
-      const dates = await query(
+      const [dates] = await conn.query(
         `SELECT * FROM offer_dates WHERE offer_id = ? ORDER BY departure_date ASC`,
         [offer.id]
       );
-      const images = await query(
+      const [images] = await conn.query(
         `SELECT id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id = ? ORDER BY sort_order, id`,
         [offer.id]
       );
@@ -71,14 +72,10 @@ export async function GET(
           dates,
         },
       });
-    }catch (error) {
-      console.error('Erreur chargement offre:', error);
-      return NextResponse.json(
-        { success: false, error: 'Erreur serveur' },
-        { status: 500 }
-      );
+    } finally {
+      conn.release();
     }
-  }catch (error) {
+  } catch (error) {
     console.error('Erreur chargement offre:', error);
     return NextResponse.json(
       { success: false, error: 'Erreur serveur' },
