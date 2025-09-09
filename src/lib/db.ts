@@ -1,5 +1,5 @@
 // lib/db.ts
-import mysql from 'mysql2/promise';
+import mysql, { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
 
 // Configuration de la base de données
 const dbConfig = {
@@ -22,10 +22,18 @@ let pool: mysql.Pool;
 if (!globalThis.mysqlPool) {
   globalThis.mysqlPool = mysql.createPool(dbConfig);
 }
+// eslint-disable-next-line prefer-const
 pool = globalThis.mysqlPool;
 
-export async function query<T = unknown>(sql: string, params: unknown[] = []): Promise<T> {
-  const [results] = await pool.execute<T>(sql, params);
+// Fonction pour les requêtes SELECT qui retournent des données
+export async function query<T extends RowDataPacket = RowDataPacket>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const [results] = await pool.execute<T[]>(sql, params);
+  return results;
+}
+
+// Fonction pour les requêtes INSERT/UPDATE/DELETE qui retournent des métadonnées
+export async function execute(sql: string, params: unknown[] = []): Promise<ResultSetHeader> {
+  const [results] = await pool.execute<ResultSetHeader>(sql, params);
   return results;
 }
 

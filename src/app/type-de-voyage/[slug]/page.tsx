@@ -6,11 +6,12 @@ import { generateMetadata as getMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  return await getMetadata('travel-type', params.slug);
+  const { slug } = await params;
+  return await getMetadata('travel-type', slug);
 }
 
 async function getTravelTypeData(slug: string): Promise<{ type: TravelType | null; offers: Offer[] }> {
@@ -33,8 +34,8 @@ async function getTravelTypeData(slug: string): Promise<{ type: TravelType | nul
   }
 }
 
-export default async function TravelTypeDetailPage({ params }: PageProps) {
-  const slug = params.slug;
+export default async function TravelTypePage({ params }: PageProps) {
+  const { slug } = await params;
   const { type, offers } = await getTravelTypeData(slug);
 
   if (!type) {

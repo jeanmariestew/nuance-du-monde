@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { PageMetadata } from '@/types';
 
 // GET /api/admin/metadata - Récupérer toutes les métadonnées de pages
@@ -77,11 +77,11 @@ export async function POST(request: NextRequest) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const result = await query(sql, [
+    const result = await execute(sql, [
       page_type, page_slug, meta_title, meta_description, meta_keywords,
       og_title, og_description, og_image, og_type, twitter_card,
       twitter_title, twitter_description, twitter_image, canonical_url, robots
-    ]) as { insertId: number };
+    ]);
 
     return NextResponse.json({
       success: true,

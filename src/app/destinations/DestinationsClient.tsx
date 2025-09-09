@@ -117,7 +117,7 @@ export default function DestinationsClient() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">Pas d'image</span>
+                          <span className="text-gray-400">Pas d&apos;image</span>
                         </div>
                       )}
                       <h2 className="absolute z-20 bottom-4 text-2xl font-[Alro] text-center w-full text-white">{destination.title}</h2>

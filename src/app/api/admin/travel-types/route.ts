@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import {  NextResponse } from 'next/server';
+import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic'; // Prevent static optimization
@@ -35,29 +35,29 @@ export async function POST(req: Request) {
       short_description = '', 
       image_url = '', 
       sort_order = 0,
-      is_active = 1 
+      is_active = 1,
+      meta_title = '',
+      meta_description = '',
+      meta_keywords = '',
+      og_title = '',
+      og_description = '',
+      og_image = '',
+      canonical_url = ''
     } = body || {};
     
     if (!title || !slug) {
       return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
     }
     
-    const result = await query(
-      `INSERT INTO travel_types 
-       (title, slug, description, short_description, image_url, sort_order, is_active) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+    const result = await execute(
+      'INSERT INTO travel_types (title, slug, description, short_description, image_url, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
-        title, 
-        slug, 
-        description, 
-        short_description, 
-        image_url, 
-        sort_order, 
-        is_active ? 1 : 0
+        title, slug, description, short_description, image_url, sort_order, is_active ? 1 : 0,
+        meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url
       ]
     );
     
-    return NextResponse.json({ success: true, data: { id: (result as any).insertId } });
+    return NextResponse.json({ success: true, data: { id: result.insertId } });
   } catch (error: any) {
     console.error('Database error:', error);
     return NextResponse.json(

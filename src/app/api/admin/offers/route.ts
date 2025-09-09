@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 // List offers (basic fields)
@@ -44,12 +44,12 @@ export async function POST(req: Request) {
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
 
   try {
-    const [res]: any = await query(
+    const res = await execute(
       `INSERT INTO offers (title, slug, short_description, description, is_active, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights]
     );
-    const offerId = res.insertId as number;
+    const offerId = res.insertId;
 
     if (Array.isArray(typeIds) && typeIds.length) {
       await query(
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, data: { id: offerId } });
-  }catch(e){
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+  } catch(e) {
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   }
 }

@@ -6,11 +6,12 @@ import { generateMetadata as getMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  return await getMetadata('theme', params.slug);
+  const { slug } = await params;
+  return await getMetadata('theme', slug);
 }
 
 async function getThemeData(slug: string): Promise<{ theme: TravelTheme | null; offers: Offer[] }> {
@@ -33,8 +34,8 @@ async function getThemeData(slug: string): Promise<{ theme: TravelTheme | null; 
   }
 }
 
-export default async function ThemeDetailPage({ params }: PageProps) {
-  const slug = params.slug;
+export default async function ThemePage({ params }: PageProps) {
+  const { slug } = await params;
   const { theme, offers } = await getThemeData(slug);
 
   if (!theme) {

@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     const params = [title, slug, description, short_description, image_url, banner_image_url, sort_order];
 
     const result = await query(squery, params);
-    const insertResult = result as ResultSetHeader;
+    const insertResult = result as unknown as ResultSetHeader;
 
     const response: ApiResponse<{ id: number }> = {
       success: true,

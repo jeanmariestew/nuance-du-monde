@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {query} from '@/lib/db';
-import { NewsletterSubscription, ApiResponse } from '@/types';
+import { query, execute } from '@/lib/db';
+import { ApiResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     // Vérifier si l'email existe déjà
     const checkQuery = 'SELECT id, is_active FROM newsletter_subscriptions WHERE email = ?';
     const existingRows = await query(checkQuery, [email]);
-    const existing = existingRows as NewsletterSubscription[];
+    const existing = existingRows as any[];
 
     if (existing.length > 0) {
       const subscription = existing[0];
@@ -60,7 +60,10 @@ export async function POST(request: NextRequest) {
     // Créer un nouvel abonnement
     const insertQuery = 'INSERT INTO newsletter_subscriptions (email, is_active) VALUES (?, true)';
     const result = await query(insertQuery, [email]);
-    const insertResult = result as any;
+    const insertResult = await execute(
+      'INSERT INTO newsletter_subscriptions (email, is_active, subscribed_at) VALUES (?, 1, NOW())',
+      [email]
+    );
 
     // TODO: Envoyer un email de bienvenue
 
