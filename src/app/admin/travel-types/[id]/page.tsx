@@ -7,9 +7,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 export default function EditTravelTypePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const id = Number(params.id);
+  const [id, setId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -26,7 +26,16 @@ export default function EditTravelTypePage({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // Résoudre les paramètres async de Next.js 15
   useEffect(() => {
+    params.then((resolvedParams) => {
+      setId(Number(resolvedParams.id));
+    });
+  }, [params]);
+
+  useEffect(() => {
+    if (id === null) return; // Attendre que l'id soit résolu
+    
     let mounted = true;
     (async () => {
       try {

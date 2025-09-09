@@ -4,10 +4,10 @@ import { TravelTheme, ApiResponse } from "@/types";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params as { slug: string };
+    const { slug } = await context.params;
     const query = "SELECT * FROM travel_themes WHERE slug = ? AND is_active = true";
     const [rows] = await pool.execute(query, [slug]);
     const themes = rows as TravelTheme[];

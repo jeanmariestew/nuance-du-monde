@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Destination, TravelType, TravelTheme } from '@/types';
 
-export default function DemanderDevisPage() {
+function DemanderDevisForm() {
   const searchParams = useSearchParams();
   const destinationSlug = searchParams.get('destination');
 
@@ -378,6 +378,21 @@ export default function DemanderDevisPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DemanderDevisPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    }>
+      <DemanderDevisForm />
+    </Suspense>
   );
 }
 

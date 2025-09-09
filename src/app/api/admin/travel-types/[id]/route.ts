@@ -4,14 +4,15 @@ import { hasValidAdminToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic'; // Prevent static optimization
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const id = Number(params.id);
+    const { id: idParam } = await params;
+    const id = Number(idParam);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
@@ -36,14 +37,15 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const id = Number(params.id);
+    const { id: idParam } = await params;
+    const id = Number(idParam);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
@@ -83,14 +85,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    const id = Number(params.id);
+    const { id: idParam } = await params;
+    const id = Number(idParam);
     if (!id) {
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }

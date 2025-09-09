@@ -1,7 +1,7 @@
 "use client";
 
 import OfferCard from '@/components/cards/OfferCard';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface OfferListItem {
@@ -14,7 +14,7 @@ interface OfferListItem {
   price_currency?: string;
 }
 
-export default function OffersListPage() {
+function OffersListContent() {
   const searchParams = useSearchParams();
   const destination = searchParams.get("destination");
   const type = searchParams.get("type");
@@ -83,5 +83,30 @@ export default function OffersListPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function OffersListPage() {
+  return (
+    <Suspense fallback={
+      <div>
+        <section className="bg-gray-100 py-10">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl md:text-4xl font-bold">Nos offres</h1>
+            <p className="text-gray-600 mt-2">Chargement des offres...</p>
+          </div>
+        </section>
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="text-center text-gray-600">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
+              <p className="mt-4">Chargement...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    }>
+      <OffersListContent />
+    </Suspense>
   );
 }
