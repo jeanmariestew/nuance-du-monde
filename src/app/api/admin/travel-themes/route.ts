@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export async function GET() {
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   } = body || {};
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
   try {
-    const [res]: any = await query(
+    const res = await execute(
       'INSERT INTO travel_themes (title, slug, description, short_description, image_url, banner_image_url, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
       [title, slug, description, short_description, image_url, banner_image_url, sort_order, is_active ? 1 : 0]
     );

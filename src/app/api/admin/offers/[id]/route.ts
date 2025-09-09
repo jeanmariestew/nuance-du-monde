@@ -149,7 +149,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   } 
 }
 
@@ -166,6 +166,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     await query('DELETE FROM offers WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   } 
 }

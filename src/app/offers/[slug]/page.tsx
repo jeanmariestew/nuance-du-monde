@@ -43,11 +43,12 @@ interface OfferDetail {
 }
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  return await getMetadata('offer', params.slug);
+  const { slug } = await params;
+  return await getMetadata('offer', slug);
 }
 
 async function getOffer(slug: string): Promise<OfferDetail | null> {
@@ -62,7 +63,7 @@ async function getOffer(slug: string): Promise<OfferDetail | null> {
 }
 
 export default async function OfferDetailPage({ params }: PageProps) {
-  const slug = params.slug;
+  const { slug } = await params;
   const offer = await getOffer(slug);
 
   if (!offer) {

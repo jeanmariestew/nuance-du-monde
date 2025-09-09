@@ -20,8 +20,8 @@ export async function GET() {
     `);
 
     // Check if we have any partners, if not, insert initial data
-    const countResult = await query('SELECT COUNT(*) as count FROM partners');
-    const count = (countResult as any[])[0].count;
+    const countResult = await query('SELECT COUNT(*) as count FROM partners') as Array<{count: number}>;
+    const count = countResult[0].count;
     
     if (count === 0) {
       await query(`
@@ -35,7 +35,7 @@ export async function GET() {
 
     const rows = await query('SELECT id, name, agency, logo_url as image_url, website_url, sort_order, is_active, created_at, updated_at FROM partners WHERE is_active = 1 ORDER BY sort_order ASC, created_at DESC');
     return NextResponse.json({ success: true, data: rows });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+  } catch (e) {
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   }
 }

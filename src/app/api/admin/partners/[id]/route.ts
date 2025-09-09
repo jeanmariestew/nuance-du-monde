@@ -36,8 +36,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       [name, agency, logo_url, website_url, sort_order, is_active ? 1 : 0, id]
     );
     return NextResponse.json({ success: true });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+  } catch (e) {
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -49,7 +49,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   try {
     await query('DELETE FROM partners WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+  } catch (e) {
+    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   }
 }

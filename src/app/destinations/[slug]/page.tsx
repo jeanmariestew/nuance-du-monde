@@ -6,13 +6,14 @@ import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  return await getMetadata("destination", params.slug);
+  const { slug } = await params;
+  return await getMetadata("destination", slug);
 }
 
 async function getDestination(
@@ -48,7 +49,7 @@ async function getDestination(
 }
 
 export default async function DestinationPage({ params }: PageProps) {
-  const slug = params.slug;
+  const { slug } = await params;
   const { destination, offers } = await getDestination(slug);
 
   if (!destination) {
@@ -135,6 +136,7 @@ export default async function DestinationPage({ params }: PageProps) {
                   </p>
                 ) : (
                   <div className="space-y-6">
+
                     {offers.map((offer: Offer) => (
                       <OfferCard key={offer.slug} offer={offer} />
                     ))}
