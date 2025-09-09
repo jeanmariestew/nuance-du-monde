@@ -90,7 +90,7 @@ export default async function TravelTypePage({ params }: PageProps) {
           {offers.length === 0 ? (
             <div className="text-gray-600">Aucune offre pour ce type.</div>
           ) : (
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />
               ))}

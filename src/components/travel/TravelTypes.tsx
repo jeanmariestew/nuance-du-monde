@@ -20,14 +20,25 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
           key={travelType.id}
           className="relative bg-cover bg-center h-[400px] rounded-lg overflow-hidden group cursor-pointer"
         >
-          {travelType.image_url && (
+          {travelType.image_url ? (
             <Image
               src={travelType.image_url}
               alt={travelType.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               priority
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/images/destination_fond.png";
+              }}
             />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+              <div className="text-white text-center">
+                <div className="text-4xl mb-2">🌍</div>
+                <p className="text-sm">Image à venir</p>
+              </div>
+            </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/80"></div>
           <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">

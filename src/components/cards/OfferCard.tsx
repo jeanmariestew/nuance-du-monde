@@ -9,6 +9,7 @@ type Props = { offer: Offer };
 export default function OfferCard({ offer }: Props) {
   // Extract data from offer
   const destination = offer.destinations?.[0]?.title || offer.title;
+  console.log("offer", offer)
   const title = offer.title;
   const duration = offer.duration_days
     ? `${offer.duration_days} jours et ${offer.duration_nights} nuits`
@@ -16,13 +17,13 @@ export default function OfferCard({ offer }: Props) {
   const price = offer.price_from?.toLocaleString("fr-FR") || "";
   const currency = offer.price_currency || "$";
   const imageUrl =
-    offer.image_main || offer.image_url || "/images/default-destination.jpg";
+    offer.image_main || offer.image_url || "/images/destination_fond.png";
   const category = offer.travel_types?.[0]?.title || "Voyage";
   const description = offer.short_description || "";
   return (
     <Link href={`/offers/${offer.slug}`} className="block">
-      <div className="bg-white rounded-3xl shadow-lg overflow-hidden max-w-2xl mx-auto hover:shadow-xl transition-shadow">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+      <div className="bg-white rounded-3xl shadow-lg overflow-hidden max-w-2xl mx-auto hover:shadow-xl transition-shadow h-[400px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
           {/* Left side - Image */}
           <div className="relative h-64 md:h-full">
             <Image
@@ -30,6 +31,10 @@ export default function OfferCard({ offer }: Props) {
               alt={destination}
               fill
               className="object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/images/destination_fond.png";
+              }}
             />
             {/* Overlay text */}
             <div className="absolute bottom-4 left-4 text-white">
@@ -39,8 +44,8 @@ export default function OfferCard({ offer }: Props) {
           </div>
 
           {/* Right side - Content */}
-          <div className="p-6 flex flex-col justify-between">
-            <div>
+          <div className="p-6 flex flex-col justify-between h-full">
+            <div className="flex-1 overflow-y-auto pr-2">
               <h2 className="text-2xl font-bold text-yellow-600 mb-4">
                 {title}
               </h2>
@@ -52,10 +57,6 @@ export default function OfferCard({ offer }: Props) {
                     alt=""
                     className="w-5 h-5 text-gray-600"
                   />
-                  {/* <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg> */}
                 </div>
                 <div>
                   <p className="text-gray-800 font-medium leading-relaxed">
@@ -69,7 +70,7 @@ export default function OfferCard({ offer }: Props) {
             </div>
 
             {/* Price section */}
-            <div className="border-2 border-blue-300 rounded-xl p-4 bg-blue-50/30">
+            <div className="border-2 border-blue-300 rounded-xl p-4 bg-blue-50/30 mt-4 flex-shrink-0">
               <p className="text-sm text-gray-600 mb-1">À partir de</p>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-yellow-600">
