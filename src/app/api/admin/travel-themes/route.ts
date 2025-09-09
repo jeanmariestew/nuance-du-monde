@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export async function GET() {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  const [rows] = await pool.query('SELECT * FROM travel_themes ORDER BY created_at DESC');
+  const rows = await query('SELECT * FROM travel_themes ORDER BY created_at DESC');
   return NextResponse.json({ success: true, data: rows });
 }
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   } = body || {};
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
   try {
-    const [res]: any = await pool.query(
+    const [res]: any = await query(
       'INSERT INTO travel_themes (title, slug, description, short_description, image_url, banner_image_url, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
       [title, slug, description, short_description, image_url, banner_image_url, sort_order, is_active ? 1 : 0]
     );

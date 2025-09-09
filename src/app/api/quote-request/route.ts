@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { QuoteRequest, ApiResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    const query = `
+    const squery = `
       INSERT INTO quote_requests (
         first_name, last_name, email, phone, destination_id, travel_theme_id,
         travel_type_id, departure_date, return_date, number_of_travelers,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       budget_range, special_requests
     ];
 
-    const [result] = await pool.execute(query, params);
+    const result = await query(squery, params);
     const insertResult = result as any;
 
     // TODO: Envoyer un email de notification à l'équipe
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const offset = searchParams.get('offset');
     const status = searchParams.get('status');
 
-    let query = `
+    let squery = `
       SELECT qr.*, d.title as destination_title, th.title as theme_title, tt.title as type_title
       FROM quote_requests qr
       LEFT JOIN destinations d ON qr.destination_id = d.id
@@ -94,25 +94,25 @@ export async function GET(request: NextRequest) {
 
     // Filtrer par statut si spécifié
     if (status) {
-      query += ' WHERE qr.status = ?';
+      squery += ' WHERE qr.status = ?';
       params.push(status);
     }
 
     // Ajouter l'ordre
-    query += ' ORDER BY qr.created_at DESC';
+    squery += ' ORDER BY qr.created_at DESC';
 
     // Ajouter la pagination si spécifiée
     if (limit) {
-      query += ' LIMIT ?';
+      squery += ' LIMIT ?';
       params.push(parseInt(limit));
       
       if (offset) {
-        query += ' OFFSET ?';
+        squery += ' OFFSET ?';
         params.push(parseInt(offset));
       }
     }
 
-    const [rows] = await pool.execute(query, params);
+    const rows = await query(squery, params);
     const quoteRequests = rows as QuoteRequest[];
 
     const response: ApiResponse<QuoteRequest[]> = {

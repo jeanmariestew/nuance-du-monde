@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export async function GET() {
@@ -7,7 +7,7 @@ export async function GET() {
   
   try {
     // Create table if it doesn't exist
-    await pool.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS partners (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(191) NOT NULL,
@@ -22,7 +22,7 @@ export async function GET() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
-    const [rows] = await pool.query('SELECT * FROM partners ORDER BY sort_order ASC, created_at DESC');
+    const rows = await query('SELECT * FROM partners ORDER BY sort_order ASC, created_at DESC');
     return NextResponse.json({ success: true, data: rows });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   if (!name || !agency) return NextResponse.json({ success: false, error: 'name et agency requis' }, { status: 400 });
   
   try {
-    const [res]: any = await pool.query(
+    const [res]: any = await query(
       `INSERT INTO partners (name, agency, logo_url, website_url, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?)`,
       [name, agency, logo_url, website_url, sort_order, is_active ? 1 : 0]
     );

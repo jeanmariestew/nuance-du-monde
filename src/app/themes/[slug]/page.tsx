@@ -1,72 +1,48 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { Offer, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
+import { generateMetadata as getMetadata } from '@/lib/metadata';
+import type { Metadata } from 'next';
 
-export default function ThemeDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [theme, setTheme] = useState<TravelTheme | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [offersLoading, setOffersLoading] = useState(false);
-  const [offersError, setOffersError] = useState<string | null>(null);
+interface PageProps {
+  params: { slug: string };
+}
 
-  useEffect(() => {
-    const fetchTheme = async () => {
-      try {
-        const response = await fetch(`/api/travel-themes/${slug}`);
-        const data = await response.json();
-        if (data.success) setTheme(data.data);
-        else setError(data.error || "Thème non trouvé");
-      } catch (e) {
-        setError("Erreur lors du chargement du thème");
-      } finally {
-        setLoading(false);
-      }
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  return await getMetadata('theme', params.slug);
+}
+
+async function getThemeData(slug: string): Promise<{ theme: TravelTheme | null; offers: Offer[] }> {
+  try {
+    const [themeRes, offersRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-themes/${slug}`, { cache: 'no-store' }),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers?theme=${encodeURIComponent(slug)}`, { cache: 'no-store' })
+    ]);
+
+    const themeData = await themeRes.json();
+    const offersData = await offersRes.json();
+
+    return {
+      theme: themeData.success ? themeData.data : null,
+      offers: offersData.success ? offersData.data : []
     };
-    if (slug) {
-      fetchTheme();
-      const fetchOffers = async () => {
-        setOffersLoading(true);
-        try {
-          const res = await fetch(`/api/offers?theme=${encodeURIComponent(slug)}`);
-          const data = await res.json();
-          if (data.success) setOffers(data.data as Offer[]);
-          else setOffersError(data.error || "Aucune offre trouvée pour ce thème");
-        } catch (err) {
-          console.error("Erreur lors du chargement des offres (thème):", err);
-          setOffersError((err as Error).message || "Erreur lors du chargement des offres");
-        } finally {
-          setOffersLoading(false);
-        }
-      };
-      fetchOffers();
-    }
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Chargement du thème...</p>
-        </div>
-      </div>
-    );
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+    return { theme: null, offers: [] };
   }
+}
 
-  if (error || !theme) {
+export default async function ThemeDetailPage({ params }: PageProps) {
+  const slug = params.slug;
+  const { theme, offers } = await getThemeData(slug);
+
+  if (!theme) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Thème non trouvé</h1>
-          <p className="text-gray-600 mb-8">{error}</p>
+          <p className="text-gray-600 mb-8">Ce thème n&apos;existe pas ou n&apos;est plus disponible.</p>
           <Link href="/themes" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
             Retour aux thèmes
           </Link>
@@ -112,12 +88,9 @@ export default function ThemeDetailPage() {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce thème</h2>
-          {offersLoading && <div className="text-gray-600">Chargement des offres…</div>}
-          {offersError && <div className="text-red-600">{offersError}</div>}
-          {!offersLoading && !offersError && offers.length === 0 && (
+          {offers.length === 0 ? (
             <div className="text-gray-600">Aucune offre pour ce thème.</div>
-          )}
-          {offers.length > 0 && (
+          ) : (
             <div className="grid grid-cols-1 gap-6">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />

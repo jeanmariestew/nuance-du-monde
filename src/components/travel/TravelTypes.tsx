@@ -29,10 +29,10 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
               priority
             />
           )}
-          <div className="absolute inset-0 bg-black/40"></div>
-          <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/80"></div>
+          <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
             <div>
-              <h3 className="text-2xl font-bold mb-4">{travelType.title}</h3>
+              <h3 className="text-2xl font-bold mb-4 font-[Alro]">{travelType.title}</h3>
               {travelType.short_description && (
                 <p className="text-sm leading-relaxed">
                   {travelType.short_description}
@@ -42,7 +42,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
             <div className="flex items-center justify-between">
               <Link
                 href={`/type-de-voyage/${travelType.slug}`}
-                className="bg-[#d9a900] text-white px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition-colors"
+                className="bg-[#d9a900] text-white text-sm px-4 py-2 rounded font-semibold   transition-colors"
               >
                 Explorer
               </Link>

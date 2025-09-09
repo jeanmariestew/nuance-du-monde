@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic'; // Prevent static optimization
 
 export async function GET() {
-  let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     
-    connection = await pool.getConnection();
-    const [rows] = await connection.query('SELECT * FROM travel_types ORDER BY created_at DESC');
+    const rows = await query('SELECT * FROM travel_types ORDER BY created_at DESC');
     return NextResponse.json({ success: true, data: rows });
   } catch (error) {
     console.error('Database error:', error);
@@ -20,13 +18,10 @@ export async function GET() {
       { success: false, error: 'Database error' }, 
       { status: 500 }
     );
-  } finally {
-    if (connection) connection.release();
   }
 }
 
 export async function POST(req: Request) {
-  let connection;
   try {
     if (!(await hasValidAdminToken())) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -47,8 +42,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
     }
     
-    connection = await pool.getConnection();
-    const [result] = await connection.query(
+    const result = await query(
       `INSERT INTO travel_types 
        (title, slug, description, short_description, image_url, sort_order, is_active) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`, 
@@ -70,7 +64,5 @@ export async function POST(req: Request) {
       { success: false, error: error.message || 'Database error' }, 
       { status: 500 }
     );
-  } finally {
-    if (connection) connection.release();
   }
 }

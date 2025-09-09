@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/lib/db";
 import { TravelType, ApiResponse } from "@/types";
+import { query } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
@@ -8,8 +8,8 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const query = "SELECT * FROM travel_types WHERE slug = ? AND is_active = true";
-    const [rows] = await pool.execute(query, [slug]);
+    const squery = "SELECT * FROM travel_types WHERE slug = ? AND is_active = true";
+    const rows = await query(squery, [slug]);
     const types = rows as TravelType[];
 
     if (types.length === 0) {

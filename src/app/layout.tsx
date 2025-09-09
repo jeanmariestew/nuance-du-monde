@@ -1,14 +1,13 @@
 import type { Metadata } from 'next'
-import { Roboto } from 'next/font/google'
+import { Quicksand } from 'next/font/google'
 import './globals.css'
 import AppFrame from '@/components/AppFrame'
+import { generateMetadata as getMetadata } from '@/lib/metadata'
 
-const roboto = Roboto({ subsets: ['latin'], weight: ['300','400','500','700','900'], variable: '--font-roboto' })
+const quicksand = Quicksand({ subsets: ['latin'], weight: ['300','400','500','700'], variable: '--font-roboto' })
 
-export const metadata: Metadata = {
-  title: 'Nuance du monde votre spécialiste du voyage sur mesure',
-  description: 'Créez avec nous votre voyage sur mesure, partout dans le monde. Nous vous faisons vivre des expériences authentiques et confortables, et ce, au meilleur prix du marché.',
-  keywords: 'voyage sur mesure, agence de voyage, destinations, circuits, voyages en groupe, voyages individuels',
+export async function generateMetadata(): Promise<Metadata> {
+  return await getMetadata('page', 'home');
 }
 
 export default function RootLayout({
@@ -17,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className={`${roboto.variable}`}>
+    <html lang="fr" className={`${quicksand.variable}`}>
       <body className="font-sans">
         <AppFrame>
           {children}

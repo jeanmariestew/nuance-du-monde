@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 
 export async function GET(req: Request) {
   try {
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     }
     sql += `\nORDER BY o.created_at DESC`;
 
-    const [rows] = await pool.query(sql, params);
+    const rows = await query(sql, params);
     type OfferRow = {
       id: number;
       title: string;
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
     let imagesMap: Record<number, any[]> = {};
     
     if (offerIds.length > 0) {
-      const [datesRows] = await pool.query(
+      const datesRows = await query(
         `SELECT offer_id, departure_date FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
         offerIds
       );
@@ -81,7 +81,7 @@ export async function GET(req: Request) {
       }, {} as Record<number, string[]>);
       
       // Fetch all images for offers
-      const [imagesRows] = await pool.query(
+      const imagesRows = await query(
         `SELECT offer_id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY sort_order, id`,
         offerIds
       );

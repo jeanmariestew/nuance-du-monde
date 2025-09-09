@@ -1,9 +1,7 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { generateMetadata as getMetadata } from '@/lib/metadata';
+import type { Metadata } from 'next';
 
 interface OfferImage {
   id?: number;
@@ -44,46 +42,35 @@ interface OfferDetail {
   dates?: Array<{ id: number; departure_date: string; return_date?: string }>;
 }
 
-export default function OfferDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [offer, setOffer] = useState<OfferDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface PageProps {
+  params: { slug: string };
+}
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch(`/api/offers/${slug}`);
-        const data = await res.json();
-        if (data.success) setOffer(data.data);
-        else setError(data.error || "Offre non trouvée");
-      } catch (err) {
-        setError((err as Error).message || "Erreur lors du chargement de l&apos;offre");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (slug) load();
-  }, [slug]);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  return await getMetadata('offer', params.slug);
+}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Chargement de l'offre...</p>
-        </div>
-      </div>
-    );
+async function getOffer(slug: string): Promise<OfferDetail | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers/${slug}`, { cache: 'no-store' });
+    const data = await res.json();
+    return data.success ? data.data : null;
+  } catch (error) {
+    console.error('Erreur lors du chargement de l\'offre:', error);
+    return null;
   }
+}
 
-  if (error || !offer) {
+export default async function OfferDetailPage({ params }: PageProps) {
+  const slug = params.slug;
+  const offer = await getOffer(slug);
+
+  if (!offer) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Offre non trouvée</h1>
-          <p className="text-gray-600 mb-8">{error}</p>
+          <p className="text-gray-600 mb-8">Cette offre n&apos;existe pas ou n&apos;est plus disponible.</p>
           <Link href="/offers" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
             Retour aux offres
           </Link>

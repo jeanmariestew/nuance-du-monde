@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -7,7 +7,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id: idStr } = await params;
   const id = Number(idStr);
   if (!id) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
-  const [rows] = await pool.query('SELECT * FROM destinations WHERE id = ?', [id]);
+  const rows = await query('SELECT * FROM destinations WHERE id = ?', [id]);
   const items = rows as any[];
   if (!items.length) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
   let item = items[0] as any;
@@ -44,7 +44,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
 
   try {
-    await pool.query(
+    await query(
       `UPDATE destinations SET title=?, slug=?, description=?, short_description=?, image_url=?, banner_image_url=?, price_from=?, price_currency=?, duration_days=?, duration_nights=?, group_size_min=?, group_size_max=?, available_dates=?, sort_order=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
       [title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, available_dates ? JSON.stringify(available_dates) : null, sort_order, is_active ? 1 : 0, id]
     );
@@ -60,7 +60,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const id = Number(idStr);
   if (!id) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
   try {
-    await pool.query('DELETE FROM destinations WHERE id = ?', [id]);
+    await query('DELETE FROM destinations WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });

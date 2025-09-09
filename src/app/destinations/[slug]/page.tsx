@@ -1,80 +1,67 @@
-'use client';
+import Image from "next/image";
+import Link from "next/link";
+import OfferCard from "@/components/cards/OfferCard";
+import { Destination, Offer } from "@/types";
+import { generateMetadata as getMetadata } from "@/lib/metadata";
+import type { Metadata } from "next";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import OfferCard from '@/components/cards/OfferCard';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Destination, Offer } from '@/types';
+interface PageProps {
+  params: { slug: string };
+}
 
-export default function DestinationPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [destination, setDestination] = useState<Destination | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [offersLoading, setOffersLoading] = useState(false);
-  const [offersError, setOffersError] = useState<string | null>(null);
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  return await getMetadata("destination", params.slug);
+}
 
-  useEffect(() => {
-    const fetchDestination = async () => {
-      try {
-        const response = await fetch(`/api/destinations/${slug}`);
-        const data = await response.json();
-        
-        if (data.success) {
-          setDestination(data.data);
-        } else {
-          setError(data.error || 'Destination non trouvée');
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement de la destination:', error);
-        setError('Erreur lors du chargement de la destination');
-      } finally {
-        setLoading(false);
-      }
+async function getDestination(
+  slug: string
+): Promise<{ destination: Destination | null; offers: Offer[] }> {
+  try {
+    const [destinationRes, offersRes] = await Promise.all([
+      fetch(
+        `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/api/destinations/${slug}`,
+        { cache: "no-store" }
+      ),
+      fetch(
+        `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/api/offers?destination=${encodeURIComponent(slug)}`,
+        { cache: "no-store" }
+      ),
+    ]);
+
+    const destinationData = await destinationRes.json();
+    const offersData = await offersRes.json();
+
+    return {
+      destination: destinationData.success ? destinationData.data : null,
+      offers: offersData.success ? offersData.data : [],
     };
-
-    if (slug) {
-      fetchDestination();
-      // Fetch offers for this destination
-      const fetchOffers = async () => {
-        setOffersLoading(true);
-        try {
-          const res = await fetch(`/api/offers?destination=${encodeURIComponent(slug)}`);
-          const data = await res.json();
-          if (data.success) setOffers(data.data as Offer[]);
-          else setOffersError(data.error || 'Aucune offre trouvée pour cette destination');
-        } catch (err) {
-          console.error('Erreur lors du chargement des offres pour la destination:', err);
-          setOffersError((err as Error).message || 'Erreur lors du chargement des offres');
-        } finally {
-          setOffersLoading(false);
-        }
-      };
-      fetchOffers();
-    }
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement de la destination...</p>
-        </div>
-      </div>
-    );
+  } catch (error) {
+    console.error("Erreur lors du chargement des données:", error);
+    return { destination: null, offers: [] };
   }
+}
 
-  if (error || !destination) {
+export default async function DestinationPage({ params }: PageProps) {
+  const slug = params.slug;
+  const { destination, offers } = await getDestination(slug);
+
+  if (!destination) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Destination non trouvée</h1>
-          <p className="text-gray-600 mb-8">{error}</p>
-          <Link 
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Destination non trouvée
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Cette destination n&apos;existe pas ou n&apos;est plus disponible.
+          </p>
+          <Link
             href="/destinations"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -92,7 +79,7 @@ export default function DestinationPage() {
         <div className="absolute inset-0">
           {destination.banner_image_url ? (
             <Image
-              src={destination.banner_image_url}
+              src={destination.banner_image_url||''}
               alt={destination.title}
               fill
               className="object-cover"
@@ -109,7 +96,7 @@ export default function DestinationPage() {
           )}
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
-        
+
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
           <h1 className="text-5xl font-bold mb-4">{destination.title}</h1>
           {destination.short_description && (
@@ -118,18 +105,6 @@ export default function DestinationPage() {
         </div>
       </section>
 
-      {/* Breadcrumb */}
-      <nav className="bg-gray-100 py-4">
-        <div className="container mx-auto px-4">
-          <ol className="flex space-x-2 text-sm">
-            <li><Link href="/" className="text-blue-600 hover:underline">Accueil</Link></li>
-            <li className="text-gray-500">/</li>
-            <li><Link href="/destinations" className="text-blue-600 hover:underline">Destinations</Link></li>
-            <li className="text-gray-500">/</li>
-            <li className="text-gray-700">{destination.title}</li>
-          </ol>
-        </div>
-      </nav>
 
       {/* Content */}
       <section className="py-16">
@@ -141,73 +116,36 @@ export default function DestinationPage() {
                 <div className="prose max-w-none mb-10">
                   <div
                     className="text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: destination.description }}
+                    dangerouslySetInnerHTML={{
+                      __html: destination.description,
+                    }}
                   />
-                </div>
-              )}
-
-              {/* Available Dates */}
-              {destination.available_dates && (
-                <div className="bg-blue-50 p-6 rounded-lg mb-12">
-                  <h3 className="text-xl font-semibold mb-4">Dates disponibles</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(typeof destination.available_dates === 'string' 
-                      ? JSON.parse(destination.available_dates) 
-                      : destination.available_dates
-                    )?.map((date: string, index: number) => (
-                      <span key={index} className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
-                        {date}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               )}
 
               {/* Offers for this Destination */}
               <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-6">Offres au {destination.title}</h2>
-                {offersLoading && (
-                  <p className="text-gray-600">Chargement des offres…</p>
+                <h2 className="text-3xl font-bold mb-6">
+                  Offres au {destination.title}
+                </h2>
+                {offers.length === 0 ? (
+                  <p className="text-gray-600">
+                    Aucune offre n&apos;est disponible pour cette destination
+                    pour le moment.
+                  </p>
+                ) : (
+                  <div className="space-y-6">
+                    {offers.map((offer: Offer) => (
+                      <OfferCard key={offer.slug} offer={offer} />
+                    ))}
+                  </div>
                 )}
-                {offersError && !offersLoading && (
-                  <p className="text-red-600 mb-4">{offersError}</p>
-                )}
-                {!offersLoading && !offersError && offers.length === 0 && (
-                  <p className="text-gray-600">Aucune offre n’est disponible pour cette destination pour le moment.</p>
-                )}
-                <div className="space-y-6">
-                  {offers.map((offer) => (
-                    <OfferCard key={offer.slug} offer={offer} />
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Related Destinations */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Autres destinations qui pourraient vous intéresser</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Placeholder for related destinations */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="h-48 bg-gray-200"></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Destination similaire</h3>
-                <p className="text-gray-600 mb-4">Description courte de la destination...</p>
-                <button className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
-                  Découvrir
-                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 }
-

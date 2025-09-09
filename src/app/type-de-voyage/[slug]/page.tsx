@@ -1,74 +1,48 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { Offer, TravelType } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
-import TravelCard from "@/components/TravelCard";
+import { generateMetadata as getMetadata } from '@/lib/metadata';
+import type { Metadata } from 'next';
 
-export default function TravelTypeDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [type, setType] = useState<TravelType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [offersLoading, setOffersLoading] = useState(false);
-  const [offersError, setOffersError] = useState<string | null>(null);
+interface PageProps {
+  params: { slug: string };
+}
 
-  useEffect(() => {
-    const fetchType = async () => {
-      try {
-        const response = await fetch(`/api/travel-types/${slug}`);
-        const data = await response.json();
-        if (data.success) setType(data.data);
-        else setError(data.error || "Type non trouvé");
-      } catch (e) {
-        setError("Erreur lors du chargement du type de voyage");
-      } finally {
-        setLoading(false);
-      }
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  return await getMetadata('travel-type', params.slug);
+}
+
+async function getTravelTypeData(slug: string): Promise<{ type: TravelType | null; offers: Offer[] }> {
+  try {
+    const [typeRes, offersRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-types/${slug}`, { cache: 'no-store' }),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers?type=${encodeURIComponent(slug)}`, { cache: 'no-store' })
+    ]);
+
+    const typeData = await typeRes.json();
+    const offersData = await offersRes.json();
+
+    return {
+      type: typeData.success ? typeData.data : null,
+      offers: offersData.success ? offersData.data : []
     };
-    if (slug) {
-      fetchType();
-      // fetch offers for this travel type
-      const fetchOffers = async () => {
-        setOffersLoading(true);
-        try {
-          const res = await fetch(`/api/offers?type=${encodeURIComponent(slug)}`);
-          const data = await res.json();
-          if (data.success) setOffers(data.data as Offer[]);
-          else setOffersError(data.error || "Aucune offre trouvée pour ce type");
-        } catch (err) {
-          console.error("Erreur lors du chargement des offres (type):", err);
-          setOffersError((err as Error).message || "Erreur lors du chargement des offres");
-        } finally {
-          setOffersLoading(false);
-        }
-      };
-      fetchOffers();
-    }
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Chargement du type...</p>
-        </div>
-      </div>
-    );
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+    return { type: null, offers: [] };
   }
+}
 
-  if (error || !type) {
+export default async function TravelTypeDetailPage({ params }: PageProps) {
+  const slug = params.slug;
+  const { type, offers } = await getTravelTypeData(slug);
+
+  if (!type) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Type non trouvé</h1>
-          <p className="text-gray-600 mb-8">{error}</p>
+          <p className="text-gray-600 mb-8">Ce type de voyage n&apos;existe pas ou n&apos;est plus disponible.</p>
           <Link href="/type-de-voyage" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
             Retour aux types de voyage
           </Link>
@@ -112,16 +86,9 @@ export default function TravelTypeDetailPage() {
       <section className="py-12">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce type</h2>
-          {offersLoading && (
-            <div className="text-gray-600">Chargement des offres…</div>
-          )}
-          {offersError && (
-            <div className="text-red-600">{offersError}</div>
-          )}
-          {!offersLoading && !offersError && offers.length === 0 && (
+          {offers.length === 0 ? (
             <div className="text-gray-600">Aucune offre pour ce type.</div>
-          )}
-          {offers.length > 0 && (
+          ) : (
             <div className="grid grid-cols-2 gap-6">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { NewsletterSubscription, ApiResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Vérifier si l'email existe déjà
     const checkQuery = 'SELECT id, is_active FROM newsletter_subscriptions WHERE email = ?';
-    const [existingRows] = await pool.execute(checkQuery, [email]);
+    const existingRows = await query(checkQuery, [email]);
     const existing = existingRows as NewsletterSubscription[];
 
     if (existing.length > 0) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           SET is_active = true, subscribed_at = CURRENT_TIMESTAMP, unsubscribed_at = NULL 
           WHERE email = ?
         `;
-        await pool.execute(updateQuery, [email]);
+        await query(updateQuery, [email]);
 
         const response: ApiResponse<{ id: number }> = {
           success: true,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     // Créer un nouvel abonnement
     const insertQuery = 'INSERT INTO newsletter_subscriptions (email, is_active) VALUES (?, true)';
-    const [result] = await pool.execute(insertQuery, [email]);
+    const result = await query(insertQuery, [email]);
     const insertResult = result as any;
 
     // TODO: Envoyer un email de bienvenue
@@ -94,13 +94,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    const query = `
+    const squery = `
       UPDATE newsletter_subscriptions 
       SET is_active = false, unsubscribed_at = CURRENT_TIMESTAMP 
       WHERE email = ? AND is_active = true
     `;
     
-    const [result] = await pool.execute(query, [email]);
+    const result = await query(squery, [email]);
     const updateResult = result as any;
 
     if (updateResult.affectedRows === 0) {

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 
 export async function GET() {
   try {
     // Create table if it doesn't exist
-    await pool.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS partners (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(191) NOT NULL,
@@ -20,11 +20,11 @@ export async function GET() {
     `);
 
     // Check if we have any partners, if not, insert initial data
-    const [countResult] = await pool.query('SELECT COUNT(*) as count FROM partners');
+    const countResult = await query('SELECT COUNT(*) as count FROM partners');
     const count = (countResult as any[])[0].count;
     
     if (count === 0) {
-      await pool.query(`
+      await query(`
         INSERT INTO partners (name, agency, logo_url, sort_order, is_active) VALUES
         ('Caroline Racine', 'Voyage Vasco Beauport', '/images/caroline-racine.jpg', 1, 1),
         ('Cathérine', 'Voyages Eclipse', NULL, 2, 1),
@@ -33,7 +33,7 @@ export async function GET() {
       `);
     }
 
-    const [rows] = await pool.query('SELECT id, name, agency, logo_url as image_url, website_url, sort_order, is_active, created_at, updated_at FROM partners WHERE is_active = 1 ORDER BY sort_order ASC, created_at DESC');
+    const rows = await query('SELECT id, name, agency, logo_url as image_url, website_url, sort_order, is_active, created_at, updated_at FROM partners WHERE is_active = 1 ORDER BY sort_order ASC, created_at DESC');
     return NextResponse.json({ success: true, data: rows });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });

@@ -62,7 +62,7 @@ export default function ValuesSection() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Values list */}
-          <div className="space-y-8">
+          <div className="space-y-4">
             {valuesData.map((value, index) => (
               <div key={index} className="flex items-start space-x-6">
                 <div className="flex-shrink-0">
@@ -71,10 +71,10 @@ export default function ValuesSection() {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 font-[Alro]">
                     {value.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed text-sm">
                     {value.description}
                   </p>
                 </div>

@@ -1,101 +1,12 @@
-"use client";
+import { generateMetadata as getMetadata } from '@/lib/metadata';
+import TypeDeVoyageClient from './TypeDeVoyageClient';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { TravelType } from "@/types";
-import TravelTypesSection from "@/components/TravelTypesSection";
-import ValuesSection from "@/components/ValuesSection";
+// Métadonnées SEO pour la page des types de voyage
+export async function generateMetadata() {
+  return await getMetadata('page', 'types_list');
+}
 
-export default function TravelTypesPage() {
-  const [types, setTypes] = useState<TravelType[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTypes = async () => {
-      try {
-        const response = await fetch("/api/travel-types?active=true");
-        const data = await response.json();
-        if (data.success) setTypes(data.data);
-      } catch (error) {
-        console.error("Erreur lors du chargement des types de voyage:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTypes();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des types de voyage...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-y-10">
-      <section className="relative h-96 flex items-center justify-start">
-        <div className="absolute inset-0">
-          <Image src="/images/photo_type-de-voyage.png" alt="Type de voyage" fill className="object-cover" />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative z-10 text-left text-white px-8 max-w-2xl">
-          <div className="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4">
-            Catégorie
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">TYPE DE VOYAGE</h1>
-          <p className="text-lg leading-relaxed">
-            Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos différents types de voyage vous invitent à une expérience enrichissante et taillée sur mesure.
-          </p>
-        </div>
-      </section>
-
-      <TravelTypesSection travelTypes={types}/>
-      <ValuesSection />
-
-      {/* <section className="py-16">
-        <div className="container mx-auto px-4">
-          {types.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">Aucun type disponible pour le moment.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {types.map((type) => (
-                <Link key={type.id} href={`/type-de-voyage/${type.slug}`} className="group">
-                  <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="relative h-48">
-                      {type.image_url ? (
-                        <Image
-                          src={type.image_url}
-                          alt={type.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">Pas d&apos;image</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
-                      {type.short_description && (
-                        <p className="text-gray-600 line-clamp-3">{type.short_description}</p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section> */}
-    </div>
-  );
+// Server component qui délègue le rendu au client component
+export default function TypeDeVoyagePage() {
+  return <TypeDeVoyageClient />;
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { Testimonial, ApiResponse } from '@/types';
 import type { ResultSetHeader } from 'mysql2';
 
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active');
     const published = searchParams.get('published');
 
-    let query = `
+    let squery = `
       SELECT t.*, d.title as destination_title, th.title as theme_title
       FROM testimonials t
       LEFT JOIN destinations d ON t.destination_id = d.id
@@ -40,23 +40,23 @@ export async function GET(request: NextRequest) {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      squery += ' WHERE ' + conditions.join(' AND ');
     }
 
     // Ajouter l'ordre
-    query += ' ORDER BY t.is_featured DESC, t.created_at DESC';
+    squery += ' ORDER BY t.is_featured DESC, t.created_at DESC';
 
     // Ajouter la pagination si spécifiée
     if (limit) {
       const nLimit = Math.max(0, parseInt(limit, 10) || 0);
-      query += ` LIMIT ${nLimit}`;
+      squery += ` LIMIT ${nLimit}`;
       if (offset) {
         const nOffset = Math.max(0, parseInt(offset, 10) || 0);
-        query += ` OFFSET ${nOffset}`;
+        squery += ` OFFSET ${nOffset}`;
       }
     }
 
-    const [rows] = await pool.execute(query, params);
+    const rows = await query(squery, params);
     const testimonials = rows as Testimonial[];
 
     const response: ApiResponse<Testimonial[]> = {
@@ -140,10 +140,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    const query = `UPDATE testimonials SET ${fields.join(', ')} WHERE id = ?`;
+    const squery = `UPDATE testimonials SET ${fields.join(', ')} WHERE id = ?`;
     params.push(Number(id));
 
-    await pool.execute(query, params);
+    await query(squery, params);
 
     const response: ApiResponse<null> = {
       success: true,
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    const query = `
+    const squery = `
       INSERT INTO testimonials (client_name, client_avatar, image_url, testimonial_text, rating, destination_id, travel_theme_id, is_featured, is_published, is_active)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
       is_active ? 1 : 0
     ];
 
-    const [result] = await pool.execute(query, params);
+    const result = await query(squery, params);
     const insertResult = result as ResultSetHeader;
 
     const response: ApiResponse<{ id: number }> = {

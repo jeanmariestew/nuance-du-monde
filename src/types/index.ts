@@ -11,6 +11,14 @@ export interface TravelType {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // SEO Metadata
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
 }
 
 export interface Offer {
@@ -53,6 +61,14 @@ export interface Offer {
   travel_types?: { id: number; title: string; slug?: string }[];
   travel_themes?: { id: number; title: string; slug?: string }[];
   destinations?: { id: number; title: string; slug?: string }[];
+  // SEO Metadata
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
 }
 
 export interface Destination {
@@ -74,6 +90,14 @@ export interface Destination {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // SEO Metadata
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
 }
 
 export interface TravelTheme {
@@ -88,6 +112,14 @@ export interface TravelTheme {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // SEO Metadata
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  canonical_url?: string;
 }
 
 export interface Testimonial {
@@ -167,6 +199,46 @@ export interface User {
   role: 'admin' | 'editor';
   created_at: string;
   updated_at: string;
+}
+
+// Interface pour les métadonnées SEO des pages statiques
+export interface PageMetadata {
+  id?: number;
+  page_type: string;
+  page_slug?: string;
+  meta_title: string;
+  meta_description: string;
+  meta_keywords?: string;
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
+  og_type?: string;
+  twitter_card?: string;
+  twitter_title?: string;
+  twitter_description?: string;
+  twitter_image?: string;
+  canonical_url?: string;
+  robots?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Interface pour les métadonnées génériques
+export interface SeoMetadata {
+  title: string;
+  description: string;
+  keywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogType?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  canonicalUrl?: string;
+  robots?: string;
 }
 
 export interface ApiResponse<T> {

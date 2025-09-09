@@ -6,7 +6,7 @@ export default function TravelTypesHero() {
       <div className="w-full h-full">
         <div className="grid grid-rows-2 sm:grid-rows-1 sm:grid-cols-2 gap-0 h-full">
           {/* Colonne gauche - Texte avec fond texturé */}
-          <div className="relative flex flex-col justify-center px-8 lg:px-16">
+          <div className="relative flex flex-col justify-center px-4">
             <div className="absolute inset-0 -z-10 overflow-hidden">
               <Image
                 src="/images/texture.png"
@@ -17,18 +17,18 @@ export default function TravelTypesHero() {
               />
             </div>
             {/* Icône circulaire exacte comme la capture */}
-            <div className="absolute top-8 left-8 w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center ripple-container">
+            <div className="absolute top-8 left-48 w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center ripple-container">
               <div className="ripple-wave"></div>
               <div className="ripple-wave"></div>
               <div className="ripple-wave"></div>
               <div className="w-4 h-4 bg-[#d9a900] rounded-full pulse-animation"></div>
             </div>
 
-            <div className="mt-16">
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white tracking-wide">
+            <div className="my-20">
+              <h2 className="text-3xl font-bold mb-6 text-white tracking-wide font-[Alro]">
                 TYPE DE VOYAGE
               </h2>
-              <p className="text-lg lg:text-xl text-gray-300 leading-relaxed max-w-md">
+              <p className="text-sm text-gray-300 leading-relaxed">
                 Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos
                 différents types de voyage vous invitent à une expérience
                 enrichissante et taillée sur mesure.

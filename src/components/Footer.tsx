@@ -4,14 +4,22 @@ import Image from "next/image";
 const Footer = () => {
   return (
     <div>
-      {/* Background section with positioning image */}
-      {/* <div className="relative p-20 bg-cover bg-center" style={{backgroundImage: 'url(/images/fond_position.png)'}}>
-        <img
-          src="/images/positionnement.svg"
-          alt="Positionnement"
-          // className="w-full"
+      <div className="relative w-full p-5 h-[450px] bg-black">
+        <Image
+          src="/images/fond_position.png"
+          alt="Background themes"
+          fill
+          className="object-cover"
         />
-      </div> */}
+        <div className=" backdrop-blur-[2px] rounded-2xl bg-white/10 h-[400px]">
+          <Image
+            src="/images/positionnement.svg"
+            alt="Background themes"
+            fill
+            className="object-contain"
+          />
+        </div>
+      </div>
       <footer className="bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <Image

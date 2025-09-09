@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { Page, ApiResponse } from '@/types';
 
 export async function GET(
@@ -9,8 +9,8 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const query = 'SELECT * FROM pages WHERE slug = ? AND is_active = true';
-    const [rows] = await pool.execute(query, [slug]);
+    const squery = 'SELECT * FROM pages WHERE slug = ? AND is_active = true';
+    const rows = await query(squery, [slug]);
     const pages = rows as Page[];
 
     if (pages.length === 0) {

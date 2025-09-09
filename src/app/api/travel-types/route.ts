@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import {query} from '@/lib/db';
 import { TravelType, ApiResponse } from '@/types';
 import type { ResultSetHeader } from 'mysql2';
 
@@ -10,29 +10,29 @@ export async function GET(request: NextRequest) {
     const offset = searchParams.get('offset');
     const active = searchParams.get('active');
 
-    let query = 'SELECT * FROM travel_types';
+    let squery = 'SELECT * FROM travel_types';
     const params: (string | number)[] = [];
 
     // Filtrer par statut actif si spécifié
     if (active !== null) {
-      query += ' WHERE is_active = ?';
+      squery += ' WHERE is_active = ?';
       params.push(active === 'true' ? 1 : 0);
     }
 
     // Ajouter l'ordre
-    query += ' ORDER BY sort_order ASC, title ASC';
+    squery += ' ORDER BY sort_order ASC, title ASC';
 
     // Ajouter la pagination si spécifiée
     if (limit) {
       const nLimit = Math.max(0, parseInt(limit, 10) || 0);
-      query += ` LIMIT ${nLimit}`;
+      squery += ` LIMIT ${nLimit}`;
       if (offset) {
         const nOffset = Math.max(0, parseInt(offset, 10) || 0);
-        query += ` OFFSET ${nOffset}`;
+        squery += ` OFFSET ${nOffset}`;
       }
     }
 
-    const [rows] = await pool.execute(query, params);
+    const rows = await query(squery, params);
     const travelTypes = rows as TravelType[];
 
     const response: ApiResponse<TravelType[]> = {
@@ -71,14 +71,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    const query = `
+    const squery = `
       INSERT INTO travel_types (title, slug, description, short_description, image_url, sort_order)
       VALUES (?, ?, ?, ?, ?, ?)
     `;
 
     const params = [title, slug, description, short_description, image_url, sort_order];
 
-    const [result] = await pool.execute(query, params);
+    const result = await query(squery, params);
     const insertResult = result as ResultSetHeader;
 
     const response: ApiResponse<{ id: number }> = {
