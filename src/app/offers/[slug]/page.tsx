@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { generateMetadata as getMetadata } from '@/lib/metadata';
-import type { Metadata } from 'next';
+import { generateMetadata as getMetadata } from "@/lib/metadata";
+import type { Metadata } from "next";
 
 interface OfferImage {
   id?: number;
   image_url: string;
-  image_type: 'main' | 'gallery' | 'banner';
+  image_type: "main" | "gallery" | "banner";
   alt_text: string;
   sort_order: number;
 }
@@ -46,18 +46,25 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  return await getMetadata('offer', slug);
+  return await getMetadata("offer", slug);
 }
 
 async function getOffer(slug: string): Promise<OfferDetail | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers/${slug}`, { cache: 'no-store' });
+    const res = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/offers/${slug}`,
+      { cache: "no-store" }
+    );
     const data = await res.json();
     return data.success ? data.data : null;
   } catch (error) {
-    console.error('Erreur lors du chargement de l\'offre:', error);
+    console.error("Erreur lors du chargement de l'offre:", error);
     return null;
   }
 }
@@ -70,9 +77,16 @@ export default async function OfferDetailPage({ params }: PageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Offre non trouvée</h1>
-          <p className="text-gray-600 mb-8">Cette offre n&apos;existe pas ou n&apos;est plus disponible.</p>
-          <Link href="/offers" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Offre non trouvée
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Cette offre n&apos;existe pas ou n&apos;est plus disponible.
+          </p>
+          <Link
+            href="/offers"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
             Retour aux offres
           </Link>
         </div>
@@ -84,12 +98,21 @@ export default async function OfferDetailPage({ params }: PageProps) {
     <div>
       <section className="relative h-80 flex items-center justify-center">
         <div className="absolute inset-0">
-          {(offer.banner_image_url || offer.image_banner || offer.image_url || offer.image_main) ? (
-            <Image 
-              src={offer.banner_image_url || offer.image_banner || offer.image_url || offer.image_main || ''} 
-              alt={offer.title} 
-              fill 
-              className="object-cover" 
+          {offer.banner_image_url ||
+          offer.image_banner ||
+          offer.image_url ||
+          offer.image_main ? (
+            <Image
+              src={
+                offer.banner_image_url ||
+                offer.image_banner ||
+                offer.image_url ||
+                offer.image_main ||
+                ""
+              }
+              alt={offer.title}
+              fill
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
@@ -99,11 +122,12 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl md:text-5xl font-bold">{offer.title}</h1>
           {offer.short_description && (
-            <p className="text-lg md:text-xl mt-2 max-w-3xl mx-auto">{offer.short_description}</p>
+            <p className="text-lg md:text-xl mt-2 max-w-3xl mx-auto">
+              {offer.short_description}
+            </p>
           )}
         </div>
       </section>
-
 
       <section className="py-16">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -113,17 +137,21 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 {offer.label}
               </div>
             )}
-            
+
             {offer.description && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Description</h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">{offer.description}</div>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {offer.description}
+                </div>
               </div>
             )}
 
             {offer.price_includes && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4 text-green-700">Nos tarifs comprennent</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-green-700">
+                  Nos tarifs comprennent
+                </h2>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
                   {offer.price_includes}
                 </div>
@@ -132,7 +160,9 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
             {offer.price_excludes && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4 text-red-700">Nos tarifs ne comprennent pas</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-red-700">
+                  Nos tarifs ne comprennent pas
+                </h2>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
                   {offer.price_excludes}
                 </div>
@@ -142,34 +172,55 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
           <aside className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20 space-y-4">
-              {(offer.promotional_price || offer.price) && offer.price_currency && (
-                <div className="mb-4">
-                  <span className="text-sm text-gray-600">À partir de</span>
-                  {offer.promotional_price ? (
-                    <div>
-                      <div className="text-2xl font-bold text-red-600">{offer.promotional_price} {offer.promotional_price_currency || offer.price_currency}</div>
-                      {offer.price && (
-                        <div className="text-lg text-gray-500 line-through">{offer.price} {offer.price_currency}</div>
-                      )}
-                      {offer.promotion_description && (
-                        <div className="text-sm text-red-600 font-medium">{offer.promotion_description}</div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-2xl font-bold text-blue-600">{offer.price} {offer.price_currency}</div>
-                  )}
-                  <span className="text-sm text-gray-600">/ personne</span>
-                </div>
-              )}
+              {(offer.promotional_price || offer.price) &&
+                offer.price_currency && (
+                  <div className="mb-4">
+                    <span className="text-sm text-gray-600">À partir de</span>
+                    {offer.promotional_price ? (
+                      <div>
+                        <div className="text-2xl font-bold text-red-600">
+                          {offer.promotional_price}{" "}
+                          {offer.promotional_price_currency ||
+                            offer.price_currency}
+                        </div>
+                        {offer.price && (
+                          <div className="text-lg text-gray-500 line-through">
+                            {offer.price} {offer.price_currency}
+                          </div>
+                        )}
+                        {offer.promotion_description && (
+                          <div className="text-sm text-red-600 font-medium">
+                            {offer.promotion_description}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-2xl font-bold text-blue-600">
+                        {offer.price} {offer.price_currency}
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-600">/ personne</span>
+                  </div>
+                )}
 
               {(offer.duration_days || offer.duration_nights) && (
                 <div className="mb-4 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <span className="text-sm text-gray-700">
                     {offer.duration_days && `${offer.duration_days} jours`}
-                    {offer.duration_days && offer.duration_nights && ' et '}
+                    {offer.duration_days && offer.duration_nights && " et "}
                     {offer.duration_nights && `${offer.duration_nights} nuits`}
                   </span>
                 </div>
@@ -178,26 +229,36 @@ export default async function OfferDetailPage({ params }: PageProps) {
               {offer.available_dates && offer.available_dates.length > 0 && (
                 <div className="mb-6">
                   <div className="text-sm font-medium text-gray-800 mb-2">
-                    <strong>Départs garantis</strong> du {new Date(offer.available_dates[0]).toLocaleDateString('fr-FR', { 
-                      day: '2-digit', 
-                      month: '2-digit', 
-                      year: 'numeric' 
-                    })} au {new Date(offer.available_dates[offer.available_dates.length - 1]).toLocaleDateString('fr-FR', { 
-                      day: '2-digit', 
-                      month: '2-digit', 
-                      year: 'numeric' 
+                    <strong>Départs garantis</strong> du{" "}
+                    {new Date(offer.available_dates[0]).toLocaleDateString(
+                      "fr-FR",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      }
+                    )}{" "}
+                    au{" "}
+                    {new Date(
+                      offer.available_dates[offer.available_dates.length - 1]
+                    ).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
                     })}
                   </div>
                   {offer.available_dates.length > 1 && (
                     <div className="mt-2">
-                      <div className="text-sm font-medium text-gray-800 mb-1"><strong>Autres dates du :</strong></div>
+                      <div className="text-sm font-medium text-gray-800 mb-1">
+                        <strong>Autres dates du :</strong>
+                      </div>
                       <div className="space-y-1">
                         {offer.available_dates.map((date, index) => (
                           <div key={index} className="text-sm text-gray-700">
-                            {new Date(date).toLocaleDateString('fr-FR', { 
-                              day: '2-digit', 
-                              month: '2-digit', 
-                              year: 'numeric' 
+                            {new Date(date).toLocaleDateString("fr-FR", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
                             })}
                           </div>
                         ))}
@@ -207,7 +268,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 </div>
               )}
 
-              {offer.destinations && offer.destinations.length > 0 && (
+              {/* {offer.destinations && offer.destinations.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-2">Destinations</h3>
                   <div className="flex flex-wrap gap-2">
@@ -218,9 +279,9 @@ export default async function OfferDetailPage({ params }: PageProps) {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
-              {offer.travel_themes && offer.travel_themes.length > 0 && (
+              {/* {offer.travel_themes && offer.travel_themes.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-2">Thèmes</h3>
                   <div className="flex flex-wrap gap-2">
@@ -231,9 +292,9 @@ export default async function OfferDetailPage({ params }: PageProps) {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
-              {offer.travel_types && offer.travel_types.length > 0 && (
+              {/* {offer.travel_types && offer.travel_types.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-2">Types de voyage</h3>
                   <div className="flex flex-wrap gap-2">
@@ -244,11 +305,21 @@ export default async function OfferDetailPage({ params }: PageProps) {
                     ))}
                   </div>
                 </div>
-              )}
-
+              )} */}
+              {/* 
               <Link href={`/demander-devis?offer=${offer.slug}`} className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold hover:brightness-95 transition-colors text-center block">
                 Demander un devis
-              </Link>
+              </Link> */}
+              <div>
+                Details de l&apos;offre
+                <div>{offer.description}</div>
+              </div>
+              <div>
+Nos tarif comprenent                <div>{offer.price_includes}</div>
+              </div>
+              <div>
+Nos tarif ne comprenent pas                <div>{offer.price_excludes}</div>
+              </div>
             </div>
           </aside>
         </div>
