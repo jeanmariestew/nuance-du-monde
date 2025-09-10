@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import OffersGrid from "@/components/OffersGrid";
 
 interface Destination {
   id: number;
@@ -54,7 +55,6 @@ export default function DestinationsClient() {
     <div>
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-start justify-end">
-
         <div className="absolute inset-0">
           <Image
             src="/images/destination_fond.png"
@@ -75,9 +75,10 @@ export default function DestinationsClient() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/60"></div>
 
-
         <div className="relative z-10 text-white max-w-2xl p-6 pb-20">
-          <h1 className="text-3xl font-bold mb-4 font-[Alro]">LES DESTINATIONS</h1>
+          <h1 className="text-3xl font-bold mb-4 font-[Alro]">
+            LES DESTINATIONS
+          </h1>
           <p className="text-sm">
             Voyagez au cœur des plus belles destinations du monde à travers des
             itinéraires captivants et soigneusement conçus pour vous.
@@ -117,10 +118,14 @@ export default function DestinationsClient() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">Pas d&apos;image</span>
+                          <span className="text-gray-400">
+                            Pas d&apos;image
+                          </span>
                         </div>
                       )}
-                      <h2 className="absolute z-20 bottom-4 text-2xl font-[Alro] text-center w-full text-white">{destination.title}</h2>
+                      <h2 className="absolute z-20 bottom-4 text-2xl font-[Alro] text-center w-full text-white">
+                        {destination.title}
+                      </h2>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     </div>
                   </div>
@@ -129,6 +134,13 @@ export default function DestinationsClient() {
             </div>
           )}
         </div>
+      </section>
+      <section>
+        <OffersGrid
+          itemsPerPage={10}
+          title="Offres pour cette destination"
+          emptyMessage="Aucune offre pour cette destination."
+        />
       </section>
     </div>
   );

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { query } from '@/lib/db';
 import { Destination, ApiResponse } from '@/types';
 
 export async function GET(
@@ -9,8 +9,8 @@ export async function GET(
   try {
     const { slug } = await context.params;
 
-    const query = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
-    const [rows] = await pool.execute(query, [slug]);
+    const squery = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
+    const [rows] = await query(squery, [slug]);
     const destinations = rows as Destination[];
 
     if (destinations.length === 0) {
@@ -75,7 +75,7 @@ export async function PUT(
       is_active
     } = body;
 
-    const query = `
+    const squery = `
       UPDATE destinations SET
         title = ?, description = ?, short_description = ?, image_url = ?,
         banner_image_url = ?, price_from = ?, price_currency = ?,
@@ -93,7 +93,7 @@ export async function PUT(
       sort_order, is_active, slug
     ];
 
-    const [result] = await pool.execute(query, params);
+    const [result] = await query(squery, params);
     const updateResult = result as any;
 
     if (updateResult.affectedRows === 0) {
@@ -127,8 +127,8 @@ export async function DELETE(
   try {
     const { slug } = await context.params;
 
-    const query = 'DELETE FROM destinations WHERE slug = ?';
-    const [result] = await pool.execute(query, [slug]);
+    const squery = 'DELETE FROM destinations WHERE slug = ?';
+    const [result] = await query(squery, [slug]);
     const deleteResult = result as any;
 
     if (deleteResult.affectedRows === 0) {

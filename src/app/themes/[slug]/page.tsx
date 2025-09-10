@@ -4,6 +4,7 @@ import { Offer, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
 import { generateMetadata as getMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
+import OffersGrid from "@/components/OffersGrid";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -74,42 +75,12 @@ export default async function ThemePage({ params }: PageProps) {
       </section>
 
 
-      <section className="py-6">
-        <div className="container mx-auto px-4">
-          <Link
-            href={`/offers?theme=${theme.slug}`}
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Voir les offres pour ce thème
-          </Link>
-        </div>
-      </section>
-
       {/* Offres pour ce thème */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce thème</h2>
-          {offers.length === 0 ? (
-            <div className="text-gray-600">Aucune offre pour ce thème.</div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6">
-              {offers.map((offer) => (
-                <OfferCard key={offer.slug} offer={offer} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {theme.description && (
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="prose prose-lg max-w-none">
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">{theme.description}</div>
-            </div>
-          </div>
-        </section>
-      )}
+      <OffersGrid 
+        theme={slug}
+        title="Offres pour ce thème"
+        emptyMessage="Aucune offre pour ce thème."
+      />
     </div>
   );
 }

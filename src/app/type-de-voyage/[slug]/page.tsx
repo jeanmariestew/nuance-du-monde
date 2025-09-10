@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Offer, TravelType } from "@/types";
-import OfferCard from "@/components/cards/OfferCard";
+import { TravelType } from "@/types";
+import OffersGrid from "@/components/OffersGrid";
 import { generateMetadata as getMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
 
@@ -14,29 +14,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return await getMetadata('travel-type', slug);
 }
 
-async function getTravelTypeData(slug: string): Promise<{ type: TravelType | null; offers: Offer[] }> {
+async function getTravelTypeData(slug: string): Promise<TravelType | null> {
   try {
-    const [typeRes, offersRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-types/${slug}`, { cache: 'no-store' }),
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers?type=${encodeURIComponent(slug)}`, { cache: 'no-store' })
-    ]);
-
+    const typeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-types/${slug}`, { cache: 'no-store' });
     const typeData = await typeRes.json();
-    const offersData = await offersRes.json();
-
-    return {
-      type: typeData.success ? typeData.data : null,
-      offers: offersData.success ? offersData.data : []
-    };
+    return typeData.success ? typeData.data : null;
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error);
-    return { type: null, offers: [] };
+    return null;
   }
 }
 
 export default async function TravelTypePage({ params }: PageProps) {
   const { slug } = await params;
-  const { type, offers } = await getTravelTypeData(slug);
+  const type = await getTravelTypeData(slug);
 
   if (!type) {
     return (
@@ -84,20 +75,11 @@ export default async function TravelTypePage({ params }: PageProps) {
       </section> */}
 
       {/* Offres pour ce type */}
-      <section className="py-12">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">Offres pour ce type</h2>
-          {offers.length === 0 ? (
-            <div className="text-gray-600">Aucune offre pour ce type.</div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {offers.map((offer) => (
-                <OfferCard key={offer.slug} offer={offer} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <OffersGrid 
+        type={slug}
+        title="Offres pour ce type"
+        emptyMessage="Aucune offre pour ce type."
+      />
 
     </div>
   );

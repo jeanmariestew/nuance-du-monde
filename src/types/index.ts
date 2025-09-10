@@ -34,7 +34,7 @@ export interface Offer {
   image_main?: string; // DB column
   image_banner?: string; // DB column
   // allow building slider
-  images?: string[];
+  images?: { image_url: string }[];
   duration_days?: number; // DB column
   duration_nights?: number; // DB column
   duration?: string; // sometimes stored as text (legacy)
@@ -166,7 +166,7 @@ export interface QuoteRequest {
   number_of_travelers?: number;
   budget_range?: string;
   special_requests?: string;
-  status?: 'new' | 'in_progress' | 'quoted' | 'closed';
+  status?: "new" | "in_progress" | "quoted" | "closed";
   created_at?: string;
   updated_at?: string;
 }
@@ -196,7 +196,7 @@ export interface User {
   email: string;
   first_name?: string;
   last_name?: string;
-  role: 'admin' | 'editor';
+  role: "admin" | "editor";
   created_at: string;
   updated_at: string;
 }
@@ -247,4 +247,3 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
-

@@ -4,6 +4,7 @@ import OfferCard from "@/components/cards/OfferCard";
 import { Destination, Offer } from "@/types";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
+import OffersGrid from "@/components/OffersGrid";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -80,7 +81,7 @@ export default async function DestinationPage({ params }: PageProps) {
         <div className="absolute inset-0">
           {destination.banner_image_url ? (
             <Image
-              src={destination.banner_image_url||''}
+              src={destination.banner_image_url || ""}
               alt={destination.title}
               fill
               className="object-cover"
@@ -106,48 +107,12 @@ export default async function DestinationPage({ params }: PageProps) {
         </div>
       </section>
 
-
-      {/* Content */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              {destination.description && (
-                <div className="prose max-w-none mb-10">
-                  <div
-                    className="text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{
-                      __html: destination.description,
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Offers for this Destination */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-6">
-                  Offres au {destination.title}
-                </h2>
-                {offers.length === 0 ? (
-                  <p className="text-gray-600">
-                    Aucune offre n&apos;est disponible pour cette destination
-                    pour le moment.
-                  </p>
-                ) : (
-                  <div className="space-y-6">
-
-                    {offers.map((offer: Offer) => (
-                      <OfferCard key={offer.slug} offer={offer} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      {/* Offers for this Destination */}
+      <OffersGrid
+        destination={slug}
+        title="Offres pour cette destination"
+        emptyMessage="Aucune offre pour cette destination."
+      />
     </div>
   );
 }
