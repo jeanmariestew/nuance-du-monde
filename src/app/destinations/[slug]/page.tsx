@@ -1,10 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import OfferCard from "@/components/cards/OfferCard";
 import { Destination, Offer } from "@/types";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
-import OffersGrid from "@/components/OffersGrid";
+import DestinationClient from "./DestinationClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -35,7 +33,6 @@ async function getDestination(
         { cache: "no-store" }
       ),
     ]);
-
     const destinationData = await destinationRes.json();
     const offersData = await offersRes.json();
 
@@ -74,45 +71,5 @@ export default async function DestinationPage({ params }: PageProps) {
     );
   }
 
-  return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center">
-        <div className="absolute inset-0">
-          {destination.banner_image_url ? (
-            <Image
-              src={destination.banner_image_url || ""}
-              alt={destination.title}
-              fill
-              className="object-cover"
-            />
-          ) : destination.image_url ? (
-            <Image
-              src={destination.image_url}
-              alt={destination.title}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600"></div>
-          )}
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-        </div>
-
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-4">{destination.title}</h1>
-          {destination.short_description && (
-            <p className="text-xl">{destination.short_description}</p>
-          )}
-        </div>
-      </section>
-
-      {/* Offers for this Destination */}
-      <OffersGrid
-        destination={slug}
-        title="Offres pour cette destination"
-        emptyMessage="Aucune offre pour cette destination."
-      />
-    </div>
-  );
+  return <DestinationClient destination={destination} slug={slug} />;
 }

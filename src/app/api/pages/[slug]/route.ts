@@ -10,7 +10,7 @@ export async function GET(
     const { slug } = await params;
 
     const s = 'SELECT * FROM pages WHERE slug = ? AND is_active = true';
-    const [rows] = await query(s, [slug]);
+    const rows = await query(s, [slug]);
     const pages = rows as Page[];
 
     if (pages.length === 0) {

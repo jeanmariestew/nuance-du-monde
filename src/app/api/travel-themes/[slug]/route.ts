@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
     const squery = "SELECT * FROM travel_themes WHERE slug = ? AND is_active = true";
-    const [rows] = await query(squery, [slug]);
+    const rows = await query(squery, [slug]);
     const themes = rows as TravelTheme[];
 
     if (themes.length === 0) {

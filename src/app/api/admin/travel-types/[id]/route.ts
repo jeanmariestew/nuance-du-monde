@@ -16,7 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
     }
     
-    const [rows] = await query('SELECT * FROM travel_types WHERE id = ?', [id]);
+    const rows = await query('SELECT * FROM travel_types WHERE id = ?', [id]);
     const items = rows as unknown[];
     
     if (!items.length) {

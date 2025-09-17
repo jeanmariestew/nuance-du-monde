@@ -168,10 +168,10 @@ export default function OffersGrid({
         {/* Filtres dynamiques */}
         {itemsPerPage < 10 && (
           <div className="mb-8 bg-gray-50 p-6 rounded-lg">
-            <div className="flex flex-wrap gap-4 items-end m-auto max-w-xl">
+            <div className="flex flex-wrap gap-4 flex-center items-end m-auto max-w-xl">
               {/* Select Destination - affiché si pas le paramètre principal */}
               {!destination && destinations.length > 0 && (
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 max-w-xs">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Destination
                   </label>
@@ -197,7 +197,7 @@ export default function OffersGrid({
 
               {/* Select Type - affiché si pas le paramètre principal */}
               {!type && types.length > 0 && (
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 max-w-xs">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Type de voyage
                   </label>
@@ -219,7 +219,7 @@ export default function OffersGrid({
 
               {/* Select Thème - affiché si pas le paramètre principal */}
               {!theme && themes.length > 0 && (
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 max-w-xs">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Thème
                   </label>
@@ -262,7 +262,7 @@ export default function OffersGrid({
         )}
         {/* Résultats */}
         {offers.length === 0 ? (
-          <div className="text-gray-600">{emptyMessage}</div>
+          <div className="text-gray-700 text-center">{emptyMessage}</div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10">

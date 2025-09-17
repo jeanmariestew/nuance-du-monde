@@ -67,7 +67,6 @@ export async function POST(request: NextRequest) {
       duration_nights,
       group_size_min,
       group_size_max,
-      available_dates,
       sort_order = 0
     } = body;
 
@@ -83,14 +82,14 @@ export async function POST(request: NextRequest) {
       INSERT INTO destinations (
         title, slug, description, short_description, image_url, banner_image_url,
         price_from, price_currency, duration_days, duration_nights,
-        group_size_min, group_size_max, available_dates, sort_order
+        group_size_min, group_size_max, sort_order
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
       title, slug, description, short_description, image_url, banner_image_url,
       price_from, price_currency, duration_days, duration_nights,
-      group_size_min, group_size_max, available_dates ? JSON.stringify(available_dates) : null,
+      group_size_min, group_size_max,
       sort_order
     ];
 

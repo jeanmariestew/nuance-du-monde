@@ -33,7 +33,6 @@ export async function POST(req: Request) {
     duration_nights = null,
     group_size_min = null,
     group_size_max = null,
-    available_dates = null,
     sort_order = 0,
     is_active = 1,
     meta_title = null,
@@ -49,11 +48,11 @@ export async function POST(req: Request) {
 
   try {
     const res = await execute(
-      'INSERT INTO destinations (title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, available_dates, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO destinations (title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         title, slug, description, short_description, image_url, banner_image_url,
         price_from, price_currency, duration_days, duration_nights,
-        group_size_min, group_size_max, available_dates ? JSON.stringify(available_dates) : null,
+        group_size_min, group_size_max,
         sort_order, is_active ? 1 : 0,
         meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url,
       ]

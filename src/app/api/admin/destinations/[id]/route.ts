@@ -11,9 +11,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const items = rows as any[];
   if (!items.length) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
   let item = items[0] as any;
-  if (item.available_dates) {
-    try { item.available_dates = JSON.parse(item.available_dates); } catch {}
-  }
+
   return NextResponse.json({ success: true, data: item });
 }
 
@@ -37,7 +35,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     duration_nights = null,
     group_size_min = null,
     group_size_max = null,
-    available_dates = null,
     sort_order = 0,
     is_active = 1,
   } = body || {};
@@ -45,8 +42,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     await query(
-      `UPDATE destinations SET title=?, slug=?, description=?, short_description=?, image_url=?, banner_image_url=?, price_from=?, price_currency=?, duration_days=?, duration_nights=?, group_size_min=?, group_size_max=?, available_dates=?, sort_order=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-      [title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, available_dates ? JSON.stringify(available_dates) : null, sort_order, is_active ? 1 : 0, id]
+      `UPDATE destinations SET title=?, slug=?, description=?, short_description=?, image_url=?, banner_image_url=?, price_from=?, price_currency=?, duration_days=?, duration_nights=?, group_size_min=?, group_size_max=?, sort_order=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+      [title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active ? 1 : 0, id]
     );
     return NextResponse.json({ success: true });
   } catch (e: any) {

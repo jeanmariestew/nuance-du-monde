@@ -20,7 +20,6 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
     duration_nights: "",
     group_size_min: "",
     group_size_max: "",
-    available_dates: "",
     sort_order: 0,
     is_active: true
   });
@@ -60,7 +59,6 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
             duration_nights: data.duration_nights ? data.duration_nights.toString() : "",
             group_size_min: data.group_size_min ? data.group_size_min.toString() : "",
             group_size_max: data.group_size_max ? data.group_size_max.toString() : "",
-            available_dates: Array.isArray(data.available_dates) ? data.available_dates.join(', ') : (data.available_dates || ""),
             sort_order: data.sort_order || 0,
             is_active: !!data.is_active
           });
@@ -136,7 +134,6 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
         duration_nights: formData.duration_nights ? parseInt(formData.duration_nights) : null,
         group_size_min: formData.group_size_min ? parseInt(formData.group_size_min) : null,
         group_size_max: formData.group_size_max ? parseInt(formData.group_size_max) : null,
-        available_dates: formData.available_dates ? formData.available_dates.split(',').map(d => d.trim()).filter(d => d) : null,
         is_active: formData.is_active ? 1 : 0
       };
 
@@ -357,20 +354,6 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="available_dates" className="block text-sm font-medium text-gray-700 mb-1">Dates disponibles</label>
-                <input
-                  id="available_dates"
-                  name="available_dates"
-                  type="text"
-                  value={formData.available_dates}
-                  onChange={handleChange}
-                  placeholder="2024-06-01, 2024-07-15, 2024-08-20"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-                <p className="mt-1 text-xs text-gray-500">Séparez les dates par des virgules (format: YYYY-MM-DD)</p>
               </div>
 
               <div>

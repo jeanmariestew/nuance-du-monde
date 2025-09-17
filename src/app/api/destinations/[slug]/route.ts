@@ -10,9 +10,8 @@ export async function GET(
     const { slug } = await context.params;
 
     const squery = 'SELECT * FROM destinations WHERE slug = ? AND is_active = true';
-    const [rows] = await query(squery, [slug]);
+    const rows = await query(squery, [slug]);
     const destinations = rows as Destination[];
-
     if (destinations.length === 0) {
       const response: ApiResponse<null> = {
         success: false,
@@ -22,17 +21,6 @@ export async function GET(
     }
 
     const destination = destinations[0];
-
-    // Parser les dates disponibles si elles existent
-    if (destination.available_dates) {
-      try {
-        if (typeof destination.available_dates === 'string') {
-          destination.available_dates = JSON.parse(destination.available_dates);
-        }
-      } catch (e) {
-        destination.available_dates = [];
-      }
-    }
 
     const response: ApiResponse<Destination> = {
       success: true,
@@ -70,7 +58,6 @@ export async function PUT(
       duration_nights,
       group_size_min,
       group_size_max,
-      available_dates,
       sort_order,
       is_active
     } = body;
@@ -80,7 +67,7 @@ export async function PUT(
         title = ?, description = ?, short_description = ?, image_url = ?,
         banner_image_url = ?, price_from = ?, price_currency = ?,
         duration_days = ?, duration_nights = ?, group_size_min = ?,
-        group_size_max = ?, available_dates = ?, sort_order = ?,
+        group_size_max = ?, sort_order = ?,
         is_active = ?, updated_at = CURRENT_TIMESTAMP
       WHERE slug = ?
     `;
@@ -89,11 +76,10 @@ export async function PUT(
       title, description, short_description, image_url, banner_image_url,
       price_from, price_currency, duration_days, duration_nights,
       group_size_min, group_size_max,
-      available_dates ? JSON.stringify(available_dates) : null,
       sort_order, is_active, slug
     ];
 
-    const [result] = await query(squery, params);
+    const result = await query(squery, params);
     const updateResult = result as any;
 
     if (updateResult.affectedRows === 0) {
@@ -128,7 +114,7 @@ export async function DELETE(
     const { slug } = await context.params;
 
     const squery = 'DELETE FROM destinations WHERE slug = ?';
-    const [result] = await query(squery, [slug]);
+    const result = await query(squery, [slug]);
     const deleteResult = result as any;
 
     if (deleteResult.affectedRows === 0) {

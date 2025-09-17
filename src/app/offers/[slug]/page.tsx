@@ -96,57 +96,110 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
   return (
     <div>
-      <section className="relative h-80 flex items-center justify-center">
-        <div className="absolute inset-0">
+      <section className="relative p-5 h-80 grid grid-cols-1 md:grid-cols-2 ">
+        <div className="inset-0">
           {offer.banner_image_url ||
           offer.image_banner ||
           offer.image_url ||
-          offer.image_main ? (
+          offer.image_main ||
+          offer.images?.[0].image_url ? (
             <Image
               src={
                 offer.banner_image_url ||
                 offer.image_banner ||
                 offer.image_url ||
                 offer.image_main ||
+                offer.images?.[0].image_url ||
                 ""
               }
+              width={200}
+              height={200}
+              className="w-full h-96 rounded-2xl"
               alt={offer.title}
-              fill
-              className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
+            <div className="w-full h-full bg-gradient-to-r from-yellow-600/50 to-yellow-900/50" />
           )}
-          <div className="absolute inset-0 bg-black/50" />
         </div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold">{offer.title}</h1>
-          {offer.short_description && (
-            <p className="text-lg md:text-xl mt-2 max-w-3xl mx-auto">
-              {offer.short_description}
-            </p>
-          )}
+        <div className="z-10 gap-10 text-left text-black p-4">
+          <h1 className="text-3xl font-medium text-yellow-500 font-[Alro]">
+            {offer.title}
+          </h1>
+          <div className="flex items-start gap-3 mb-4">
+            <div className="flex-shrink-0 mt-1">
+              <img
+                src="/images/moving.map.png"
+                alt=""
+                className="w-5 h-5 text-gray-600"
+              />
+            </div>
+            <div>
+              <p className="text-gray-800 font-semibold text-xs leading-relaxed">
+                {offer.label}
+              </p>
+              {offer.duration_days && (
+                <p className="text-gray-700 font-semibold text-xs">
+                  {offer.duration_days} jours et {offer.duration_nights} nuits
+                </p>
+              )}
+            </div>
+          </div>
+          <p className="text-sm font-semibold">{offer.short_description}</p>
+          <div className=" border border-gray-400 rounded-2xl p-4 my-5">
+            {/* Prix */}
+            {(offer.promotional_price || offer.price) && offer.price_currency && (
+              <div className="mb-4">
+                <div className="flex font-semibold items-baseline gap-2">
+                  <span className="text-sm text-gray-600">À partir de</span>
+                  <span className="text-3xl font-semibold text-yellow-500">
+                    {offer.price_currency} {(offer.promotional_price || offer.price)?.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </span>
+                  <span className="text-sm text-gray-600">/ personnes</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Dates */}
+            {offer.available_dates && offer.available_dates.length > 0 && (
+              <div>
+                <div className="text-sm font-medium text-gray-800 mb-2">
+                  <strong>Départs garantis du :</strong>
+                </div>
+                <div className="text-lg font-semibold text-gray-900">
+                  {new Date(offer.available_dates[0]).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}{" "}
+                  au{" "}
+                  {new Date(offer.available_dates[offer.available_dates.length - 1]).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long", 
+                    year: "numeric",
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-16 mt-20">
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
-            {offer.label && (
-              <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
-                {offer.label}
-              </div>
-            )}
-
+            //accordion
             {offer.description && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Description</h2>
+                <h2 className="text-2xl font-semibold mb-4">Détails de l'offre</h2>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line">
                   {offer.description}
                 </div>
               </div>
             )}
-
+            //accordion
             {offer.price_includes && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4 text-green-700">
@@ -157,7 +210,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 </div>
               </div>
             )}
-
+            //accordion
             {offer.price_excludes && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4 text-red-700">
@@ -170,158 +223,6 @@ export default async function OfferDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          <aside className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-20 space-y-4">
-              {(offer.promotional_price || offer.price) &&
-                offer.price_currency && (
-                  <div className="mb-4">
-                    <span className="text-sm text-gray-600">À partir de</span>
-                    {offer.promotional_price ? (
-                      <div>
-                        <div className="text-2xl font-bold text-red-600">
-                          {offer.promotional_price}{" "}
-                          {offer.promotional_price_currency ||
-                            offer.price_currency}
-                        </div>
-                        {offer.price && (
-                          <div className="text-lg text-gray-500 line-through">
-                            {offer.price} {offer.price_currency}
-                          </div>
-                        )}
-                        {offer.promotion_description && (
-                          <div className="text-sm text-red-600 font-medium">
-                            {offer.promotion_description}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold text-blue-600">
-                        {offer.price} {offer.price_currency}
-                      </div>
-                    )}
-                    <span className="text-sm text-gray-600">/ personne</span>
-                  </div>
-                )}
-
-              {(offer.duration_days || offer.duration_nights) && (
-                <div className="mb-4 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span className="text-sm text-gray-700">
-                    {offer.duration_days && `${offer.duration_days} jours`}
-                    {offer.duration_days && offer.duration_nights && " et "}
-                    {offer.duration_nights && `${offer.duration_nights} nuits`}
-                  </span>
-                </div>
-              )}
-
-              {offer.available_dates && offer.available_dates.length > 0 && (
-                <div className="mb-6">
-                  <div className="text-sm font-medium text-gray-800 mb-2">
-                    <strong>Départs garantis</strong> du{" "}
-                    {new Date(offer.available_dates[0]).toLocaleDateString(
-                      "fr-FR",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      }
-                    )}{" "}
-                    au{" "}
-                    {new Date(
-                      offer.available_dates[offer.available_dates.length - 1]
-                    ).toLocaleDateString("fr-FR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </div>
-                  {offer.available_dates.length > 1 && (
-                    <div className="mt-2">
-                      <div className="text-sm font-medium text-gray-800 mb-1">
-                        <strong>Autres dates du :</strong>
-                      </div>
-                      <div className="space-y-1">
-                        {offer.available_dates.map((date, index) => (
-                          <div key={index} className="text-sm text-gray-700">
-                            {new Date(date).toLocaleDateString("fr-FR", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            })}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* {offer.destinations && offer.destinations.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2">Destinations</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {offer.destinations.map((d) => (
-                      <Link key={d.id} href={`/offers?destination=${d.slug}`} className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-sm">
-                        {d.title}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )} */}
-
-              {/* {offer.travel_themes && offer.travel_themes.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2">Thèmes</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {offer.travel_themes.map((t) => (
-                      <Link key={t.id} href={`/offers?theme=${t.slug}`} className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-sm">
-                        {t.title}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )} */}
-
-              {/* {offer.travel_types && offer.travel_types.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2">Types de voyage</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {offer.travel_types.map((t) => (
-                      <Link key={t.id} href={`/offers?type=${t.slug}`} className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-sm">
-                        {t.title}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )} */}
-              {/* 
-              <Link href={`/demander-devis?offer=${offer.slug}`} className="w-full btn-accent text-black py-3 px-6 rounded-lg font-semibold hover:brightness-95 transition-colors text-center block">
-                Demander un devis
-              </Link> */}
-              <div>
-                Details de l&apos;offre
-                <div>{offer.description}</div>
-              </div>
-              <div>
-Nos tarif comprenent                <div>{offer.price_includes}</div>
-              </div>
-              <div>
-Nos tarif ne comprenent pas                <div>{offer.price_excludes}</div>
-              </div>
-            </div>
-          </aside>
         </div>
       </section>
     </div>
