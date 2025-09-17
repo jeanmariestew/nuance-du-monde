@@ -102,8 +102,8 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
   return (
     <div>
-      <section className="relative p-5 h-80 grid grid-cols-1 md:grid-cols-2 ">
-        <div className="inset-0">
+      <section className="relative p-2 sm:p-5 h-auto md:h-80 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-0">
+        <div className="inset-0 order-1 md:order-1">
           {offer.banner_image_url ||
           offer.image_banner ||
           offer.image_url ||
@@ -120,15 +120,15 @@ export default async function OfferDetailPage({ params }: PageProps) {
               }
               width={200}
               height={200}
-              className="w-full h-96 rounded-2xl"
+              className="w-full h-48 sm:h-64 md:h-96 rounded-2xl object-cover"
               alt={offer.title}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-yellow-600/50 to-yellow-900/50" />
+            <div className="w-full h-48 sm:h-64 md:h-96 bg-gradient-to-r from-yellow-600/50 to-yellow-900/50 rounded-2xl" />
           )}
         </div>
-        <div className="z-10 gap-10 text-left text-black p-4">
-          <h1 className="text-3xl font-medium text-yellow-500 font-[Alro]">
+        <div className="z-10 gap-4 md:gap-10 text-left text-black p-2 sm:p-4 order-2 md:order-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-medium text-yellow-500 font-[Alro] mb-3 md:mb-0">
             {offer.title}
           </h1>
           <div className="flex items-start gap-3 mb-4">
@@ -136,29 +136,29 @@ export default async function OfferDetailPage({ params }: PageProps) {
               <img
                 src="/images/moving.map.png"
                 alt=""
-                className="w-5 h-5 text-gray-600"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600"
               />
             </div>
             <div>
-              <p className="text-gray-800 font-semibold text-xs leading-relaxed">
+              <p className="text-gray-800 font-semibold text-xs sm:text-sm leading-relaxed">
                 {offer.label}
               </p>
               {offer.duration_days && (
-                <p className="text-gray-700 font-semibold text-xs">
+                <p className="text-gray-700 font-semibold text-xs sm:text-sm">
                   {offer.duration_days} jours et {offer.duration_nights} nuits
                 </p>
               )}
             </div>
           </div>
-          <p className="text-sm font-semibold">{offer.short_description}</p>
-          <div className=" border border-gray-400 rounded-2xl p-4 my-5">
+          <p className="text-xs sm:text-sm font-semibold mb-4">{offer.short_description}</p>
+          <div className="border border-gray-400 rounded-2xl p-3 sm:p-4 my-5">
             {/* Prix */}
             {(offer.promotional_price || offer.price) &&
               offer.price_currency && (
                 <div className="mb-4">
-                  <div className="flex font-semibold items-baseline gap-2">
-                    <span className="text-sm text-gray-600">À partir de</span>
-                    <span className="text-3xl font-semibold text-yellow-500">
+                  <div className="flex flex-col sm:flex-row font-semibold items-start sm:items-baseline gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm text-gray-600">À partir de</span>
+                    <span className="text-xl sm:text-2xl md:text-3xl font-semibold text-yellow-500">
                       {offer.price_currency}{" "}
                       {(offer.promotional_price || offer.price)?.toLocaleString(
                         "fr-FR",
@@ -168,7 +168,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                         }
                       )}
                     </span>
-                    <span className="text-sm text-gray-600">/ personnes</span>
+                    <span className="text-xs sm:text-sm text-gray-600">/ personnes</span>
                   </div>
                 </div>
               )}
@@ -176,10 +176,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
             {/* Dates */}
             {offer.available_dates && offer.available_dates.length > 0 && (
               <div>
-                <div className="text-sm font-medium text-gray-800 mb-2">
+                <div className="text-xs sm:text-sm font-medium text-gray-800 mb-2">
                   <strong>Départs garantis du :</strong>
                 </div>
-                <div className="text-lg font-semibold text-gray-900">
+                <div className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
                   {new Date(offer.available_dates[0]).toLocaleDateString(
                     "fr-FR",
                     {
@@ -203,15 +203,15 @@ export default async function OfferDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="py-16 mx-auto px-20 mt-20">
+      <section className="py-8 sm:py-12 md:py-16 mx-auto px-4 sm:px-8 md:px-20 mt-8 sm:mt-12 md:mt-20">
         <Accordion type="multiple" className="w-full">
           {offer.description && (
             <AccordionItem value="description">
-              <AccordionTrigger className="text-xl font-semibold">
-                Détails de l'offre
+              <AccordionTrigger className="text-lg sm:text-xl font-semibold">
+                Détails de l&apos;offre
               </AccordionTrigger>
               <AccordionContent>
-                <div className="text-gray-700 ">
+                <div className="text-gray-700 text-sm sm:text-base">
                   {offer.description?.split("\n").map((line, index) => {
                     const isJourLine = /^Jour\s+\d+/i.test(line.trim());
                     return (
@@ -219,7 +219,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                         key={index}
                         className={
                           isJourLine
-                            ? "font-bold text-yellow-600 text-ms mb-2 mt-2"
+                            ? "font-bold text-yellow-600 text-sm sm:text-base mb-2 mt-2"
                             : ""
                         }
                       >
@@ -234,11 +234,11 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
           {offer.price_includes && (
             <AccordionItem value="includes">
-              <AccordionTrigger className="text-xl font-semibold text-green-700">
+              <AccordionTrigger className="text-lg sm:text-xl font-semibold text-green-700">
                 Nos tarifs comprennent
               </AccordionTrigger>
               <AccordionContent>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                <div className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line bg-green-50 p-3 sm:p-4 rounded-lg border-l-4 border-green-500">
                   {offer.price_includes}
                 </div>
               </AccordionContent>
@@ -247,11 +247,11 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
           {offer.price_excludes && (
             <AccordionItem value="excludes">
-              <AccordionTrigger className="text-xl font-semibold text-red-700">
+              <AccordionTrigger className="text-lg sm:text-xl font-semibold text-red-700">
                 Nos tarifs ne comprennent pas
               </AccordionTrigger>
               <AccordionContent>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                <div className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line bg-red-50 p-3 sm:p-4 rounded-lg border-l-4 border-red-500">
                   {offer.price_excludes}
                 </div>
               </AccordionContent>

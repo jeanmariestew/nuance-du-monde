@@ -38,7 +38,7 @@ export default function ThemesClient() {
 
   return (
     <div>
-      <section className="relative h-80 flex items-center justify-center">
+      <section className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center">
         <div className="absolute inset-0">
           <Image
             src="/images/themes_banner.jpeg"
@@ -48,16 +48,16 @@ export default function ThemesClient() {
           />
           <div className="absolute inset-0 bg-black/50" />
         </div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold">LES THÈMES</h1>
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">LES THÈMES</h1>
         </div>
       </section>
 
-      <section className="py-16">
-        <h2 className=" uppercase text-2xl text-yellow-500 font-semibold font-[Alro] px-10 pb-10">
+      <section className="py-8 sm:py-12 md:py-16">
+        <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10">
           Toutes les thèmes
         </h2>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8">
           {themes.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">

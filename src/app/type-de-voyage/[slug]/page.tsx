@@ -45,7 +45,7 @@ export default async function TravelTypePage({ params }: PageProps) {
 
   return (
     <div>
-      <section className="relative h-80 flex items-center justify-center">
+      <section className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center">
         <div className="absolute inset-0">
           {type.image_url ? (
             <Image src={type.image_url} alt={type.title} fill className="object-cover" />
@@ -54,10 +54,10 @@ export default async function TravelTypePage({ params }: PageProps) {
           )}
           <div className="absolute inset-0 bg-black/50" />
         </div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold">{type.title}</h1>
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{type.title}</h1>
           {type.short_description && (
-            <p className="text-lg md:text-xl mt-2 max-w-3xl mx-auto">{type.short_description}</p>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl mt-2 max-w-3xl mx-auto leading-relaxed">{type.short_description}</p>
           )}
         </div>
       </section>

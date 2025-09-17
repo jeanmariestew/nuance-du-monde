@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Destination, Offer } from "@/types";
+import { Destination } from "@/types";
 import OffersGrid from "@/components/OffersGrid";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import { useEffect, useState } from "react";
@@ -60,12 +59,12 @@ export default function DestinationClient({ destination, slug }: DestinationClie
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
 
-        <div className="relative z-30 text-left mb-40 text-white max-w-xl px-4">
-          <h1 className="text-3xl uppercase font-bold font-[Alro] mb-4">
+        <div className="relative z-30 text-left mb-20 sm:mb-32 md:mb-40 text-white max-w-xl px-4 sm:px-6 md:px-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl uppercase font-bold font-[Alro] mb-4">
             {destination.short_description}
           </h1>
           {destination.description && (
-            <p className="text-sm">{destination.description}</p>
+            <p className="text-xs sm:text-sm md:text-base leading-relaxed">{destination.description}</p>
           )}
         </div>
         <div className="absolute z-20 inset-0 bg-gradient-to-b from-black/20 to-black/95"></div>

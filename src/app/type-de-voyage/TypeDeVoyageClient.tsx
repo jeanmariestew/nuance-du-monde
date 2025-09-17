@@ -40,7 +40,7 @@ export default function TypeDeVoyageClient() {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <section className="relative h-96 flex items-start py-5 flex-col justify-end">
+      <section className="relative h-80 sm:h-88 md:h-96 flex items-start py-3 sm:py-4 md:py-5 flex-col justify-end">
         <div className="absolute inset-0">
           <Image
             src="/images/photo_type-de-voyage.png"
@@ -51,25 +51,25 @@ export default function TypeDeVoyageClient() {
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/60"></div>
-        <div className="relative z-10 text-left text-white px-8 max-w-2xl">
-          <div className="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4">
+        <div className="relative z-10 text-left text-white px-4 sm:px-6 md:px-8 max-w-2xl">
+          <div className="inline-block bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
             Catégorie
           </div>
-          <h1 className="text-3xl font-bold mb-6 font-[Alro]">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 font-[Alro]">
             TYPE DE VOYAGE
           </h1>
-          <p className="text-lg leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg leading-relaxed">
             Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos
             différents types de voyage vous invitent à une expérience
             enrichissante et taillée sur mesure.
           </p>
         </div>
       </section>
-      <div className="px-10">
-        <h2 className="text-2xl font-bold mb-6 text-yellow-500 font-[Alro]">
+      <div className="px-4 sm:px-6 md:px-10">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-5 md:mb-6 text-yellow-500 font-[Alro]">
           Type de voyage
         </h2>
-        <p className="text-lg leading-relaxed">
+        <p className="text-sm sm:text-base md:text-lg leading-relaxed">
           Inspirez-vous avec nos sélections exclusives de voyages pour une
           immersion authentique dans des destinations fascinantes à travers le
           monde.

@@ -55,7 +55,7 @@ export default function DestinationsClient() {
           <div className="absolute inset-0 bg-black/30 bg-opacity-50"></div>
         </div>
         {/* Floating decorative image */}
-        <div className="absolute top-8 right-8 w-20 h-20 opacity-70 z-5">
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-70 z-5">
           <Image
             src="/images/footer_bg.png"
             alt=""
@@ -65,11 +65,11 @@ export default function DestinationsClient() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/60"></div>
 
-        <div className="relative z-10 text-white max-w-2xl p-6 pb-20">
-          <h1 className="text-3xl font-bold mb-4 font-[Alro]">
+        <div className="relative z-10 text-white max-w-2xl p-4 sm:p-6 pb-12 sm:pb-16 md:pb-20">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 font-[Alro]">
             LES DESTINATIONS
           </h1>
-          <p className="text-sm">
+          <p className="text-xs sm:text-sm md:text-base leading-relaxed">
             Voyagez au cœur des plus belles destinations du monde à travers des
             itinéraires captivants et soigneusement conçus pour vous.
           </p>

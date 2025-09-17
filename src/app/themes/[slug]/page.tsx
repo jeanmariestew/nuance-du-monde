@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Offer, TravelTheme } from "@/types";
-import OfferCard from "@/components/cards/OfferCard";
+import { TravelTheme } from "@/types";
 import { generateMetadata as getMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
 import OffersGrid from "@/components/OffersGrid";
@@ -15,29 +14,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return await getMetadata('theme', slug);
 }
 
-async function getThemeData(slug: string): Promise<{ theme: TravelTheme | null; offers: Offer[] }> {
+async function getThemeData(slug: string): Promise<TravelTheme | null> {
   try {
-    const [themeRes, offersRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-themes/${slug}`, { cache: 'no-store' }),
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/offers?theme=${encodeURIComponent(slug)}`, { cache: 'no-store' })
-    ]);
-
+    const themeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-themes/${slug}`, { cache: 'no-store' });
     const themeData = await themeRes.json();
-    const offersData = await offersRes.json();
-
-    return {
-      theme: themeData.success ? themeData.data : null,
-      offers: offersData.success ? offersData.data : []
-    };
+    return themeData.success ? themeData.data : null;
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error);
-    return { theme: null, offers: [] };
+    return null;
   }
 }
 
 export default async function ThemePage({ params }: PageProps) {
   const { slug } = await params;
-  const { theme, offers } = await getThemeData(slug);
+  const theme = await getThemeData(slug);
 
   if (!theme) {
     return (
@@ -55,7 +45,7 @@ export default async function ThemePage({ params }: PageProps) {
 
   return (
     <div>
-      <section className="relative h-80 flex items-center justify-center">
+      <section className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center">
         <div className="absolute inset-0">
           {theme.banner_image_url ? (
             <Image src={theme.banner_image_url} alt={theme.title} fill className="object-cover" />
@@ -66,10 +56,10 @@ export default async function ThemePage({ params }: PageProps) {
           )}
           <div className="absolute inset-0 bg-black/50" />
         </div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold">{theme.title}</h1>
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{theme.title}</h1>
           {theme.short_description && (
-            <p className="text-lg md:text-xl mt-2 max-w-3xl mx-auto">{theme.short_description}</p>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl mt-2 max-w-3xl mx-auto leading-relaxed">{theme.short_description}</p>
           )}
         </div>
       </section>

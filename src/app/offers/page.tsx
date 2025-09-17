@@ -58,23 +58,23 @@ function OffersListContent() {
 
   return (
     <div>
-      <section className="bg-gray-100 py-10">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold">{pageTitle}</h1>
-          <p className="text-gray-600 mt-2">Découvrez nos propositions soigneusement sélectionnées.</p>
+      <section className="bg-gray-100 py-6 sm:py-8 md:py-10">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{pageTitle}</h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">Découvrez nos propositions soigneusement sélectionnées.</p>
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="container mx-auto px-4">
+      <section className="py-8 sm:py-10 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8">
           {loading ? (
-            <div className="text-center text-gray-600">Chargement des offres...</div>
+            <div className="text-center text-gray-600 text-sm sm:text-base">Chargement des offres...</div>
           ) : error ? (
-            <div className="text-center text-red-600">{error}</div>
+            <div className="text-center text-red-600 text-sm sm:text-base">{error}</div>
           ) : offers.length === 0 ? (
-            <div className="text-center text-gray-700">Aucune offre trouvée.</div>
+            <div className="text-center text-gray-700 text-sm sm:text-base">Aucune offre trouvée.</div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />
               ))}
