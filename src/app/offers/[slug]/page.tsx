@@ -2,6 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface OfferImage {
   id?: number;
@@ -147,21 +153,26 @@ export default async function OfferDetailPage({ params }: PageProps) {
           <p className="text-sm font-semibold">{offer.short_description}</p>
           <div className=" border border-gray-400 rounded-2xl p-4 my-5">
             {/* Prix */}
-            {(offer.promotional_price || offer.price) && offer.price_currency && (
-              <div className="mb-4">
-                <div className="flex font-semibold items-baseline gap-2">
-                  <span className="text-sm text-gray-600">À partir de</span>
-                  <span className="text-3xl font-semibold text-yellow-500">
-                    {offer.price_currency} {(offer.promotional_price || offer.price)?.toLocaleString('fr-FR', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
-                    })}
-                  </span>
-                  <span className="text-sm text-gray-600">/ personnes</span>
+            {(offer.promotional_price || offer.price) &&
+              offer.price_currency && (
+                <div className="mb-4">
+                  <div className="flex font-semibold items-baseline gap-2">
+                    <span className="text-sm text-gray-600">À partir de</span>
+                    <span className="text-3xl font-semibold text-yellow-500">
+                      {offer.price_currency}{" "}
+                      {(offer.promotional_price || offer.price)?.toLocaleString(
+                        "fr-FR",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </span>
+                    <span className="text-sm text-gray-600">/ personnes</span>
+                  </div>
                 </div>
-              </div>
-            )}
-            
+              )}
+
             {/* Dates */}
             {offer.available_dates && offer.available_dates.length > 0 && (
               <div>
@@ -169,15 +180,20 @@ export default async function OfferDetailPage({ params }: PageProps) {
                   <strong>Départs garantis du :</strong>
                 </div>
                 <div className="text-lg font-semibold text-gray-900">
-                  {new Date(offer.available_dates[0]).toLocaleDateString("fr-FR", {
+                  {new Date(offer.available_dates[0]).toLocaleDateString(
+                    "fr-FR",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}{" "}
+                  au{" "}
+                  {new Date(
+                    offer.available_dates[offer.available_dates.length - 1]
+                  ).toLocaleDateString("fr-FR", {
                     day: "numeric",
                     month: "long",
-                    year: "numeric",
-                  })}{" "}
-                  au{" "}
-                  {new Date(offer.available_dates[offer.available_dates.length - 1]).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long", 
                     year: "numeric",
                   })}
                 </div>
@@ -187,43 +203,61 @@ export default async function OfferDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="py-16 mt-20">
-        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-8">
-            //accordion
-            {offer.description && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Détails de l'offre</h2>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {offer.description}
+      <section className="py-16 mx-auto px-20 mt-20">
+        <Accordion type="multiple" className="w-full">
+          {offer.description && (
+            <AccordionItem value="description">
+              <AccordionTrigger className="text-xl font-semibold">
+                Détails de l'offre
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="text-gray-700 ">
+                  {offer.description?.split("\n").map((line, index) => {
+                    const isJourLine = /^Jour\s+\d+/i.test(line.trim());
+                    return (
+                      <div
+                        key={index}
+                        className={
+                          isJourLine
+                            ? "font-bold text-yellow-600 text-ms mb-2 mt-2"
+                            : ""
+                        }
+                      >
+                        {line || "\u00A0"}
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-            //accordion
-            {offer.price_includes && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4 text-green-700">
-                  Nos tarifs comprennent
-                </h2>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {offer.price_includes && (
+            <AccordionItem value="includes">
+              <AccordionTrigger className="text-xl font-semibold text-green-700">
+                Nos tarifs comprennent
+              </AccordionTrigger>
+              <AccordionContent>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
                   {offer.price_includes}
                 </div>
-              </div>
-            )}
-            //accordion
-            {offer.price_excludes && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4 text-red-700">
-                  Nos tarifs ne comprennent pas
-                </h2>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {offer.price_excludes && (
+            <AccordionItem value="excludes">
+              <AccordionTrigger className="text-xl font-semibold text-red-700">
+                Nos tarifs ne comprennent pas
+              </AccordionTrigger>
+              <AccordionContent>
                 <div className="text-gray-700 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
                   {offer.price_excludes}
                 </div>
-              </div>
-            )}
-          </div>
-
-        </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
       </section>
     </div>
   );

@@ -171,7 +171,7 @@ export default function OffersGrid({
             <div className="flex flex-wrap gap-4 flex-center items-end m-auto max-w-xl">
               {/* Select Destination - affiché si pas le paramètre principal */}
               {!destination && destinations.length > 0 && (
-                <div className="flex-1 max-w-xs">
+                <div className="flex-1 max-w-md">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Destination
                   </label>
@@ -197,7 +197,7 @@ export default function OffersGrid({
 
               {/* Select Type - affiché si pas le paramètre principal */}
               {!type && types.length > 0 && (
-                <div className="flex-1 max-w-xs">
+                <div className="flex-1 max-w-md">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Type de voyage
                   </label>
@@ -219,7 +219,7 @@ export default function OffersGrid({
 
               {/* Select Thème - affiché si pas le paramètre principal */}
               {!theme && themes.length > 0 && (
-                <div className="flex-1 max-w-xs">
+                <div className="flex-1 max-w-md">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Thème
                   </label>
@@ -246,7 +246,7 @@ export default function OffersGrid({
                     onClick={resetFilters}
                     className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
                   >
-                    Retirer tout les filtres
+                    X
                   </button>
                 </div>
               )}
