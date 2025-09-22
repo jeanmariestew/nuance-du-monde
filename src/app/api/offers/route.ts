@@ -5,6 +5,7 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const destination = url.searchParams.get('destination'); // slug
+    const continent = url.searchParams.get('continent'); // continent name
     const type = url.searchParams.get('type'); // slug
     const theme = url.searchParams.get('theme'); // slug
 
@@ -20,6 +21,13 @@ export async function GET(req: Request) {
       sql += `\nJOIN offer_destinations od ON od.offer_id = o.id\nJOIN destinations d ON d.id = od.destination_id`;
       parts.push('d.slug = ?');
       params.push(destination);
+    }
+    if (continent) {
+      if (!destination) {
+        sql += `\nJOIN offer_destinations od ON od.offer_id = o.id\nJOIN destinations d ON d.id = od.destination_id`;
+      }
+      parts.push('d.continent = ?');
+      params.push(continent);
     }
     if (type) {
       sql += `\nJOIN offer_travel_types ott ON ott.offer_id = o.id\nJOIN travel_types tt ON tt.id = ott.travel_type_id`;

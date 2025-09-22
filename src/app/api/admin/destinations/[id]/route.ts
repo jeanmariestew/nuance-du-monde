@@ -25,6 +25,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const {
     title,
     slug,
+    continent = null,
     description = null,
     short_description = null,
     image_url = null,
@@ -42,8 +43,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     await query(
-      `UPDATE destinations SET title=?, slug=?, description=?, short_description=?, image_url=?, banner_image_url=?, price_from=?, price_currency=?, duration_days=?, duration_nights=?, group_size_min=?, group_size_max=?, sort_order=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-      [title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active ? 1 : 0, id]
+      `UPDATE destinations SET title=?, slug=?, continent=?, description=?, short_description=?, image_url=?, banner_image_url=?, price_from=?, price_currency=?, duration_days=?, duration_nights=?, group_size_min=?, group_size_max=?, sort_order=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+      [title, slug, continent, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active ? 1 : 0, id]
     );
     return NextResponse.json({ success: true });
   } catch (e: any) {

@@ -80,14 +80,14 @@ export async function POST(request: NextRequest) {
 
     const squery = `
       INSERT INTO destinations (
-        title, slug, description, short_description, image_url, banner_image_url,
+        title, slug, continent, description, short_description, image_url, banner_image_url,
         price_from, price_currency, duration_days, duration_nights,
         group_size_min, group_size_max, sort_order
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
-      title, slug, description, short_description, image_url, banner_image_url,
+      title, slug, body.continent || null, description, short_description, image_url, banner_image_url,
       price_from, price_currency, duration_days, duration_nights,
       group_size_min, group_size_max,
       sort_order

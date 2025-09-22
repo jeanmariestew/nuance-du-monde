@@ -7,6 +7,7 @@ interface Destination {
   id: number;
   title: string;
   slug: string;
+  continent?: string;
   short_description?: string;
   banner_image_url?: string;
   price_from?: number;
@@ -73,6 +74,13 @@ export default function DestinationsGrid({
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                         <span className="text-gray-400">
                           Pas d&apos;image
+                        </span>
+                      </div>
+                    )}
+                    {destination.continent && (
+                      <div className="absolute top-2 left-2 z-20">
+                        <span className="bg-yellow-600/90 text-white text-xs px-2 py-1 rounded-full font-medium">
+                          {destination.continent}
                         </span>
                       </div>
                     )}

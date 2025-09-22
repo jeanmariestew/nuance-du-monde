@@ -11,6 +11,7 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
+    continent: "",
     description: "",
     short_description: "",
     banner_image_url: "",
@@ -50,6 +51,7 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
           setFormData({
             title: data.title || "",
             slug: data.slug || "",
+            continent: data.continent || "",
             description: data.description || "",
             short_description: data.short_description || "",
             banner_image_url: data.banner_image_url || "",
@@ -205,6 +207,26 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="continent" className="block text-sm font-medium text-gray-700 mb-1">Continent</label>
+                <select
+                  id="continent"
+                  name="continent"
+                  value={formData.continent}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Sélectionner un continent</option>
+                  <option value="Afrique">Afrique</option>
+                  <option value="Amérique du Nord">Amérique du Nord</option>
+                  <option value="Amérique du Sud">Amérique du Sud</option>
+                  <option value="Asie">Asie</option>
+                  <option value="Europe">Europe</option>
+                  <option value="Océanie">Océanie</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Le continent où se situe cette destination</p>
               </div>
 
               <div>

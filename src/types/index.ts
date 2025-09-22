@@ -75,6 +75,7 @@ export interface Destination {
   id: number;
   title: string;
   slug: string;
+  continent?: string;
   description?: string;
   short_description?: string;
   image_url?: string;

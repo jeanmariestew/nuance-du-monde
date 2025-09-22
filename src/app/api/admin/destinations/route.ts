@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const {
     title,
     slug,
+    continent = null,
     description = null,
     short_description = null,
     image_url = null,
@@ -48,9 +49,9 @@ export async function POST(req: Request) {
 
   try {
     const res = await execute(
-      'INSERT INTO destinations (title, slug, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO destinations (title, slug, continent, description, short_description, image_url, banner_image_url, price_from, price_currency, duration_days, duration_nights, group_size_min, group_size_max, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
-        title, slug, description, short_description, image_url, banner_image_url,
+        title, slug, continent, description, short_description, image_url, banner_image_url,
         price_from, price_currency, duration_days, duration_nights,
         group_size_min, group_size_max,
         sort_order, is_active ? 1 : 0,

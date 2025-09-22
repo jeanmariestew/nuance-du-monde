@@ -48,6 +48,7 @@ export async function PUT(
 
     const {
       title,
+      continent,
       description,
       short_description,
       image_url,
@@ -64,7 +65,7 @@ export async function PUT(
 
     const squery = `
       UPDATE destinations SET
-        title = ?, description = ?, short_description = ?, image_url = ?,
+        title = ?, continent = ?, description = ?, short_description = ?, image_url = ?,
         banner_image_url = ?, price_from = ?, price_currency = ?,
         duration_days = ?, duration_nights = ?, group_size_min = ?,
         group_size_max = ?, sort_order = ?,
@@ -73,7 +74,7 @@ export async function PUT(
     `;
 
     const params = [
-      title, description, short_description, image_url, banner_image_url,
+      title, continent || null, description, short_description, image_url, banner_image_url,
       price_from, price_currency, duration_days, duration_nights,
       group_size_min, group_size_max,
       sort_order, is_active, slug

@@ -13,6 +13,7 @@ type AdminDestination = {
   id: number;
   title: string;
   slug: string;
+  continent?: string;
   is_active: 0 | 1 | boolean;
   offer_count?: number;
 };
@@ -50,6 +51,7 @@ export default function AdminDestinationsPage() {
             <Tr>
               <Th>Titre</Th>
               <Th>Slug</Th>
+              <Th>Continent</Th>
               <Th>Offres liées</Th>
               <Th>Actif</Th>
               <Th>Actions</Th>
@@ -60,6 +62,7 @@ export default function AdminDestinationsPage() {
               <Tr key={d.id}>
                 <Td className="font-medium">{d.title}</Td>
                 <Td>{d.slug}</Td>
+                <Td>{d.continent || <span className="text-gray-400">Non défini</span>}</Td>
                 <Td>{d.offer_count}</Td>
                 <Td>
                   {d.is_active ? <Badge variant="success">Oui</Badge> : <Badge variant="muted">Non</Badge>}

@@ -9,6 +9,7 @@ interface Destination {
   id: number;
   title: string;
   slug: string;
+  continent?: string;
   short_description?: string;
   banner_image_url?: string;
   price_from?: number;
