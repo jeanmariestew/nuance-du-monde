@@ -247,3 +247,8 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
+
+// Interface pour les destinations groupées par continent
+export interface DestinationsByContinent {
+  [continent: string]: Destination[];
+}

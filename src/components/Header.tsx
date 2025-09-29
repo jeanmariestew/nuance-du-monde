@@ -2,12 +2,47 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { XIcon } from "lucide-react";
+import DestinationsDropdown from "./DestinationsDropdown";
+import MobileDestinationsMenu from "./MobileDestinationsMenu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showDestinationsDropdown, setShowDestinationsDropdown] = useState(false);
+  const [showMobileDestinations, setShowMobileDestinations] = useState(false);
+  const destinationsRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleDestinationsContainerMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setShowDestinationsDropdown(true);
+  };
+
+  const handleDestinationsContainerMouseLeave = () => {
+    // Délai de 300ms pour permettre les mouvements de souris
+    timeoutRef.current = setTimeout(() => {
+      setShowDestinationsDropdown(false);
+    }, 300);
+  };
+
+  // Nettoyage du timeout à la destruction du composant
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Fermer les menus quand on ferme le menu mobile
+  const handleMobileMenuClose = () => {
+    setIsMenuOpen(false);
+    setShowMobileDestinations(false);
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xl shadow-black/20">
@@ -29,26 +64,47 @@ const Header = () => {
           <nav className="flex justify-between items-center space-x-8">
             <Link
               href="/type-de-voyage"
-              className="text-gray-700 hidden lg:block hover:text-black transition-colors text-sm font-medium"
+              className="text-gray-700 hidden md:block hover:text-black transition-colors text-sm font-medium"
             >
               Type de voyage
             </Link>
-            <Link
-              href="/destinations"
-              className="text-gray-700  hidden lg:block hover:text-black transition-colors text-sm font-medium"
+            {/* Menu Destinations Desktop */}
+            <div 
+              ref={destinationsRef}
+              className="relative hidden lg:block"
+              onMouseEnter={handleDestinationsContainerMouseEnter}
+              onMouseLeave={handleDestinationsContainerMouseLeave}
             >
-              Destinations
-            </Link>
+              <Link
+                href="/destinations"
+                className="text-gray-700 hover:text-black transition-colors text-sm font-medium flex items-center gap-1"
+              >
+                Destinations
+              </Link>
+              {showDestinationsDropdown && (
+                <DestinationsDropdown onClose={() => setShowDestinationsDropdown(false)} />
+              )}
+            </div>
+            
+            {/* Menu Destinations Tablette */}
+            <div className="relative hidden md:block lg:hidden">
+              <Link
+                href="/destinations"
+                className="text-gray-700 hover:text-black transition-colors text-sm font-medium"
+              >
+                Destinations
+              </Link>
+            </div>
             <Link
               href="/themes"
-              className="text-gray-700 hidden lg:block hover:text-black transition-colors text-sm font-medium"
+              className="text-gray-700 hidden md:block hover:text-black transition-colors text-sm font-medium"
             >
               Thème de voyage
             </Link>
 
             {/* Menu Mobile */}
             <button
-              className="lg:hidden"
+              className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <svg
@@ -74,30 +130,41 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Menu Mobile Dropdown */}
+        {/* Menu Mobile & Tablette Dropdown */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-white/10 h-screen flex flex-col justify-center items-center ">
-            <nav className="flex flex-col space-y-7">
+          <div className="md:hidden py-4 border-t border-white/10 h-screen flex flex-col justify-center items-center ">
+            <nav className="flex flex-col space-y-7 max-w-sm w-full px-4">
               <Link
                 href="/type-de-voyage"
                 className="text-black text-center transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={handleMobileMenuClose}
               >
                 Type de voyage
               </Link>
-              <Link
-                href="/destinations"
-                className="text-black text-center transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Destinations
-              </Link>
+              <div className="text-center">
+                <button
+                  onClick={() => setShowMobileDestinations(!showMobileDestinations)}
+                  className="text-black transition-colors mb-2 font-medium"
+                >
+                  Destinations
+                </button>
+                {showMobileDestinations && (
+                  <MobileDestinationsMenu onClose={handleMobileMenuClose} />
+                )}
+              </div>
               <Link
                 href="/themes"
                 className="text-black text-center transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={handleMobileMenuClose}
               >
                 Thème de voyage
+              </Link>
+              <Link
+                href="/demander-devis"
+                className="text-black text-center transition-colors mt-8 px-4 py-2 border border-black rounded-md"
+                onClick={handleMobileMenuClose}
+              >
+                Demander un devis
               </Link>
             </nav>
             <XIcon className="w-14 h-14 absolute top-4 right-4 cursor-pointer" onClick={() => setIsMenuOpen(false)} />
