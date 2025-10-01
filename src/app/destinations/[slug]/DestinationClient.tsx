@@ -37,7 +37,7 @@ export default function DestinationClient({ destination, slug }: DestinationClie
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-screen flex items-end">
+      <section className="relative h-screen flex items-center md:items-end">
         <div className="absolute inset-0">
           {destination.banner_image_url ? (
             <Image
@@ -45,6 +45,7 @@ export default function DestinationClient({ destination, slug }: DestinationClie
               alt={destination.title}
               fill
               className="object-cover z-10"
+              priority
             />
           ) : destination.image_url ? (
             <Image
@@ -52,6 +53,7 @@ export default function DestinationClient({ destination, slug }: DestinationClie
               alt={destination.title}
               fill
               className="object-cover z-10"
+              priority
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600"></div>
@@ -59,13 +61,17 @@ export default function DestinationClient({ destination, slug }: DestinationClie
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         </div>
 
-        <div className="relative z-30 text-left mb-20 sm:mb-32 md:mb-40 text-white max-w-xl px-4 sm:px-6 md:px-8">
-          <h1 className="text-xl sm:text-2xl md:text-3xl uppercase font-bold font-[Alro] mb-4">
-            {destination.short_description}
-          </h1>
-          {destination.description && (
-            <p className="text-xs sm:text-sm md:text-base leading-relaxed">{destination.description}</p>
-          )}
+        <div className="relative z-30 w-full text-center md:text-left mb-0 md:mb-40 text-white px-6 sm:px-8 md:px-12">
+          <div className="max-w-xl mx-auto md:mx-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl uppercase font-bold font-[Alro] mb-4 md:mb-6">
+              {destination.short_description}
+            </h1>
+            {destination.description && (
+              <p className="text-sm sm:text-base md:text-lg leading-relaxed">
+                {destination.description}
+              </p>
+            )}
+          </div>
         </div>
         <div className="absolute z-20 inset-0 bg-gradient-to-b from-black/20 to-black/95"></div>
       </section>
