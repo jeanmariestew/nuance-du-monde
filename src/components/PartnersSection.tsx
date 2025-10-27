@@ -33,7 +33,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
           passion et expertise pour offrir à nos clients des aventures uniques.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mx-auto">
+        <div className="grid grid-cols-1 max-w-5xl md:grid-cols-4 gap-6 mx-auto">
           {partners.map((partner) => (
             <Link
               key={partner.id}
@@ -41,7 +41,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
               href={partner.website_url || ""}
             >
               <div className="p-1">
-                <div className="relative w-full h-36 mx-auto mb-4">
+                <div className="relative w-full h-48 mx-auto mb-4">
                   {partner.image_url ? (
                     <Image
                       src={partner.image_url}

@@ -36,10 +36,10 @@ const Footer = () => {
               <Image
                 src="/images/logo.png"
                 alt="Nuance du Monde"
-                width={200}
-                height={80}
-                className="h-auto"
-                priority
+                width={250}
+                height={100}
+                className="h-20"
+                // priority
               />
             </div>
 

@@ -41,7 +41,7 @@ const DestinationsDropdown: React.FC<DestinationsDropdownProps> = ({ onClose }) 
 
   const formatPrice = (price?: number, currency?: string) => {
     if (!price) return '';
-    return `À partir de ${price.toLocaleString()} ${currency || 'CAD'}`;
+    return `À partir de ${price.toLocaleString()} ${ 'CAD'}`;
   };
 
   const formatDuration = (days?: number, nights?: number) => {
