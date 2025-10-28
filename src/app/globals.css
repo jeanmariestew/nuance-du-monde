@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 /* Ancienne font et variables */
 @theme inline {
@@ -48,14 +49,22 @@
 
 body {
   font-family: 'Quicksand', sans-serif;
+  font-size: 16px; /* Taille de base pour une lisibilité optimale */
+  line-height: 1.6; /* Line-height confortable pour la lecture */
 }
 
-/* Typography en pixels */
-.h1 { font-size: 48px; line-height: 120%; font-weight: 800; }
-.h2 { font-size: 40px; line-height: 120%; font-weight: 800; }
-.h3 { font-size: 32px; line-height: 130%; font-weight: 700; }
-.h4 { font-size: 24px; line-height: 140%; font-weight: 700; }
-.h5 { font-size: 18px; line-height: 140%; font-weight: 600; }
+/* Typography en pixels - Quicksand nécessite des tailles généreuses pour la lisibilité */
+.h1 { font-size: 52px; line-height: 120%; font-weight: 700; }
+.h2 { font-size: 44px; line-height: 120%; font-weight: 700; }
+.h3 { font-size: 36px; line-height: 130%; font-weight: 700; }
+.h4 { font-size: 28px; line-height: 140%; font-weight: 600; }
+.h5 { font-size: 22px; line-height: 140%; font-weight: 600; }
+
+/* Classes utilitaires pour le texte - tailles minimales pour Quicksand */
+.text-body-large { font-size: 18px; line-height: 1.6; }
+.text-body { font-size: 16px; line-height: 1.6; }
+.text-body-small { font-size: 15px; line-height: 1.5; }
+.text-caption { font-size: 14px; line-height: 1.5; font-weight: 500; } /* Minimum absolu */
 
 /* Couleurs mises à jour basées sur l'image */
 :root {
@@ -252,5 +261,36 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Cacher toutes les scrollbars sur tout le site */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Permettre le scroll mais cacher la barre */
+html {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Marges régulières pour tous les containers du site */
+.site-container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16;
+  max-width: 1400px;
+}
+
+.site-section {
+  @apply py-12 sm:py-16 lg:py-20;
 }
 

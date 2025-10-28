@@ -64,7 +64,7 @@ const Header = () => {
           <nav className="flex justify-between items-center space-x-8">
             <Link
               href="/type-de-voyage"
-              className="text-gray-700 hidden md:block hover:text-black transition-colors text-sm font-medium"
+              className="text-gray-700 hidden md:block hover:text-black transition-colors text-base font-medium"
             >
               Type de voyage
             </Link>
@@ -90,14 +90,14 @@ const Header = () => {
             <div className="relative hidden md:block lg:hidden">
               <Link
                 href="/destinations"
-                className="text-gray-700 hover:text-black transition-colors text-sm font-medium"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium"
               >
                 Destinations
               </Link>
             </div>
             <Link
               href="/themes"
-              className="text-gray-700 hidden md:block hover:text-black transition-colors text-sm font-medium"
+              className="text-gray-700 hidden md:block hover:text-black transition-colors text-base font-medium"
             >
               Thème de voyage
             </Link>
@@ -124,7 +124,7 @@ const Header = () => {
           </nav>
           <Link
             href="/demander-devis"
-            className={clsx("px-3 py-4 border border-black rounded-md transition-colors inline-block text-sm font-medium")}
+            className={clsx("px-4 py-4 border border-black rounded-md transition-colors inline-block text-base font-medium")}
           >
             Demander un devis
           </Link>

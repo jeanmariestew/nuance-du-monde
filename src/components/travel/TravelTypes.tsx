@@ -36,7 +36,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
             <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
               <div className="text-white text-center">
                 <div className="text-4xl mb-2">🌍</div>
-                <p className="text-sm">Image à venir</p>
+                <p className="text-base">Image à venir</p>
               </div>
             </div>
           )}
@@ -45,7 +45,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
             <div>
               <h3 className="text-2xl font-bold mb-4 font-[Alro]">{travelType.title}</h3>
               {travelType.short_description && (
-                <p className="text-sm leading-relaxed">
+                <p className="text-base leading-relaxed">
                   {travelType.short_description}
                 </p>
               )}
@@ -53,7 +53,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
             <div className="flex items-center justify-between">
               <Link
                 href={`/type-de-voyage/${travelType.slug}`}
-                className="bg-[#d9a900] text-white text-sm px-4 py-2 rounded font-semibold   transition-colors"
+                className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold   transition-colors"
               >
                 Explorer
               </Link>

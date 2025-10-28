@@ -56,7 +56,7 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
                 </h2>
                 <Link
                   href="/themes"
-                  className="bg-[#d9a900] text-sm text-white px-6 py-3 rounded   transition-colors inline-block mt-8"
+                  className="bg-[#d9a900] text-base text-white px-8 py-4 rounded   transition-colors inline-block mt-8"
                 >
                   Voir tous les thèmes
                 </Link>

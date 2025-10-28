@@ -117,7 +117,7 @@ export default function TestimonialsSection({
               <h2 className="text-3xl font-bold mb-6 font-[Alro]">
                 ILS ONT VOYAGÉ AVEC NOUS _ INSPIREZ-VOUS DE LEURS AVIS
               </h2>
-              <p className="text-sm text-gray-700">
+              <p className="text-base text-gray-700">
                 Découvrez comment nos séjours sur mesure ont transformé les
                 voyages de nos clients en aventures inoubliables. Nous avons
                 conçu des itinéraires personnalisés pour répondre à des besoins
@@ -206,7 +206,7 @@ export default function TestimonialsSection({
                           className="text-yellow-400 flex-shrink-0 mt-1"
                           size={20}
                         />
-                        <p className="text-black text-sm leading-relaxed">
+                        <p className="text-black text-base leading-relaxed">
                           {testimonial.testimonial_text}
                         </p>
                         <Quote

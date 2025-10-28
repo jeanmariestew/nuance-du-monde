@@ -45,7 +45,7 @@ export default function HeroAnimated() {
               type="text"
               className="w-full max-w-40 px-2 py-[2px] rounded-sm bg-white text-gray-900 placeholder-gray-500 border border-white/70 shadow-lg focus:outline-none"
             />
-            <button className="px-1 py-1 rounded-sm bg-white text-black text-sm shadow hover:brightness-95 transition-colors">Rechercher</button>
+            <button className="px-2 py-1 rounded-sm bg-white text-black text-base shadow hover:brightness-95 transition-colors">Rechercher</button>
           </div>
 
           <div className="mt-10 flex items-center gap-8">
@@ -55,7 +55,7 @@ export default function HeroAnimated() {
               <div className="ripple-wave"></div>
               <div className="absolute inset-1 rounded-full bg-[#fff] pulse-animation" />
             </div>
-            <span className="text-sm font-bold max-w-36">Explorer les thèmes et destinations</span>
+            <span className="text-base font-bold max-w-36">Explorer les thèmes et destinations</span>
           </div>
         </div>
 

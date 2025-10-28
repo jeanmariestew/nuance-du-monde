@@ -79,7 +79,7 @@ export default function DestinationsGrid({
                     )}
                     {destination.continent && (
                       <div className="absolute top-2 left-2 z-20">
-                        <span className="bg-yellow-600/90 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        <span className="bg-yellow-600/90 text-white text-sm px-3 py-1.5 rounded-full font-medium">
                           {destination.continent}
                         </span>
                       </div>

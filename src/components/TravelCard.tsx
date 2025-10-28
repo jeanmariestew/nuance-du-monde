@@ -36,7 +36,7 @@ export default function TravelCard({
           />
           {/* Overlay text */}
           <div className="absolute bottom-4 left-4 text-white">
-            <p className="text-sm font-medium">{category}</p>
+            <p className="text-base font-medium">{category}</p>
             <h3 className="text-xl font-bold">{destination}</h3>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function TravelCard({
                 <p className="text-gray-800 font-medium leading-relaxed">
                   {title}
                 </p>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-gray-600 text-base mt-1">
                   {description}
                 </p>
                 <p className="text-gray-700 font-medium mt-2">
@@ -71,12 +71,12 @@ export default function TravelCard({
 
           {/* Price section */}
           <div className="border-2 border-blue-300 rounded-xl p-4 bg-blue-50/30">
-            <p className="text-sm text-gray-600 mb-1">À partir de</p>
+            <p className="text-base text-gray-600 mb-1">À partir de</p>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-bold text-yellow-600">{currency}</span>
               <span className="text-3xl font-bold text-yellow-600">{price}</span>
             </div>
-            <p className="text-sm text-gray-600 mt-1">/ personne</p>
+            <p className="text-base text-gray-600 mt-1">/ personne</p>
           </div>
         </div>
       </div>

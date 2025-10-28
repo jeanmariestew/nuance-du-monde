@@ -170,7 +170,7 @@ const Footer = () => {
 
           {/* Section copyright et informations légales */}
           <div className="border-t border-white/20 mt-12 md:mt-16 pt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-xs md:text-sm text-gray-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-sm md:text-base text-gray-300">
               <div className="text-center md:text-left">
                 <p className="mb-2">
                   L&apos;adresse : 1087 Laurier Ouest, QC H2V2L2, Montréal,

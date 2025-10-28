@@ -42,7 +42,7 @@ export default function OfferCard({ offer }: Props) {
             {/* Overlay text */}
             <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
               <h3 className="text-lg sm:text-xl font-bold">{destination}</h3>
-              <p className="text-xs sm:text-sm font-medium">{category}</p>
+              <p className="text-sm sm:text-base font-medium">{category}</p>
             </div>
           </div>
 
@@ -62,11 +62,11 @@ export default function OfferCard({ offer }: Props) {
                   />
                 </div>
                 <div>
-                  <p className="text-gray-800 font-semibold text-xs sm:text-sm leading-relaxed">
+                  <p className="text-gray-800 font-semibold text-sm sm:text-base leading-relaxed">
                     {description}
                   </p>
                   {duration && (
-                    <p className="text-gray-700 font-semibold text-xs sm:text-sm">{duration}</p>
+                    <p className="text-gray-700 font-semibold text-sm sm:text-base">{duration}</p>
                   )}
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function OfferCard({ offer }: Props) {
 
             {/* Price section */}
             <div className="border-2 border-gray-300 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-blue-50/30 mt-3 sm:mt-4 flex-shrink-0">
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">À partir de</p>
+              <p className="text-sm sm:text-base text-gray-600 mb-1">À partir de</p>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg sm:text-xl font-bold text-yellow-500">
                   {currency}
@@ -83,7 +83,7 @@ export default function OfferCard({ offer }: Props) {
                   {price}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">/ personne</p>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">/ personne</p>
             </div>
           </div>
         </div>
