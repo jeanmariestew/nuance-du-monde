@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import OffersGrid from "@/components/OffersGrid";
 import { useDestinationsByContinent } from "@/hooks/useDestinationsByContinent";
@@ -64,20 +65,20 @@ export default function DestinationsClient() {
   }, [selectedContinent, destinations]);
 
 
-  // Couleurs spécifiques pour chaque continent
-  const continentColorsMap: Record<string, { bg: string; dots: string }> = {
-    'Afrique': { bg: 'from-orange-600 to-orange-700', dots: 'from-orange-400/40 to-transparent' },
-    'Amérique du Nord': { bg: 'from-blue-600 to-blue-700', dots: 'from-blue-400/40 to-transparent' },
-    'Amérique du Sud': { bg: 'from-lime-500 to-lime-600', dots: 'from-lime-300/40 to-transparent' },
-    'Asie': { bg: 'from-red-600 to-red-700', dots: 'from-red-400/40 to-transparent' },
-    'Europe': { bg: 'from-purple-600 to-purple-700', dots: 'from-purple-400/40 to-transparent' },
-    'Océanie': { bg: 'from-teal-500 to-teal-600', dots: 'from-teal-300/40 to-transparent' },
-    'Moyen-Orient': { bg: 'from-amber-600 to-amber-700', dots: 'from-amber-400/40 to-transparent' },
-    'Antarctique': { bg: 'from-cyan-400 to-cyan-500', dots: 'from-cyan-200/40 to-transparent' },
+  // Images et couleurs pour chaque continent
+  const continentImagesMap: Record<string, { image: string; overlay: string }> = {
+    'Afrique': { image: '/continent/afrique.jpg', overlay: 'bg-black/50' },
+    'Amérique du Nord': { image: '/continent/amérique-du-nord.jpg', overlay: 'bg-black/50' },
+    'Amérique du Sud': { image: '/continent/amérique-du-sud.jpg', overlay: 'bg-black/50' },
+    'Asie': { image: '/continent/asie.jpg', overlay: 'bg-black/50' },
+    'Europe': { image: '/continent/europe.jpg', overlay: 'bg-black/50' },
+    'Océanie': { image: '', overlay: 'bg-black/50' },
+    'Moyen-Orient': { image: '', overlay: 'bg-black/50' },
+    'Antarctique': { image: '', overlay: 'bg-black/50' },
   };
   
-  const getColorScheme = (continent: string) => {
-    return continentColorsMap[continent] || { bg: 'from-gray-600 to-gray-700', dots: 'from-gray-400/40 to-transparent' };
+  const getContinentStyle = (continent: string) => {
+    return continentImagesMap[continent] || { image: '', overlay: 'bg-gray-600/40' };
   };
 
   const continents = destinationsByContinent ? Object.keys(destinationsByContinent).sort() : [];
@@ -102,52 +103,90 @@ export default function DestinationsClient() {
         {/* Rectangles de continents en une seule ligne */}
         <div className="absolute inset-0 flex gap-0">
           {continents.map((continent) => {
-            const colorScheme = getColorScheme(continent);
             const destinationCount = destinationsByContinent?.[continent]?.length || 0;
             const isSelected = selectedContinent === continent;
+            const continentStyle = getContinentStyle(continent);
+            const continentDestinations = destinationsByContinent?.[continent] || [];
             
             return (
-              <Link
+              <div
                 key={continent}
-                href={`/destinations?continent=${encodeURIComponent(continent)}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedContinent(continent);
-                  window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
-                }}
-                className={`group relative flex-1 overflow-hidden hover:flex-[1.2] transition-all duration-500 ease-in-out ${
+                className={`group relative flex-1 overflow-visible hover:flex-[1.2] transition-all duration-500 ease-in-out ${
                   isSelected ? 'flex-[1.3] ring-4 ring-white/50' : ''
                 }`}
               >
-                {/* Fond coloré avec dégradé */}
-                <div className={`absolute inset-0 bg-gradient-to-b ${colorScheme.bg}`}></div>
-                
-                {/* Effet de points en dégradé (style de l'image) */}
-                <div 
-                  className={`absolute inset-0 bg-gradient-to-b ${colorScheme.dots}`}
-                  style={{
-                    backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
-                    backgroundSize: '20px 20px',
-                    opacity: 0.6
+                <Link
+                  href={`/destinations?continent=${encodeURIComponent(continent)}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedContinent(continent);
+                    window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
                   }}
-                ></div>
-                
-                {/* Dégradé pour la lisibilité */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
-                
-                {/* Contenu centré */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12">
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 text-center">
-                    {continent}
-                  </h3>
-                  <p className="text-white/90 text-base sm:text-lg lg:text-xl font-medium text-center">
-                    {destinationCount} {destinationCount > 1 ? 'destinations' : 'destination'}
-                  </p>
+                  className="absolute inset-0 overflow-hidden"
+                >
+                  {/* Image de fond */}
+                  {continentStyle.image ? (
+                    <Image 
+                      src={continentStyle.image} 
+                      alt={continent}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 768px) 100vw, 20vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-600"></div>
+                  )}
+                  
+                  {/* Overlay coloré transparent */}
+                  <div className={`absolute inset-0 ${continentStyle.overlay} group-hover:bg-black/40 transition-colors duration-300`}></div>
+                  
+                  {/* Dégradé pour la lisibilité */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
+                  
+                  {/* Contenu centré */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 text-center drop-shadow-2xl">
+                      {continent}
+                    </h3>
+                    <p className="text-white/90 text-base sm:text-lg lg:text-xl font-medium text-center drop-shadow-lg">
+                      {destinationCount} {destinationCount > 1 ? 'destinations' : 'destination'}
+                    </p>
+                  </div>
+                  
+                  {/* Effet hover */}
+                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></div>
+                </Link>
+
+                {/* Menu déroulant des destinations au hover */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-12 transition-all duration-300 z-50 pointer-events-none group-hover:pointer-events-auto">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-3 px-4 min-w-[200px] max-h-[400px] overflow-y-auto">
+                    <div className="space-y-1">
+                      {continentDestinations.slice(0, 8).map((dest: Destination) => (
+                        <Link
+                          key={dest.id}
+                          href={`/destinations/${dest.slug}`}
+                          className="block px-3 py-2 text-sm text-white rounded-md transition-colors duration-200 font-medium"
+                        >
+                          {dest.title}
+                        </Link>
+                      ))}
+                      {continentDestinations.length > 8 && (
+                        <Link
+                          href={`/destinations?continent=${encodeURIComponent(continent)}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedContinent(continent);
+                            window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
+                          }}
+                          className="block px-3 py-2 text-sm text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors duration-200 font-semibold text-center border-t border-gray-200 mt-2 pt-3"
+                        >
+                          Voir toutes les destinations →
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
-                {/* Effet hover */}
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300"></div>
-              </Link>
+              </div>
             );
           })}
         </div>

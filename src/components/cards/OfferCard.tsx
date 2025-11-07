@@ -24,66 +24,67 @@ export default function OfferCard({ offer }: Props) {
   const category = offer.meta_title || "Voyage";
   const description = offer.label || "";
   return (
-    <Link href={`/offers/${offer.slug}`} className="block">
-      <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden max-w-2xl mx-auto shadow-lg sm:shadow-2xl border-gray-200 border-[1px] sm:border-[2px] hover:shadow-xl transition-shadow h-auto sm:h-[300px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+    <Link href={`/offers/${offer.slug}`} className="block group h-full">
+      <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl border-gray-200 border-2 transition-all duration-300 group-hover:border-yellow-400 h-full flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-5 flex-1">
           {/* Left side - Image */}
-          <div className="relative h-[200px] sm:h-[250px] md:h-[300px]">
+          <div className="relative md:col-span-2 h-[220px] md:h-auto">
             <Image
               src={imageUrl}
               alt={destination}
               fill
-              className="object-cover p-1 sm:p-2 rounded-l-2xl sm:rounded-l-3xl"
+              className="object-cover p-2 rounded-xl group-hover:scale-105 transition-transform duration-500"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/images/destination_fond.png";
               }}
             />
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent m-2 rounded-xl" />
             {/* Overlay text */}
-            <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
-              <h3 className="text-lg sm:text-xl font-bold">{destination}</h3>
-              <p className="text-sm sm:text-base font-medium">{category}</p>
+            <div className="absolute bottom-4 left-4 text-white z-10">
+              <h3 className="text-xl sm:text-2xl font-bold drop-shadow-lg">{destination}</h3>
+              <p className="text-sm sm:text-base font-medium opacity-90">{category}</p>
             </div>
           </div>
 
           {/* Right side - Content */}
-          <div className="p-4 sm:p-6 flex flex-col justify-between h-full min-h-[200px] sm:min-h-[300px]">
-            <div className="flex-1 overflow-y-auto pr-1 sm:pr-2">
-              <h2 className="text-lg sm:text-xl md:text-2xl text-yellow-500 mb-3 sm:mb-4 font-[Alro]">
+          <div className="md:col-span-3 p-5 sm:p-6 flex flex-col justify-between h-full">
+            <div className="flex-1">
+              <h2 className="text-xl sm:text-2xl text-yellow-500 mb-3 font-[Alro] line-clamp-2 min-h-[3.5rem]">
                 {title}
               </h2>
 
-              <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="flex items-start gap-3 mb-4">
                 <div className="flex-shrink-0 mt-1">
-                  <img
+                  <Image
                     src="/images/moving.map.png"
                     alt=""
-                    className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600"
+                    width={20}
+                    height={20}
+                    className="text-gray-600"
                   />
                 </div>
-                <div>
-                  <p className="text-gray-800 font-semibold text-sm sm:text-base leading-relaxed">
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-800 font-semibold text-sm sm:text-base leading-relaxed line-clamp-2 min-h-[2.5rem]">
                     {description}
                   </p>
-                  {duration && (
-                    <p className="text-gray-700 font-semibold text-sm sm:text-base">{duration}</p>
-                  )}
+                  <p className="text-gray-700 font-medium text-sm sm:text-base mt-1 h-6">
+                    {duration || '\u00A0'}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Price section */}
-            <div className="border-2 border-gray-300 rounded-lg sm:rounded-xl p-3 sm:p-4 bg-blue-50/30 mt-3 sm:mt-4 flex-shrink-0">
-              <p className="text-sm sm:text-base text-gray-600 mb-1">À partir de</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg sm:text-xl font-bold text-yellow-500">
-                  {currency}
-                </span>
-                <span className="text-lg sm:text-xl font-bold text-yellow-500">
-                  {price}
+            <div className="border-2 border-gray-200 rounded-xl p-4 bg-gradient-to-br from-yellow-50 to-orange-50 mt-auto">
+              <p className="text-sm text-gray-600 mb-1">À partir de</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold text-yellow-600">
+                  {currency} {price}
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">/ personne</p>
+              <p className="text-sm text-gray-600 mt-1">/ personne</p>
             </div>
           </div>
         </div>

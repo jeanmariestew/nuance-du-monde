@@ -1,14 +1,29 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const AVATAR_URL = (id: number) => `https://i.pravatar.cc/300?img=${id}`;
-
 export default function HeroAnimated() {
-  const avatars = useMemo(() => [12, 28, 45, 67], []);
+  const [avatars, setAvatars] = useState<string[]>([]);
   const [tick, setTick] = useState(0);
+
+  // Charger dynamiquement les images depuis l'API
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const response = await fetch('/api/animation-images');
+        const data = await response.json();
+        if (data.images && data.images.length > 0) {
+          setAvatars(data.images);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des images:', error);
+      }
+    };
+    
+    loadImages();
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 2600);
@@ -16,7 +31,9 @@ export default function HeroAnimated() {
   }, []);
 
   // Pour chaque slot, nous choisissons un avatar en rotation mais la position reste fixe
-  const currentBySlot = [0, 1, 2, 3].map((offset) => avatars[(tick + offset) % avatars.length]);
+  const currentBySlot = avatars.length > 0 
+    ? [0, 1, 2, 3].map((offset) => avatars[(tick + offset) % avatars.length])
+    : [];
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-stretch overflow-hidden">
@@ -40,23 +57,6 @@ export default function HeroAnimated() {
             authentiques et confortables, et ce, au meilleur prix du marché.
           </p>
 
-          <div className="mt-6 flex gap-1 items-center">
-            <input
-              type="text"
-              className="w-full max-w-40 px-2 py-[2px] rounded-sm bg-white text-gray-900 placeholder-gray-500 border border-white/70 shadow-lg focus:outline-none"
-            />
-            <button className="px-2 py-1 rounded-sm bg-white text-black text-base shadow hover:brightness-95 transition-colors">Rechercher</button>
-          </div>
-
-          <div className="mt-10 flex items-center gap-8">
-            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/30 relative ripple-container">
-              <div className="ripple-wave"></div>
-              <div className="ripple-wave"></div>
-              <div className="ripple-wave"></div>
-              <div className="absolute inset-1 rounded-full bg-[#fff] pulse-animation" />
-            </div>
-            <span className="text-base font-bold max-w-36">Explorer les thèmes et destinations</span>
-          </div>
         </div>
 
         {/* Colonne droite: motif + slots fixes + lignes connectées */}
@@ -93,6 +93,7 @@ export default function HeroAnimated() {
           </svg>
 
           {/* Slots animés avec rotation cyclique */}
+          {avatars.length > 0 && (
           <div className="absolute inset-0">
             {/* Position A (central) */}
             <motion.div 
@@ -139,6 +140,7 @@ export default function HeroAnimated() {
               <Slot size={tick % 4 === 0 ? "md" : tick % 4 === 1 ? "md" : tick % 4 === 2 ? "md" : "lg"} avatarId={currentBySlot[(3 + tick) % 4]} />
             </motion.div>
           </div>
+          )}
         </div>
       </div>
 
@@ -146,7 +148,7 @@ export default function HeroAnimated() {
   );
 }
 
-function Slot({ size, avatarId }: { size: "sm" | "md" | "lg"; avatarId: number }) {
+function Slot({ size, avatarId }: { size: "sm" | "md" | "lg"; avatarId: string }) {
   const dims = size === "lg" ? "w-28 h-28 md:w-32 md:h-32" : size === "md" ? "w-24 h-24" : "w-20 h-20";
   return (
     <motion.div 
@@ -159,7 +161,7 @@ function Slot({ size, avatarId }: { size: "sm" | "md" | "lg"; avatarId: number }
           transition={{ duration: 0.5, type: "spring", stiffness: 200 }} 
           className="absolute inset-0"
         >
-          <Image src={AVATAR_URL(avatarId)} alt="avatar" fill className="object-cover" />
+          <Image src={avatarId} alt="avatar" fill className="object-cover" />
         </motion.div>
       </AnimatePresence>
     </motion.div>

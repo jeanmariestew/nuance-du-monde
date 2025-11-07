@@ -1,6 +1,7 @@
 "use client";
 import useSWR from 'swr';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Table, THead, TBody, Tr, Th, Td } from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -16,6 +17,7 @@ type AdminDestination = {
   continent?: string;
   is_active: 0 | 1 | boolean;
   offer_count?: number;
+  banner_image_url?: string | null;
 };
 
 export default function AdminDestinationsPage() {
@@ -49,6 +51,7 @@ export default function AdminDestinationsPage() {
         <Table>
           <THead>
             <Tr>
+              <Th>Image</Th>
               <Th>Titre</Th>
               <Th>Slug</Th>
               <Th>Continent</Th>
@@ -60,6 +63,23 @@ export default function AdminDestinationsPage() {
           <TBody>
             {data.data.map((d: AdminDestination) => (
               <Tr key={d.id}>
+                <Td>
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                    {d.banner_image_url ? (
+                      <Image
+                        src={d.banner_image_url}
+                        alt={d.title}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                        Pas d&apos;image
+                      </div>
+                    )}
+                  </div>
+                </Td>
                 <Td className="font-medium">{d.title}</Td>
                 <Td>{d.slug}</Td>
                 <Td>{d.continent || <span className="text-gray-400">Non défini</span>}</Td>

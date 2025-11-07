@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import ImageInput from '@/components/admin/ImageInput';
 
 export default function EditPartnerPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string | null>(null);
@@ -17,8 +17,6 @@ export default function EditPartnerPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const imageInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -74,36 +72,6 @@ export default function EditPartnerPage({ params }: { params: Promise<{ id: stri
     }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', file);
-
-      const response = await fetch('/api/admin/uploads', {
-        method: 'POST',
-        credentials: 'include',
-        body: formDataUpload,
-      });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Upload failed');
-
-      setFormData(prev => ({
-        ...prev,
-        image_url: result.url
-      }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload image');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,45 +141,15 @@ export default function EditPartnerPage({ params }: { params: Promise<{ id: stri
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Photo du partenaire
-          </label>
-          <input
-            type="file"
-            ref={imageInputRef}
-            onChange={handleImageUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => imageInputRef.current?.click()}
-              disabled={uploading}
-              className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
-            >
-              {uploading ? 'Téléchargement...' : 'Choisir une photo'}
-            </button>
-            {formData.image_url && (
-              <span className="text-sm text-gray-500 truncate">
-                {formData.image_url.split('/').pop()}
-              </span>
-            )}
-          </div>
-          {formData.image_url && (
-            <div className="mt-2">
-              <div className="h-24 w-24 relative rounded-full overflow-hidden border border-gray-200">
-                <Image
-                  src={formData.image_url}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <ImageInput
+          label="Photo du partenaire"
+          value={formData.image_url}
+          onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+          disabled={saving}
+          previewClassName="h-24 w-24 rounded-full"
+          mode="both"
+          placeholder="Choisir une photo"
+        />
 
         <div>
           <label htmlFor="website_url" className="block text-sm font-medium text-gray-700 mb-1">Site web</label>

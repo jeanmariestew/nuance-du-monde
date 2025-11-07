@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+
 interface DateOption {
   id: number;
   departure_date: string;
@@ -22,114 +25,343 @@ export default function DatesAndPricing({
   baseCurrency = "$",
   title = "Dates et prix",
 }: DatesAndPricingProps) {
+  const [selectedDate, setSelectedDate] = useState<DateOption | null>(
+    dates[0] || null
+  );
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   if (!dates || dates.length === 0) {
     return null;
   }
 
+  // Obtenir tous les mois avec des dates disponibles
+  const availableMonths = Array.from(
+    new Set(
+      dates.map((d) => {
+        const date = new Date(d.departure_date);
+        return `${date.getFullYear()}-${date.getMonth()}`;
+      })
+    )
+  )
+    .map((key) => {
+      const [year, month] = key.split("-").map(Number);
+      return new Date(year, month, 1);
+    })
+    .sort((a, b) => a.getTime() - b.getTime());
 
-  const formatDateShort = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+  // Dates disponibles pour le mois actuel
+  const datesInCurrentMonth = dates.filter((d) => {
+    const date = new Date(d.departure_date);
+    return (
+      date.getMonth() === currentMonth.getMonth() &&
+      date.getFullYear() === currentMonth.getFullYear()
+    );
+  });
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    return { daysInMonth, startingDayOfWeek };
+  };
+
+  const isDateAvailable = (day: number) => {
+    return datesInCurrentMonth.some((d) => {
+      const date = new Date(d.departure_date);
+      return date.getDate() === day;
     });
   };
 
+  const getDateOption = (day: number) => {
+    return datesInCurrentMonth.find((d) => {
+      const date = new Date(d.departure_date);
+      return date.getDate() === day;
+    });
+  };
+
+  const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
+  const monthName = currentMonth.toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const previousMonth = () => {
+    const currentIndex = availableMonths.findIndex(
+      (m) =>
+        m.getMonth() === currentMonth.getMonth() &&
+        m.getFullYear() === currentMonth.getFullYear()
+    );
+    if (currentIndex > 0) {
+      setCurrentMonth(availableMonths[currentIndex - 1]);
+    }
+  };
+
+  const nextMonth = () => {
+    const currentIndex = availableMonths.findIndex(
+      (m) =>
+        m.getMonth() === currentMonth.getMonth() &&
+        m.getFullYear() === currentMonth.getFullYear()
+    );
+    if (currentIndex < availableMonths.length - 1) {
+      setCurrentMonth(availableMonths[currentIndex + 1]);
+    }
+  };
+
   return (
-    <section className="site-section bg-gray-50">
+    <section className="site-section bg-gradient-to-b from-gray-50 to-white">
       <div className="site-container">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-gray-900">
+        <div className="flex items-center gap-4 mb-10">
+          <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+            <Calendar className="w-6 h-6 text-yellow-600" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-serif font-medium text-gray-900">
             {title}
           </h2>
-          <button className="text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
-            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-            </svg>
-          </button>
         </div>
 
-        {/* Section Title */}
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 sm:mb-8">Les départs</h3>
+        <div className="grid lg:grid-cols-[380px_1fr] gap-6">
+          {/* Calendrier */}
+          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl border-2 border-yellow-300 p-5 h-fit">
+            {/* Navigation mois */}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={previousMonth}
+                className="p-2 bg-white hover:bg-yellow-100 rounded-lg transition-colors shadow-sm border border-yellow-200"
+                disabled={
+                  availableMonths.findIndex(
+                    (m) =>
+                      m.getMonth() === currentMonth.getMonth() &&
+                      m.getFullYear() === currentMonth.getFullYear()
+                  ) === 0
+                }
+              >
+                <ChevronLeft className="w-4 h-4 text-yellow-700" />
+              </button>
+              <h3 className="text-base font-bold text-gray-900 capitalize">
+                {monthName}
+              </h3>
+              <button
+                onClick={nextMonth}
+                className="p-2 bg-white hover:bg-yellow-100 rounded-lg transition-colors shadow-sm border border-yellow-200"
+                disabled={
+                  availableMonths.findIndex(
+                    (m) =>
+                      m.getMonth() === currentMonth.getMonth() &&
+                      m.getFullYear() === currentMonth.getFullYear()
+                  ) ===
+                  availableMonths.length - 1
+                }
+              >
+                <ChevronRight className="w-4 h-4 text-yellow-700" />
+              </button>
+            </div>
 
-        {/* Dates Grid */}
-        <div className="relative">
-          {/* Navigation Arrows - Hidden on mobile */}
-          <button className="hidden lg:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors">
-            <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:bg-gray-50 transition-colors">
-            <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {/* Cards Container */}
-          <div className="overflow-x-auto pb-4 hide-scrollbar -mx-4 sm:mx-0">
-            <div className="flex gap-4 sm:gap-6 min-w-max px-4 sm:px-2">
-              {dates.map((date, index) => (
+            {/* Jours de la semaine */}
+            <div className="grid grid-cols-7 gap-1.5 mb-2">
+              {["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"].map((day) => (
                 <div
-                  key={date.id || index}
-                  className="flex-shrink-0 w-[280px] sm:w-[300px] bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all border border-gray-100 hover:border-yellow-300"
+                  key={day}
+                  className="text-center text-xs font-bold text-yellow-800 py-1"
                 >
-                  {/* Dates */}
-                  <div className="mb-6 sm:mb-8">
-                    <p className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">
-                      {formatDateShort(date.departure_date)}
-                    </p>
-                    {date.return_date && (
-                      <p className="text-sm sm:text-base text-gray-600 font-medium">
-                        AU {formatDateShort(date.return_date)}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-6 sm:mb-8">
-                    <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 uppercase tracking-wide">prix à partir de</p>
-                    <p className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
-                      {date.price || basePrice}
-                      <span className="text-lg sm:text-xl ml-1">{date.price_currency || baseCurrency}</span>
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                      par pers. en occ. double. Inclut le rabais paiement par chèque ou vir.
-                    </p>
-                  </div>
-
-                  {/* Supplement */}
-                  <div className="mb-6 sm:mb-8">
-                    <label className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 cursor-pointer hover:text-gray-900 transition-colors">
-                      <input type="radio" className="mt-0.5 sm:mt-1 w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-600 focus:ring-yellow-500" />
-                      <span className="leading-tight">
-                        +1595$ Supplément occupation simple
-                      </span>
-                    </label>
-                  </div>
-
-                  {/* CTA Button */}
-                  <button className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
-                    Consulter ce voyage
-                  </button>
+                  {day}
                 </div>
               ))}
             </div>
+
+            {/* Grille calendrier */}
+            <div className="grid grid-cols-7 gap-1.5">
+              {/* Espaces vides avant le premier jour */}
+              {Array.from({ length: startingDayOfWeek }).map((_, i) => (
+                <div key={`empty-${i}`} />
+              ))}
+
+              {/* Jours du mois */}
+              {Array.from({ length: daysInMonth }).map((_, i) => {
+                const day = i + 1;
+                const isAvailable = isDateAvailable(day);
+                const dateOption = getDateOption(day);
+                const isSelected =
+                  selectedDate && dateOption?.id === selectedDate.id;
+
+                return (
+                  <button
+                    key={day}
+                    onClick={() => dateOption && setSelectedDate(dateOption)}
+                    disabled={!isAvailable}
+                    className={`
+                      aspect-square rounded-md flex items-center justify-center text-xs font-semibold transition-all
+                      ${
+                        isSelected
+                          ? "bg-gradient-to-br from-yellow-500 to-orange-500 text-white shadow-lg scale-110 ring-2 ring-yellow-600"
+                          : isAvailable
+                          ? "bg-white text-yellow-900 hover:bg-yellow-200 hover:scale-105 border-2 border-yellow-400 shadow-sm"
+                          : "text-gray-300 cursor-not-allowed bg-gray-50"
+                      }
+                    `}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Légende */}
+            <div className="mt-4 pt-3 border-t-2 border-yellow-300">
+              <div className="flex items-center gap-3 text-xs font-medium text-gray-700">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-gradient-to-br from-yellow-500 to-orange-500 ring-2 ring-yellow-600" />
+                  <span>Sélectionné</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-white border-2 border-yellow-400" />
+                  <span>Disponible</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Liste des dates + Détails */}
+          <div className="space-y-5">
+            {/* Liste des dates disponibles */}
+            <div className="bg-white rounded-2xl shadow-xl border-2 border-yellow-300 p-5">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-yellow-600" />
+                Dates disponibles
+              </h3>
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-2">
+                {dates.map((date) => {
+                  const isSelected = selectedDate?.id === date.id;
+                  return (
+                    <button
+                      key={date.id}
+                      onClick={() => setSelectedDate(date)}
+                      className={`w-full text-left p-4 rounded-xl transition-all border-2 ${
+                        isSelected
+                          ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
+                          : "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-gray-900"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p
+                            className={`text-sm font-bold ${
+                              isSelected ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            {new Date(date.departure_date).toLocaleDateString(
+                              "fr-FR",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                          {date.return_date && (
+                            <p
+                              className={`text-xs ${
+                                isSelected ? "text-yellow-100" : "text-gray-600"
+                              }`}
+                            >
+                              Retour:{" "}
+                              {new Date(date.return_date).toLocaleDateString(
+                                "fr-FR",
+                                {
+                                  day: "numeric",
+                                  month: "long",
+                                }
+                              )}
+                            </p>
+                          )}
+                        </div>
+                        <div className={`text-right`}>
+                          <p
+                            className={`text-lg font-bold ${
+                              isSelected ? "text-white" : "text-yellow-600"
+                            }`}
+                          >
+                            {date.price_currency || baseCurrency}{" "}
+                            {date.price || basePrice}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Détails de la date sélectionnée */}
+            {selectedDate && (
+              <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-xl border-2 border-yellow-600 p-6 text-white">
+                <h3 className="text-xl font-bold mb-5">Détails du départ</h3>
+
+                <div className="space-y-5">
+                  {/* Date de départ */}
+                  <div>
+                    <p className="text-sm text-yellow-100 mb-2">
+                      Date de départ
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {new Date(selectedDate.departure_date).toLocaleDateString(
+                        "fr-FR",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Date de retour */}
+                  {selectedDate.return_date && (
+                    <div>
+                      <p className="text-sm text-yellow-100 mb-2">
+                        Date de retour
+                      </p>
+                      <p className="text-xl font-semibold">
+                        {new Date(selectedDate.return_date).toLocaleDateString(
+                          "fr-FR",
+                          {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          }
+                        )}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Prix */}
+                  <div className="pt-5 border-t-2 border-yellow-400">
+                    <p className="text-sm text-yellow-100 mb-2">
+                      Prix par personne
+                    </p>
+                    <p className="text-5xl font-bold">
+                      {selectedDate.price_currency || baseCurrency}{" "}
+                      {selectedDate.price || basePrice}
+                    </p>
+                    <p className="text-sm text-yellow-100 mt-2">
+                      en occupation double
+                    </p>
+                  </div>
+
+                  {/* Bouton CTA */}
+                  <button className="w-full bg-white text-yellow-600 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105">
+                    Réserver ce départ
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </section>
   );
 }

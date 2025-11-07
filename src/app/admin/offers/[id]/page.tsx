@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import OfferImagesManager from '@/components/admin/OfferImagesManager';
 
 async function jsonFetch(url: string, init?: RequestInit) {
   const res = await fetch(url, { credentials: 'include', ...(init || {}) });
@@ -255,152 +256,10 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <label className="text-sm">
-                  Ajouter une image par URL
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="text"
-                      id="image-url-input"
-                      placeholder="/uploads/nom-de-fichier.jpg"
-                      className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    />
-                    <select
-                      id="image-type-select"
-                      className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    >
-                      <option value="gallery">Galerie</option>
-                      <option value="main">Principale</option>
-                      <option value="banner">Bannière</option>
-                    </select>
-                    <Button
-                      onClick={() => {
-                        const urlInput = document.getElementById('image-url-input') as HTMLInputElement;
-                        const typeSelect = document.getElementById('image-type-select') as HTMLSelectElement;
-                        if (urlInput.value) {
-                          const newImage: OfferImage = {
-                            image_url: urlInput.value,
-                            image_type: typeSelect.value as 'main' | 'gallery' | 'banner',
-                            alt_text: '',
-                            sort_order: offer.images.length
-                          };
-                          setOffer({ ...(offer as OfferData), images: [...offer.images, newImage] });
-                          urlInput.value = '';
-                        }
-                      }}
-                      className="px-4 py-2 text-sm"
-                    >
-                      Ajouter
-                    </Button>
-                  </div>
-                </label>
-                <label className="text-sm">
-                  Sélectionner une image existante
-                  <div className="flex gap-2 mt-1">
-                    <select
-                      id="existing-image-select"
-                      className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    >
-                      <option value="">-- choisir --</option>
-                      {uploads.map((f) => (
-                        <option key={f.url} value={f.url}>{f.name}</option>
-                      ))}
-                    </select>
-                    <select
-                      id="existing-image-type-select"
-                      className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    >
-                      <option value="gallery">Galerie</option>
-                      <option value="main">Principale</option>
-                      <option value="banner">Bannière</option>
-                    </select>
-                    <Button
-                      onClick={() => {
-                        const urlSelect = document.getElementById('existing-image-select') as HTMLSelectElement;
-                        const typeSelect = document.getElementById('existing-image-type-select') as HTMLSelectElement;
-                        if (urlSelect.value) {
-                          const newImage: OfferImage = {
-                            image_url: urlSelect.value,
-                            image_type: typeSelect.value as 'main' | 'gallery' | 'banner',
-                            alt_text: '',
-                            sort_order: offer.images.length
-                          };
-                          setOffer({ ...(offer as OfferData), images: [...offer.images, newImage] });
-                          urlSelect.value = '';
-                        }
-                      }}
-                      className="px-4 py-2 text-sm"
-                    >
-                      Ajouter
-                    </Button>
-                  </div>
-                </label>
-                <label className="text-sm">
-                  Importer une nouvelle image
-                  <input type="file" accept="image/*" onChange={onUploadFile} disabled={uploading} className="mt-1 block" />
-                </label>
-              </div>
-              
-              {offer.images.length > 0 && (
-                <div className="grid gap-3">
-                  <div className="text-sm font-medium">Images ajoutées ({offer.images.length})</div>
-                  {offer.images.map((img, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 border border-neutral-200 rounded-md">
-                      <img src={img.image_url} alt={img.alt_text} className="w-16 h-16 object-cover rounded" />
-                      <div className="flex-1 grid gap-2">
-                        <div className="flex gap-2">
-                          <select
-                            value={img.image_type}
-                            onChange={(e) => {
-                              const updatedImages = [...offer.images];
-                              updatedImages[index].image_type = e.target.value as 'main' | 'gallery' | 'banner';
-                              setOffer({ ...(offer as OfferData), images: updatedImages });
-                            }}
-                            className="text-sm rounded border border-neutral-300 px-2 py-1"
-                          >
-                            <option value="gallery">Galerie</option>
-                            <option value="main">Principale</option>
-                            <option value="banner">Bannière</option>
-                          </select>
-                          <input
-                            type="number"
-                            value={img.sort_order}
-                            onChange={(e) => {
-                              const updatedImages = [...offer.images];
-                              updatedImages[index].sort_order = Number(e.target.value);
-                              setOffer({ ...(offer as OfferData), images: updatedImages });
-                            }}
-                            placeholder="Ordre"
-                            className="w-20 text-sm rounded border border-neutral-300 px-2 py-1"
-                          />
-                        </div>
-                        <input
-                          type="text"
-                          value={img.alt_text}
-                          onChange={(e) => {
-                            const updatedImages = [...offer.images];
-                            updatedImages[index].alt_text = e.target.value;
-                            setOffer({ ...(offer as OfferData), images: updatedImages });
-                          }}
-                          placeholder="Texte alternatif"
-                          className="text-sm rounded border border-neutral-300 px-2 py-1"
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          const updatedImages = offer.images.filter((_, i) => i !== index);
-                          setOffer({ ...(offer as OfferData), images: updatedImages });
-                        }}
-                        className="text-red-600 hover:text-red-800 text-sm px-2 py-1"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <OfferImagesManager
+              images={offer.images}
+              onChange={(images) => setOffer({ ...(offer as OfferData), images })}
+            />
           </CardContent>
         </Card>
 

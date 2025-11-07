@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { TravelType } from "@/types";
 import TravelTypesSection from "@/components/TravelTypesSection";
 import ValuesSection from "@/components/ValuesSection";
+import SkeletonLoader from "@/components/ui/SkeletonLoader";
 
 export default function TypeDeVoyageClient() {
   const [types, setTypes] = useState<TravelType[]>([]);
@@ -27,12 +28,11 @@ export default function TypeDeVoyageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">
-            Chargement des types de voyage...
-          </p>
+      <div className="flex flex-col gap-y-10 py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <SkeletonLoader variant="card" count={6} />
+          </div>
         </div>
       </div>
     );

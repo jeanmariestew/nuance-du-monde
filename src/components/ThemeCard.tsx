@@ -8,8 +8,8 @@ interface ThemeCardProps {
 
 export default function ThemeCard({ theme }: ThemeCardProps) {
   return (
-    <Link href={`/themes/${theme.slug}`} className="group">
-      <div className="bg-white p-2 rounded-2xl border-gray-100 border-2 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+    <Link href={`/themes/${theme.slug}`} className="group block w-full max-w-sm">
+      <div className="bg-white p-2 rounded-2xl border-gray-100 border-2 shadow-lg overflow-hidden hover:shadow-xl transition-shadow w-full">
         <div className="relative h-48">
           {theme.image_url ? (
             <Image

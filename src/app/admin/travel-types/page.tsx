@@ -1,6 +1,7 @@
 "use client";
 import useSWR from 'swr';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Table, THead, TBody, Tr, Th, Td } from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -14,6 +15,7 @@ type TravelType = {
   title: string;
   slug: string;
   is_active: 0 | 1 | boolean;
+  image_url?: string | null;
 };
 
 export default function AdminTravelTypesPage() {
@@ -47,6 +49,7 @@ export default function AdminTravelTypesPage() {
         <Table>
           <THead>
             <Tr>
+              <Th>Image</Th>
               <Th>Titre</Th>
               <Th>Slug</Th>
               <Th>Actif</Th>
@@ -56,6 +59,23 @@ export default function AdminTravelTypesPage() {
           <TBody>
             {data.data.map((t: TravelType) => (
               <Tr key={t.id}>
+                <Td>
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                    {t.image_url ? (
+                      <Image
+                        src={t.image_url}
+                        alt={t.title}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                        Pas d&apos;image
+                      </div>
+                    )}
+                  </div>
+                </Td>
                 <Td className="font-medium">{t.title}</Td>
                 <Td>{t.slug}</Td>
                 <Td>

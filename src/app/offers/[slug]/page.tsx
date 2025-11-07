@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import {
@@ -102,8 +103,55 @@ export default async function OfferDetailPage({ params }: PageProps) {
     );
   }
 
+  // Image de couverture principale - vérifier toutes les sources possibles
+  const coverImage = offer.images?.find(img => img.image_type === 'banner')?.image_url ||
+                     offer.image_banner || 
+                     offer.banner_image_url || 
+                     offer.images?.[0]?.image_url ||
+                     offer.image_main;
+
   return (
     <div>
+      {/* Image de couverture héro - toujours affichée */}
+      <section className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] w-full overflow-hidden">
+        {coverImage ? (
+          <>
+            <Image
+              src={coverImage}
+              alt={offer.title}
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          </>
+        ) : (
+          /* Fond gris si pas d'image */
+          <div className="absolute inset-0 bg-gray-200" />
+        )}
+        
+        {/* Titre superposé */}
+        <div className="absolute inset-0 flex items-end">
+          <div className="site-container pb-12 sm:pb-16 lg:pb-20">
+            <div className="max-w-4xl">
+              <span className={`inline-block px-4 py-2 ${coverImage ? 'bg-yellow-500/90 text-white' : 'bg-yellow-500 text-white'} text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-4`}>
+                {offer.destinations?.[0]?.title || 'Voyage'}
+              </span>
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold mb-4 ${coverImage ? 'text-white drop-shadow-2xl' : 'text-gray-800'}`}>
+                {offer.title}
+              </h1>
+              {offer.subtitle && (
+                <p className={`text-lg sm:text-xl lg:text-2xl ${coverImage ? 'text-white/95 drop-shadow-lg' : 'text-gray-700'}`}>
+                  {offer.subtitle}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Header Section avec disposition image 1 */}
       <section className="site-container site-section">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Offer, Destination, TravelType, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
+import { OfferCardSkeleton } from "@/components/ui/SkeletonLoader";
 
 interface OffersGridProps {
   destination?: string;
@@ -121,10 +122,7 @@ export default function OffersGrid({
       <section className="py-12">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">{title}</h2>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Chargement des offres...</span>
-          </div>
+          <OfferCardSkeleton count={itemsPerPage} />
         </div>
       </section>
     );
@@ -265,7 +263,7 @@ export default function OffersGrid({
           <div className="text-gray-700 text-center">{emptyMessage}</div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto auto-rows-fr">
               {currentOffers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />
               ))}

@@ -9,7 +9,6 @@ import DestinationsSection from "@/components/DestinationsSection";
 import ThemesSection from "@/components/ThemesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import PartnersSection from "@/components/PartnersSection";
-import Image from "next/image";
 
 interface Testimonial {
   id: number;
@@ -39,7 +38,7 @@ export default function Home() {
       try {
         const [destRes, typesRes, themesRes, testimonialsRes, partnersRes] =
           await Promise.all([
-            fetch("/api/destinations?active=true&limit=20"),
+            fetch("/api/destinations?active=true&limit=5"),
             fetch("/api/travel-types?active=true"),
             fetch("/api/travel-themes?active=true&limit=20"),
             fetch(

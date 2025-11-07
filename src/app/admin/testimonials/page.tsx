@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Testimonial } from '@/types';
+import ImageInput from '@/components/admin/ImageInput';
 
 type Editable = Partial<Testimonial> & { id?: number };
 
@@ -103,15 +104,17 @@ export default function AdminTestimonialsPage() {
               placeholder="https://..."
             />
           </label>
-          <label className="flex flex-col md:col-span-2">
-            <span className="text-sm text-gray-600 mb-1">Image de fond (image_url)</span>
-            <input
-              className="border rounded px-3 py-2"
+          <div className="md:col-span-2">
+            <ImageInput
+              label="Image de fond"
               value={form.image_url || ''}
-              onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-              placeholder="https://..."
+              onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+              disabled={false}
+              previewClassName="h-40 w-60"
+              mode="both"
+              placeholder="Choisir une image de fond"
             />
-          </label>
+          </div>
           <label className="flex flex-col md:col-span-2">
             <span className="text-sm text-gray-600 mb-1">Témoignage</span>
             <textarea

@@ -13,8 +13,8 @@ export async function GET(req: Request) {
     const params: (string | number)[] = [];
 
     let sql = `SELECT DISTINCT o.*, 
-      (SELECT oi.image_url FROM offer_images oi WHERE oi.offer_id = o.id AND oi.image_type = 'main' ORDER BY oi.sort_order LIMIT 1) as image_main,
-      (SELECT oi.image_url FROM offer_images oi WHERE oi.offer_id = o.id AND oi.image_type = 'banner' ORDER BY oi.sort_order LIMIT 1) as image_banner
+      (SELECT i.url FROM offer_images oi JOIN images i ON oi.image_id = i.id WHERE oi.offer_id = o.id AND oi.image_type = 'main' ORDER BY oi.sort_order LIMIT 1) as image_main,
+      (SELECT i.url FROM offer_images oi JOIN images i ON oi.image_id = i.id WHERE oi.offer_id = o.id AND oi.image_type = 'banner' ORDER BY oi.sort_order LIMIT 1) as image_banner
     FROM offers o`;
 
     if (destination) {
@@ -90,7 +90,11 @@ export async function GET(req: Request) {
       
       // Fetch all images for offers
       const imagesRows = await query(
-        `SELECT offer_id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY sort_order, id`,
+        `SELECT oi.offer_id, i.url as image_url, oi.image_type, oi.alt_text, oi.sort_order 
+         FROM offer_images oi
+         JOIN images i ON oi.image_id = i.id
+         WHERE oi.offer_id IN (${offerIds.map(() => '?').join(',')}) 
+         ORDER BY oi.sort_order, oi.id`,
         offerIds
       );
       imagesMap = (imagesRows as any[]).reduce((acc, row) => {

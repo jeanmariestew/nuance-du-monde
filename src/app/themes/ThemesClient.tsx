@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { TravelTheme } from "@/types";
-import ThemeCard from "@/components/ThemeCard";
+import ThemeCard from "@/components/cards/ThemeCard";
+import { ThemeCardSkeleton } from "@/components/ui/SkeletonLoader";
 import OffersGrid from "@/components/OffersGrid";
 
 export default function ThemesClient() {
@@ -54,18 +55,20 @@ export default function ThemesClient() {
       </section>
 
       <section className="py-8 sm:py-12 md:py-16">
-        <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10">
-          Toutes les thèmes
+        <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10 text-center">
+          Tous les thèmes
         </h2>
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
-          {themes.length === 0 ? (
+          {loading ? (
+            <ThemeCardSkeleton count={6} />
+          ) : themes.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">
                 Aucun thème disponible pour le moment.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="flex flex-wrap justify-center gap-8">
               {themes.map((theme) => (
                 <ThemeCard key={theme.id} theme={theme} />
               ))}

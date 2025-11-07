@@ -90,18 +90,40 @@ export async function POST(req: Request) {
     if (Array.isArray(images) && images.length > 0) {
       const validImages = images.filter(img => img && img.image_url);
       if (validImages.length > 0) {
-        const placeholders = validImages.map(() => '(?, ?, ?, ?, ?)').join(', ');
-        const values = validImages.flatMap((img: any, index: number) => [
-          offerId,
-          img.image_url,
-          img.image_type || 'gallery',
-          img.alt_text || '',
-          img.sort_order !== undefined ? img.sort_order : index
-        ]);
-        await query(
-          `INSERT INTO offer_images (offer_id, image_url, image_type, alt_text, sort_order) VALUES ${placeholders}`,
-          values
-        );
+        for (let index = 0; index < validImages.length; index++) {
+          const img = validImages[index];
+          
+          // 1. Créer ou récupérer l'image dans la table images
+          const [existingImage] = await query(
+            'SELECT id FROM images WHERE url = ? LIMIT 1',
+            [img.image_url]
+          );
+          
+          let imageId;
+          if (existingImage) {
+            imageId = (existingImage as any).id;
+          } else {
+            // Créer une nouvelle image
+            const filename = img.image_url.split('/').pop() || 'unknown';
+            const result = await execute(
+              `INSERT INTO images (url, filename, title, alt_text, uploaded_by) VALUES (?, ?, ?, ?, ?)`,
+              [img.image_url, filename, img.alt_text || filename, img.alt_text || '', 'admin']
+            );
+            imageId = result.insertId;
+          }
+          
+          // 2. Créer la relation dans offer_images
+          await execute(
+            `INSERT INTO offer_images (offer_id, image_id, image_type, alt_text, sort_order) VALUES (?, ?, ?, ?, ?)`,
+            [
+              offerId,
+              imageId,
+              img.image_type || 'gallery',
+              img.alt_text || '',
+              img.sort_order !== undefined ? img.sort_order : index
+            ]
+          );
+        }
       }
     }
 

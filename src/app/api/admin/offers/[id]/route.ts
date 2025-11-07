@@ -34,7 +34,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const themes = await query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
   const dests = await query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]);
   const dates = await query('SELECT departure_date FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
-  const images = await query('SELECT id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id = ? ORDER BY sort_order ASC, id ASC', [id]);
+  const images = await query(`
+    SELECT oi.id, i.url as image_url, oi.image_type, oi.alt_text, oi.sort_order 
+    FROM offer_images oi
+    JOIN images i ON oi.image_id = i.id
+    WHERE oi.offer_id = ? 
+    ORDER BY oi.sort_order ASC, oi.id ASC
+  `, [id]);
   return NextResponse.json({ success: true, data: {
     ...offer,
     typeIds: (types as any[]).map(r => r.travel_type_id),
@@ -132,18 +138,40 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (Array.isArray(images) && images.length > 0) {
       const validImages = images.filter(img => img && img.image_url);
       if (validImages.length > 0) {
-        const placeholders = validImages.map(() => '(?, ?, ?, ?, ?)').join(', ');
-        const values = validImages.flatMap((img, index: number) => [
-          id,
-          img.image_url,
-          img.image_type || 'gallery',
-          img.alt_text || '',
-          img.sort_order !== undefined ? img.sort_order : index
-        ]);
-        await query(
-          `INSERT INTO offer_images (offer_id, image_url, image_type, alt_text, sort_order) VALUES ${placeholders}`,
-          values
-        );
+        for (let index = 0; index < validImages.length; index++) {
+          const img = validImages[index];
+          
+          // 1. Créer ou récupérer l'image dans la table images
+          const [existingImage] = await query(
+            'SELECT id FROM images WHERE url = ? LIMIT 1',
+            [img.image_url]
+          );
+          
+          let imageId;
+          if (existingImage) {
+            imageId = (existingImage as any).id;
+          } else {
+            // Créer une nouvelle image
+            const filename = img.image_url.split('/').pop() || 'unknown';
+            const result = await query(
+              `INSERT INTO images (url, filename, title, alt_text, uploaded_by) VALUES (?, ?, ?, ?, ?)`,
+              [img.image_url, filename, img.alt_text || filename, img.alt_text || '', 'admin']
+            );
+            imageId = (result as any).insertId;
+          }
+          
+          // 2. Créer la relation dans offer_images
+          await query(
+            `INSERT INTO offer_images (offer_id, image_id, image_type, alt_text, sort_order) VALUES (?, ?, ?, ?, ?)`,
+            [
+              id,
+              imageId,
+              img.image_type || 'gallery',
+              img.alt_text || '',
+              img.sort_order !== undefined ? img.sort_order : index
+            ]
+          );
+        }
       }
     }
 

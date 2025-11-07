@@ -16,18 +16,23 @@ interface ImageGalleryPickerProps {
   onSelect: (image: GalleryImage) => void;
   onClose: () => void;
   selectedUrl?: string;
+  multiple?: boolean;
+  onSelectMultiple?: (images: GalleryImage[]) => void;
 }
 
 export default function ImageGalleryPicker({
   onSelect,
   onClose,
   selectedUrl,
+  multiple = false,
+  onSelectMultiple,
 }: ImageGalleryPickerProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<GalleryImage[]>([]);
 
   const loadImages = async () => {
     try {
@@ -91,7 +96,12 @@ export default function ImageGalleryPicker({
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-900">
-              Sélectionner une image
+              {multiple ? "Sélectionner des images" : "Sélectionner une image"}
+              {multiple && selectedImages.length > 0 && (
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({selectedImages.length} sélectionnée{selectedImages.length > 1 ? 's' : ''})
+                </span>
+              )}
             </h2>
             <button
               onClick={onClose}
@@ -146,6 +156,31 @@ export default function ImageGalleryPicker({
           </div>
         </div>
 
+        {/* Bouton de validation pour mode multiple */}
+        {multiple && selectedImages.length > 0 && (
+          <div className="px-6 py-3 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setSelectedImages([])}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Tout désélectionner
+              </button>
+              <button
+                onClick={() => {
+                  if (onSelectMultiple) {
+                    onSelectMultiple(selectedImages);
+                  }
+                  onClose();
+                }}
+                className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 font-semibold"
+              >
+                Ajouter {selectedImages.length} image{selectedImages.length > 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Grille d'images */}
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
@@ -158,12 +193,28 @@ export default function ImageGalleryPicker({
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {images.map((image) => (
+              {images.map((image) => {
+                const isSelected = multiple 
+                  ? selectedImages.some(img => img.id === image.id)
+                  : selectedUrl === image.url;
+                
+                return (
                 <button
                   key={image.id}
-                  onClick={() => onSelect(image)}
+                  onClick={() => {
+                    if (multiple) {
+                      // Toggle selection
+                      if (isSelected) {
+                        setSelectedImages(selectedImages.filter(img => img.id !== image.id));
+                      } else {
+                        setSelectedImages([...selectedImages, image]);
+                      }
+                    } else {
+                      onSelect(image);
+                    }
+                  }}
                   className={`group relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                    selectedUrl === image.url
+                    isSelected
                       ? "border-yellow-500 ring-2 ring-yellow-500"
                       : "border-gray-200 hover:border-yellow-300"
                   }`}
@@ -174,14 +225,14 @@ export default function ImageGalleryPicker({
                     fill
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/10 bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
                     <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-center p-2">
                       <p className="text-sm font-semibold truncate">
                         {image.title}
                       </p>
                     </div>
                   </div>
-                  {selectedUrl === image.url && (
+                  {isSelected && (
                     <div className="absolute top-2 right-2 bg-yellow-500 rounded-full p-1">
                       <svg
                         className="w-4 h-4 text-white"
@@ -197,7 +248,8 @@ export default function ImageGalleryPicker({
                     </div>
                   )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

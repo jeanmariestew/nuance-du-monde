@@ -1,6 +1,7 @@
 'use client';
 
 import OfferCard from '@/components/cards/OfferCard';
+import { OfferCardSkeleton } from '@/components/ui/SkeletonLoader';
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -68,13 +69,13 @@ function OffersListContent() {
       <section className="py-12">
         <div className="container mx-auto px-4">
           {loading ? (
-            <div className="text-center text-gray-600">Chargement des offres...</div>
+            <OfferCardSkeleton count={4} />
           ) : error ? (
             <div className="text-center text-red-600">{error}</div>
           ) : offers.length === 0 ? (
             <div className="text-center text-gray-700">Aucune offre trouvée.</div>
           ) : (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto auto-rows-fr">
               {offers.map((offer) => (
                 <OfferCard key={offer.slug} offer={offer} />
               ))}

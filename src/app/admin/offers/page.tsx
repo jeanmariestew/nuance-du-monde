@@ -1,6 +1,7 @@
 "use client";
 import useSWR from 'swr';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Table, THead, TBody, Tr, Th, Td } from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -16,6 +17,7 @@ type AdminOffer = {
   is_active: 0 | 1 | boolean;
   price?: number | null;
   price_currency?: string | null;
+  image_main?: string | null;
 };
 
 export default function AdminOffersPage() {
@@ -50,6 +52,7 @@ export default function AdminOffersPage() {
         <Table>
           <THead>
             <Tr>
+              <Th>Image</Th>
               <Th>Titre</Th>
               <Th>Slug</Th>
               <Th>Actif</Th>
@@ -60,6 +63,23 @@ export default function AdminOffersPage() {
           <TBody>
             {data.data.map((o: AdminOffer) => (
               <Tr key={o.id}>
+                <Td>
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                    {o.image_main ? (
+                      <Image
+                        src={o.image_main}
+                        alt={o.title}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                        Pas d&apos;image
+                      </div>
+                    )}
+                  </div>
+                </Td>
                 <Td className="font-medium">{o.title}</Td>
                 <Td>{o.slug}</Td>
                 <Td>

@@ -7,25 +7,34 @@ import clsx from "clsx";
 import { XIcon } from "lucide-react";
 import DestinationsDropdown from "./DestinationsDropdown";
 import MobileDestinationsMenu from "./MobileDestinationsMenu";
+import TravelTypesDropdown from "./TravelTypesDropdown";
+import TravelThemesDropdown from "./TravelThemesDropdown";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDestinationsDropdown, setShowDestinationsDropdown] = useState(false);
+  const [showTypesDropdown, setShowTypesDropdown] = useState(false);
+  const [showThemesDropdown, setShowThemesDropdown] = useState(false);
   const [showMobileDestinations, setShowMobileDestinations] = useState(false);
   const destinationsRef = useRef<HTMLDivElement>(null);
+  const typesRef = useRef<HTMLDivElement>(null);
+  const themesRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleDestinationsContainerMouseEnter = () => {
+  const handleDropdownEnter = (dropdown: 'destinations' | 'types' | 'themes') => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    setShowDestinationsDropdown(true);
+    setShowDestinationsDropdown(dropdown === 'destinations');
+    setShowTypesDropdown(dropdown === 'types');
+    setShowThemesDropdown(dropdown === 'themes');
   };
 
-  const handleDestinationsContainerMouseLeave = () => {
-    // Délai de 300ms pour permettre les mouvements de souris
+  const handleDropdownLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setShowDestinationsDropdown(false);
+      setShowTypesDropdown(false);
+      setShowThemesDropdown(false);
     }, 300);
   };
 
@@ -62,22 +71,44 @@ const Header = () => {
 
           {/* Navigation Desktop */}
           <nav className="flex justify-between items-center space-x-8">
-            <Link
-              href="/type-de-voyage"
-              className="text-gray-700 hidden md:block hover:text-black transition-colors text-base font-medium"
+            {/* Menu Types Desktop */}
+            <div 
+              ref={typesRef}
+              className="relative hidden lg:block"
+              onMouseEnter={() => handleDropdownEnter('types')}
+              onMouseLeave={handleDropdownLeave}
             >
-              Type de voyage
-            </Link>
+              <Link
+                href="/type-de-voyage"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
+              >
+                Type de voyage
+              </Link>
+              {showTypesDropdown && (
+                <TravelTypesDropdown onClose={() => setShowTypesDropdown(false)} />
+              )}
+            </div>
+            
+            {/* Menu Types Tablette */}
+            <div className="relative hidden md:block lg:hidden">
+              <Link
+                href="/type-de-voyage"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+              >
+                Type de voyage
+              </Link>
+            </div>
+            
             {/* Menu Destinations Desktop */}
             <div 
               ref={destinationsRef}
               className="relative hidden lg:block"
-              onMouseEnter={handleDestinationsContainerMouseEnter}
-              onMouseLeave={handleDestinationsContainerMouseLeave}
+              onMouseEnter={() => handleDropdownEnter('destinations')}
+              onMouseLeave={handleDropdownLeave}
             >
               <Link
                 href="/destinations"
-                className="text-gray-700 hover:text-black transition-colors text-sm font-medium flex items-center gap-1"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
               >
                 Destinations
               </Link>
@@ -95,12 +126,34 @@ const Header = () => {
                 Destinations
               </Link>
             </div>
-            <Link
-              href="/themes"
-              className="text-gray-700 hidden md:block hover:text-black transition-colors text-base font-medium"
+            
+            {/* Menu Thèmes Desktop */}
+            <div 
+              ref={themesRef}
+              className="relative hidden lg:block"
+              onMouseEnter={() => handleDropdownEnter('themes')}
+              onMouseLeave={handleDropdownLeave}
             >
-              Thème de voyage
-            </Link>
+              <Link
+                href="/themes"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
+              >
+                Thème de voyage
+              </Link>
+              {showThemesDropdown && (
+                <TravelThemesDropdown onClose={() => setShowThemesDropdown(false)} />
+              )}
+            </div>
+            
+            {/* Menu Thèmes Tablette */}
+            <div className="relative hidden md:block lg:hidden">
+              <Link
+                href="/themes"
+                className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+              >
+                Thème de voyage
+              </Link>
+            </div>
 
             {/* Menu Mobile */}
             <button

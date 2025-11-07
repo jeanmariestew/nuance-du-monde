@@ -1,6 +1,8 @@
 "use client";
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import ImageInput from '@/components/admin/ImageInput';
 
 export default function NewTravelTypePage() {
   const [formData, setFormData] = useState({
@@ -14,8 +16,6 @@ export default function NewTravelTypePage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -34,40 +34,6 @@ export default function NewTravelTypePage() {
     }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/admin/uploads', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Upload failed');
-
-      setFormData(prev => ({
-        ...prev,
-        image_url: result.url
-      }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload image');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +58,7 @@ export default function NewTravelTypePage() {
       } else {
         setError(json.error || 'Erreur lors de la création');
       }
-    } catch (err) {
+    } catch {
       setError('Une erreur est survenue lors de la communication avec le serveur');
     } finally {
       setSaving(false);
@@ -102,7 +68,7 @@ export default function NewTravelTypePage() {
   return (
     <div style={{ maxWidth: 720, margin: '24px auto', padding: 24 }}>
       <h1>Nouveau type de voyage</h1>
-      <p><a href="/admin/travel-types">← Retour</a></p>
+      <p><Link href="/admin/travel-types">← Retour</Link></p>
       <form onSubmit={onSubmit} style={{ display: 'grid', gap: '16px' }}>
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
@@ -155,44 +121,14 @@ export default function NewTravelTypePage() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Image
-          </label>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={triggerFileInput}
-              disabled={uploading}
-              className="rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50"
-            >
-              {uploading ? 'Téléchargement...' : 'Choisir une image'}
-            </button>
-            {formData.image_url && (
-              <span className="text-sm text-gray-500 truncate">
-                {formData.image_url.split('/').pop()}
-              </span>
-            )}
-          </div>
-          {formData.image_url && (
-            <div className="mt-2">
-              <div className="h-40 w-40 relative rounded-md overflow-hidden border border-gray-200">
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <ImageInput
+          label="Image"
+          value={formData.image_url}
+          onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+          disabled={saving}
+          previewClassName="h-40 w-40"
+          mode="both"
+        />
 
         <div>
           <label htmlFor="sort_order" className="block text-sm font-medium text-gray-700 mb-1">Ordre d&apos;affichage</label>

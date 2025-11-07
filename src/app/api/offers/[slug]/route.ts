@@ -47,7 +47,11 @@ export async function GET(
       [offer.id]
     );
     const imagesResult = await query(
-      `SELECT id, image_url, image_type, alt_text, sort_order FROM offer_images WHERE offer_id = ? ORDER BY sort_order, id`,
+      `SELECT oi.id, i.url as image_url, oi.image_type, oi.alt_text, oi.sort_order 
+       FROM offer_images oi
+       JOIN images i ON oi.image_id = i.id
+       WHERE oi.offer_id = ? 
+       ORDER BY oi.sort_order, oi.id`,
       [offer.id]
     );
 

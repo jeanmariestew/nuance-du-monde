@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { DestinationCardSkeleton } from "@/components/ui/SkeletonLoader";
 
 interface Destination {
   id: number;
@@ -31,12 +32,14 @@ export default function DestinationsGrid({
 }: DestinationsGridProps) {
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des destinations...</p>
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-12 text-yellow-600 font-[Alro]">
+            {title}
+          </h2>
+          <DestinationCardSkeleton count={8} />
         </div>
-      </div>
+      </section>
     );
   }
 

@@ -22,7 +22,13 @@ export default function DestinationClient({ destination, slug }: DestinationClie
         const data = await response.json();
 
         if (data.success) {
-          setDestinations(data.data);
+          // Filtrer pour afficher uniquement les destinations du même continent
+          const sameContinent = data.data.filter(
+            (dest: Destination) => 
+              dest.continent === destination.continent && 
+              dest.id !== destination.id // Exclure la destination actuelle
+          );
+          setDestinations(sameContinent);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des destinations:", error);
@@ -32,7 +38,7 @@ export default function DestinationClient({ destination, slug }: DestinationClie
     };
 
     fetchDestinations();
-  }, []);
+  }, [destination.continent, destination.id]);
 
   return (
     <div>
@@ -86,7 +92,7 @@ export default function DestinationClient({ destination, slug }: DestinationClie
       <DestinationsGrid 
         destinations={destinations} 
         loading={loading}
-        title="AUTRES DESTINATIONS"
+        title={`AUTRES DESTINATIONS ${destination.continent ? `EN ${destination.continent.toUpperCase()}` : ''}`}
       />
     </div>
   );
