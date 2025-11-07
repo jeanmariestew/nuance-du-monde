@@ -55,8 +55,8 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xl shadow-black/20">
-      <div className="container mx-auto px-4">
-        <div className={clsx("flex items-center justify-between h-15",isMenuOpen && "hidden")}>
+      <div className="container mx-auto px-4 py-4">
+        <div className={clsx("flex items-center justify-between",isMenuOpen && "hidden")}>
           {/* Logo */}
           <Link href="/" className={clsx("flex items-center")}>
             <Image
