@@ -24,7 +24,7 @@ export default function ThemeCard({ theme }: Props) {
       )}
 
       {/* gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/80"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
 
       {/* content */}
       <div className="absolute inset-x-0 bottom-0 p-6">
