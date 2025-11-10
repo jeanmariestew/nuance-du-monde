@@ -94,7 +94,8 @@ export async function POST(req: Request) {
     const altText = form.get('alt_text') as string || '';
     const tags = form.get('tags') as string || '';
 
-    if (!file || !(file instanceof File)) {
+    // Vérifier que c'est un Blob/File (compatible Node.js et navigateur)
+    if (!file || typeof file === 'string') {
       return NextResponse.json(
         { success: false, error: 'Aucun fichier fourni' },
         { status: 400 }
@@ -102,7 +103,7 @@ export async function POST(req: Request) {
     }
 
     // Vérifier le type MIME
-    if (!file.type.startsWith('image/')) {
+    if (!file.type || !file.type.startsWith('image/')) {
       return NextResponse.json(
         { success: false, error: 'Le fichier doit être une image' },
         { status: 400 }

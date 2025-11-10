@@ -29,7 +29,8 @@ export async function POST(req: Request) {
   try {
     const form = await req.formData();
     const file = form.get('file');
-    if (!file || !(file instanceof File)) {
+    // Vérifier que c'est un Blob/File (compatible Node.js et navigateur)
+    if (!file || typeof file === 'string') {
       return NextResponse.json({ success: false, error: 'Aucun fichier' }, { status: 400 });
     }
     const arrayBuffer = await file.arrayBuffer();
