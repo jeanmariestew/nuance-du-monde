@@ -10,7 +10,7 @@ export default function ThemeCard({ theme }: Props) {
   const img = theme.banner_image_url || theme.image_url;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[420px] w-full">
+    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[650px] w-full">
       {img ? (
         <Image
           src={img}
@@ -24,7 +24,7 @@ export default function ThemeCard({ theme }: Props) {
       )}
 
       {/* gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40"></div>
 
       {/* content */}
       <div className="absolute inset-x-0 bottom-0 p-6">

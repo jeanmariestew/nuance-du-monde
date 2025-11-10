@@ -40,7 +40,7 @@ export default function TypeDeVoyageClient() {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <section className="relative h-80 sm:h-88 md:h-96 flex items-start py-3 sm:py-4 md:py-5 flex-col justify-end">
+      <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-start py-3 sm:py-4 md:py-5 flex-col justify-end">
         <div className="absolute inset-0">
           <Image
             src="/images/photo_type-de-voyage.png"
@@ -48,9 +48,9 @@ export default function TypeDeVoyageClient() {
             fill
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40"></div>
         <div className="relative z-10 text-left text-white px-4 sm:px-6 md:px-8 max-w-2xl">
           <div className="inline-block bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
             Catégorie

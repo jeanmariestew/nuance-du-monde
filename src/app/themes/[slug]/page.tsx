@@ -45,7 +45,7 @@ export default async function ThemePage({ params }: PageProps) {
 
   return (
     <div>
-      <section className="relative h-64 sm:h-72 md:h-80 flex items-center justify-center">
+      <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-center justify-center">
         <div className="absolute inset-0">
           {theme.banner_image_url ? (
             <Image src={theme.banner_image_url} alt={theme.title} fill className="object-cover" />
@@ -54,7 +54,7 @@ export default async function ThemePage({ params }: PageProps) {
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
           )}
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{theme.title}</h1>

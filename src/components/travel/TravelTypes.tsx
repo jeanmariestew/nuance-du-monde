@@ -18,7 +18,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
       {travelTypes.map((travelType) => (
         <div
           key={travelType.id}
-          className="relative bg-cover bg-center h-[400px] rounded-lg overflow-hidden group cursor-pointer"
+          className="relative bg-cover bg-center h-[650px] rounded-lg overflow-hidden group cursor-pointer"
         >
           {travelType.image_url ? (
             <Image
@@ -40,7 +40,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
               </div>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
           <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
             <div>
               <h3 className="text-2xl font-bold mb-4 font-[Alro]">{travelType.title}</h3>

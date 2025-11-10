@@ -64,7 +64,7 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
             </div>
             <div className="relative min-h-80 overflow-hidden">
               <Image
-                src="/images/a-la-une-2-1.png"
+                src="/images/a-la-une-2-1.jpg"
                 alt="Themes"
                 fill
                 className="object-cover"
