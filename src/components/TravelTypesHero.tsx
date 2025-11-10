@@ -39,7 +39,7 @@ export default function TravelTypesHero() {
           {/* Colonne droite - Image pleine hauteur */}
           <div className="relative h-full">
             <Image
-              src="/images/a-la-une-3-1.jpg"
+              src="/images/a-la-une-3-1.png"
               alt="Type de voyage - Vue urbaine"
               fill
               className="object-cover"

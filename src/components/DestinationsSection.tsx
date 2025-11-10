@@ -37,7 +37,7 @@ export default function DestinationsSection({
               {/* Colonne droite - Image pleine hauteur */}
               <div className="relative h-full">
                 <Image
-                  src="/images/a-la-une-1-1.webp"
+                  src="/images/a-la-une-1-1.png"
                   alt="Destinations - Personnes qui trinquent"
                   fill
                   className="object-cover"
@@ -111,7 +111,7 @@ export default function DestinationsSection({
                 <div className="w-4 h-4 bg-[#d9a900] rounded-full pulse-animation"></div>
               </div>
 
-              <div className="my-20">
+              <div className="my-10 mb-5">
                 <h2 className="text-3xl font-bold mb-6 text-white tracking-wide font-[Alro]">
                   LES DESTINATIONS
                 </h2>
