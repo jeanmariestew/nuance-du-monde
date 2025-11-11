@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         title, slug, continent, description, short_description, image_url, banner_image_url,
         price_from, price_currency, duration_days, duration_nights,
         group_size_min, group_size_max, sort_order
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
