@@ -75,11 +75,12 @@ export async function GET(req: Request) {
     // Fetch available dates and images for all offers
     const offerIds = (rows as OfferRow[]).map(o => o.id);
     let availableDatesMap: Record<number, string[]> = {};
+    let minPriceMap: Record<number, number | null> = {};
     let imagesMap: Record<number, any[]> = {};
     
     if (offerIds.length > 0) {
       const datesRows = await query(
-        `SELECT offer_id, departure_date FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
+        `SELECT offer_id, departure_date, price FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
         offerIds
       );
       availableDatesMap = (datesRows as any[]).reduce((acc, row) => {
@@ -87,6 +88,15 @@ export async function GET(req: Request) {
         acc[row.offer_id].push(row.departure_date);
         return acc;
       }, {} as Record<number, string[]>);
+      minPriceMap = (datesRows as any[]).reduce((acc, row) => {
+        const p = row.price;
+        if (p !== null && p !== undefined) {
+          if (acc[row.offer_id] === undefined || p < acc[row.offer_id]) acc[row.offer_id] = p;
+        } else if (acc[row.offer_id] === undefined) {
+          acc[row.offer_id] = null;
+        }
+        return acc;
+      }, {} as Record<number, number | null>);
       
       // Fetch all images for offers
       const imagesRows = await query(
@@ -114,7 +124,7 @@ export async function GET(req: Request) {
         // convenience aliases for frontend components
         banner_image_url: bannerImage,
         image_url: mainImage,
-        price_from: o.price_from ?? o.price ?? null,
+        price_from: (minPriceMap[o.id] ?? null) ?? o.price_from ?? o.price ?? null,
         available_dates: availableDatesMap[o.id] || [],
         images: offerImages,
       };

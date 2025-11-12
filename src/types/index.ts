@@ -21,6 +21,14 @@ export interface TravelType {
   canonical_url?: string;
 }
 
+export interface OfferDate {
+  id?: number;
+  departure_date: string;
+  return_date?: string | null;
+  price?: number | null;
+  price_currency?: string | null;
+}
+
 export interface Offer {
   id?: number;
   title: string;
@@ -57,6 +65,8 @@ export interface Offer {
   updated_at?: string;
   // Available dates for this offer
   available_dates?: string[];
+  // Date ranges with per-range pricing
+  dates?: OfferDate[];
   // Joined relations on detail endpoint
   travel_types?: { id: number; title: string; slug?: string }[];
   travel_themes?: { id: number; title: string; slug?: string }[];

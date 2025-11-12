@@ -33,7 +33,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const types = await query('SELECT travel_type_id FROM offer_travel_types WHERE offer_id = ?', [id]);
   const themes = await query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
   const dests = await query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]);
-  const dates = await query('SELECT departure_date FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
+  const datesRows = await query('SELECT id, departure_date, return_date, price, price_currency FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
   const images = await query(`
     SELECT oi.id, i.url as image_url, oi.image_type, oi.alt_text, oi.sort_order 
     FROM offer_images oi
@@ -46,7 +46,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     typeIds: (types as any[]).map(r => r.travel_type_id),
     themeIds: (themes as any[]).map(r => r.travel_theme_id),
     destinationIds: (dests as any[]).map(r => r.destination_id),
-    available_dates: (dates as any[]).map(r => r.departure_date),
+    available_dates: (datesRows as any[]).map(r => r.departure_date),
+    dates: datesRows as any[],
     images: images as any[],
   }});
 }
@@ -77,6 +78,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
+    dates = [] as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -95,20 +97,32 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     await query('DELETE FROM offer_dates WHERE offer_id = ?', [id]);
     await query('DELETE FROM offer_images WHERE offer_id = ?', [id]);
 
-    // Save available dates
-    if (Array.isArray(available_dates) && available_dates.length > 0) {
-      console.log('Sauvegarde des dates:', available_dates);
+    // Save date ranges (preferred). Fallback to available_dates.
+    if (Array.isArray(dates) && dates.length > 0) {
+      const valid = dates.filter(d => d && d.departure_date);
+      if (valid.length > 0) {
+        const placeholders = valid.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const values = valid.flatMap((d) => [
+          id,
+          d.departure_date,
+          d.return_date || null,
+          d.price ?? null,
+          (d.price_currency || 'EUR'),
+        ]);
+        await query(
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES ${placeholders}`,
+          values
+        );
+      }
+    } else if (Array.isArray(available_dates) && available_dates.length > 0) {
       const validDates = available_dates.filter(date => date && date.trim());
-      
       if (validDates.length > 0) {
         const placeholders = validDates.map(() => '(?, ?)').join(', ');
         const values = validDates.flatMap((date: string) => [id, date]);
-        
         await query(
           `INSERT INTO offer_dates (offer_id, departure_date) VALUES ${placeholders}`,
           values
         );
-        console.log('Dates sauvegardées:', validDates.length, 'dates pour l\'offre', id);
       }
     }
 

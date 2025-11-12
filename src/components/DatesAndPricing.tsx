@@ -30,6 +30,22 @@ export default function DatesAndPricing({
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  const formatPrice = (value?: number, currency?: string) => {
+    if (value === undefined || value === null) return basePrice ? `${baseCurrency} ${new Intl.NumberFormat('fr-FR').format(basePrice)}` : "—";
+    return `${currency || baseCurrency} ${new Intl.NumberFormat('fr-FR').format(value)}`;
+  };
+
+  const formatRange = (dep: string, ret?: string) => {
+    const d = new Date(dep);
+    const optsStart: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    if (!ret) return d.toLocaleDateString('fr-FR', optsStart);
+    const r = new Date(ret);
+    const sameMonth = d.getFullYear() === r.getFullYear() && d.getMonth() === r.getMonth();
+    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit' } : { day: '2-digit', month: '2-digit' };
+    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    return `${d.toLocaleDateString('fr-FR', startFmt)} → ${r.toLocaleDateString('fr-FR', endFmt)}`;
+  };
+
   if (!dates || dates.length === 0) {
     return null;
   }
@@ -115,7 +131,7 @@ export default function DatesAndPricing({
     <section className="site-section bg-gradient-to-b from-gray-50 to-white">
       <div className="site-container">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-10">
+        <div className="flex items-center gap-4 mb-8 sm:mb-10">
           <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
             <Calendar className="w-6 h-6 text-yellow-600" />
           </div>
@@ -124,7 +140,7 @@ export default function DatesAndPricing({
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-[380px_1fr] gap-6">
+        <div className="grid lg:grid-cols-[380px_1fr] gap-6 md:gap-8">
           {/* Calendrier */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl border-2 border-yellow-300 p-5 h-fit">
             {/* Navigation mois */}
@@ -233,62 +249,32 @@ export default function DatesAndPricing({
                 <Calendar className="w-5 h-5 text-yellow-600" />
                 Dates disponibles
               </h3>
-              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-2">
+              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 sm:pr-2">
                 {dates.map((date) => {
                   const isSelected = selectedDate?.id === date.id;
                   return (
                     <button
                       key={date.id}
                       onClick={() => setSelectedDate(date)}
-                      className={`w-full text-left p-4 rounded-xl transition-all border-2 ${
+                      className={`w-full text-left p-4 rounded-xl transition-all border-2 flex items-center justify-between ${
                         isSelected
                           ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
                           : "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-gray-900"
                       }`}
                     >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p
-                            className={`text-sm font-bold ${
-                              isSelected ? "text-white" : "text-gray-900"
-                            }`}
-                          >
-                            {new Date(date.departure_date).toLocaleDateString(
-                              "fr-FR",
-                              {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              }
-                            )}
-                          </p>
-                          {date.return_date && (
-                            <p
-                              className={`text-xs ${
-                                isSelected ? "text-yellow-100" : "text-gray-600"
-                              }`}
-                            >
-                              Retour:{" "}
-                              {new Date(date.return_date).toLocaleDateString(
-                                "fr-FR",
-                                {
-                                  day: "numeric",
-                                  month: "long",
-                                }
-                              )}
-                            </p>
-                          )}
-                        </div>
-                        <div className={`text-right`}>
-                          <p
-                            className={`text-lg font-bold ${
-                              isSelected ? "text-white" : "text-yellow-600"
-                            }`}
-                          >
-                            {date.price_currency || baseCurrency}{" "}
-                            {date.price || basePrice}
-                          </p>
-                        </div>
+                      <div className="min-w-0 pr-3">
+                        <p className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-900'} truncate`}>
+                          {formatRange(date.departure_date, date.return_date)}
+                        </p>
+                        <p className={`text-xs ${isSelected ? 'text-yellow-100' : 'text-gray-600'}`}>
+                          {date.return_date ? 'Date de retour incluse' : 'Départ unique'}
+                        </p>
+                      </div>
+                      <div className={`text-right flex-shrink-0`}>
+                        <p className={`text-lg font-extrabold ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
+                          {formatPrice(date.price, date.price_currency)}
+                        </p>
+                        <p className={`text-[11px] ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
                       </div>
                     </button>
                   );
@@ -299,7 +285,7 @@ export default function DatesAndPricing({
             {/* Détails de la date sélectionnée */}
             {selectedDate && (
               <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-xl border-2 border-yellow-600 p-6 text-white">
-                <h3 className="text-xl font-bold mb-5">Détails du départ</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mb-5">Détails du départ</h3>
 
                 <div className="space-y-5">
                   {/* Date de départ */}
@@ -343,9 +329,8 @@ export default function DatesAndPricing({
                     <p className="text-sm text-yellow-100 mb-2">
                       Prix par personne
                     </p>
-                    <p className="text-5xl font-bold">
-                      {selectedDate.price_currency || baseCurrency}{" "}
-                      {selectedDate.price || basePrice}
+                    <p className="text-4xl sm:text-5xl font-bold">
+                      {formatPrice(selectedDate.price, selectedDate.price_currency)}
                     </p>
                     <p className="text-sm text-yellow-100 mt-2">
                       en occupation double
@@ -353,8 +338,8 @@ export default function DatesAndPricing({
                   </div>
 
                   {/* Bouton CTA */}
-                  <button className="w-full bg-white text-yellow-600 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105">
-                    Réserver ce départ
+                  <button className="w-full bg-white text-yellow-700 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105">
+                    Demander un devis pour cette période
                   </button>
                 </div>
               </div>

@@ -46,6 +46,7 @@ type OfferData = {
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
+  dates?: { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[];
   typeIds: number[];
   themeIds: number[];
   destinationIds: number[];
@@ -474,37 +475,77 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
 
         <Card>
           <CardHeader>
-            <CardTitle>Dates de départ disponibles</CardTitle>
+            <CardTitle>Périodes de départ et prix</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
               <div className="text-sm text-neutral-600">
-                Gérez les dates de départ disponibles pour cette offre. 
-                <span className="font-medium text-orange-600">N&apos;oubliez pas de cliquer sur &quot;Enregistrer&quot; en bas pour sauvegarder vos modifications.</span>
+                Ajoutez des périodes avec une date de départ, une date de retour (optionnelle) et un prix.
+                <span className="font-medium text-orange-600"> N&apos;oubliez pas de cliquer sur &quot;Enregistrer&quot; en bas pour sauvegarder.</span>
               </div>
-              <div className="flex gap-2">
-                <input
-                  type="date"
-                  id="new-date-input"
-                  min={new Date().toISOString().split('T')[0]}
-                  className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                />
+              <div className="grid gap-2 md:grid-cols-[1fr,1fr,160px,120px,auto]">
+                <label className="text-sm">
+                  Date de départ
+                  <input
+                    type="date"
+                    id="new-start-date"
+                    min={new Date().toISOString().split('T')[0]}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="jj/mm/aaaa"
+                  />
+                </label>
+                <label className="text-sm">
+                  Date de retour (optionnelle)
+                  <input
+                    type="date"
+                    id="new-end-date"
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="jj/mm/aaaa"
+                  />
+                </label>
+                <label className="text-sm">
+                  Prix
+                  <input
+                    type="number"
+                    id="new-date-price"
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="Ex: 3500"
+                  />
+                </label>
+                <label className="text-sm">
+                  Devise
+                  <input
+                    type="text"
+                    id="new-date-currency"
+                    defaultValue={(offer.price_currency || 'EUR')}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="Ex: EUR, CAD, USD"
+                  />
+                </label>
                 <Button
                   onClick={() => {
-                    const input = document.getElementById('new-date-input') as HTMLInputElement;
-                    if (input.value) {
-                      if (offer.available_dates.includes(input.value)) {
-                        setError('Cette date existe déjà');
-                        return;
-                      }
-                      const newDates = [...offer.available_dates, input.value].sort();
-                      setOffer({ 
-                        ...(offer as OfferData), 
-                        available_dates: newDates
-                      });
-                      input.value = '';
-                      setStatus('Date ajoutée - cliquez sur Enregistrer pour sauvegarder');
+                    const start = document.getElementById('new-start-date') as HTMLInputElement;
+                    const end = document.getElementById('new-end-date') as HTMLInputElement;
+                    const price = document.getElementById('new-date-price') as HTMLInputElement;
+                    const currency = document.getElementById('new-date-currency') as HTMLInputElement;
+                    if (!start.value) {
+                      setError('La date de départ est requise');
+                      return;
                     }
+                    const newEntry = {
+                      departure_date: start.value,
+                      return_date: end.value || null,
+                      price: price.value === '' ? null : Number(price.value),
+                      price_currency: (currency.value || 'EUR'),
+                    };
+                    setOffer({
+                      ...(offer as OfferData),
+                      dates: [...(offer.dates || []), newEntry].sort((a,b) => a.departure_date.localeCompare(b.departure_date)),
+                    });
+                    start.value = '';
+                    end.value = '';
+                    price.value = '';
+                    setStatus('Période ajoutée - cliquez sur Enregistrer pour sauvegarder');
                   }}
                   className="px-4 py-2 text-sm"
                 >
@@ -512,18 +553,22 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                 </Button>
               </div>
               <div className="grid gap-2">
-                {offer.available_dates.length > 0 ? (
-                  offer.available_dates.map((date, index) => (
+                {(offer.dates && offer.dates.length > 0) ? (
+                  offer.dates.map((d, index) => (
                     <div key={index} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-                      <span className="text-sm">{new Date(date).toLocaleDateString('fr-FR')}</span>
+                      <span className="text-sm">
+                        {new Date(d.departure_date).toLocaleDateString('fr-FR')} 
+                        {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR')}` : ''}
+                        {typeof d.price === 'number' ? ` — ${(d.price_currency || offer.price_currency || 'EUR')} ${d.price}` : ''}
+                      </span>
                       <button
                         onClick={() => {
-                          const updatedDates = offer.available_dates.filter((_, i) => i !== index);
-                          setOffer({ 
-                            ...(offer as OfferData), 
-                            available_dates: updatedDates
+                          const updated = (offer.dates || []).filter((_, i) => i !== index);
+                          setOffer({
+                            ...(offer as OfferData),
+                            dates: updated,
                           });
-                          setStatus('Date supprimée - cliquez sur Enregistrer pour sauvegarder');
+                          setStatus('Période supprimée - cliquez sur Enregistrer pour sauvegarder');
                         }}
                         className="text-red-600 hover:text-red-800 text-sm"
                       >
@@ -532,7 +577,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                     </div>
                   ))
                 ) : (
-                  <div className="text-sm text-neutral-500 italic">Aucune date de départ configurée</div>
+                  <div className="text-sm text-neutral-500 italic">Aucune période configurée</div>
                 )}
               </div>
             </div>

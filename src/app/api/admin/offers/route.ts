@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
+    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -73,8 +74,25 @@ export async function POST(req: Request) {
       );
     }
 
-    // Save available dates
-    if (Array.isArray(available_dates) && available_dates.length > 0) {
+    // Save date ranges (preferred)
+    if (Array.isArray(dates) && dates.length > 0) {
+      const valid = dates.filter(d => d && d.departure_date);
+      if (valid.length > 0) {
+        const placeholders = valid.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const values = valid.flatMap((d) => [
+          offerId,
+          d.departure_date,
+          d.return_date || null,
+          d.price ?? null,
+          (d.price_currency || 'EUR'),
+        ]);
+        await query(
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES ${placeholders}`,
+          values
+        );
+      }
+    } else if (Array.isArray(available_dates) && available_dates.length > 0) {
+      // Backward compatibility: simple departure dates
       const validDates = available_dates.filter(date => date && date.trim());
       if (validDates.length > 0) {
         const placeholders = validDates.map(() => '(?, ?)').join(', ');

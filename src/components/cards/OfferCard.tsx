@@ -9,12 +9,13 @@ type Props = { offer: Offer };
 export default function OfferCard({ offer }: Props) {
   // Extract data from offer
   const destination = offer.destinations?.[0]?.title || offer.title;
-  console.log("offer", offer);
   const title = offer.title;
   const duration = offer.duration_days
     ? `${offer.duration_days} jours et ${offer.duration_nights} nuits`
     : "";
-  const price = offer.price_from?.toLocaleString("fr-FR") || "";
+  const price = offer.price_from !== undefined && offer.price_from !== null
+    ? new Intl.NumberFormat('fr-FR').format(offer.price_from)
+    : "";
   const currency = offer.price_currency || "$";
   const imageUrl = offer.images?.[0]
     ? offer.images?.[0].image_url
@@ -23,6 +24,23 @@ export default function OfferCard({ offer }: Props) {
       "/images/destination_fond.png";
   const category = offer.meta_title || "Voyage";
   const description = offer.label || "";
+
+  // Compute the next upcoming date range for the pill
+  const now = new Date();
+  const sortedDates = (offer.dates || [])
+    .slice()
+    .sort((a, b) => new Date(a.departure_date).getTime() - new Date(b.departure_date).getTime());
+  const nextRange = sortedDates.find(d => new Date(d.departure_date) >= new Date(now.toDateString()));
+  const formatRange = (dep?: string, ret?: string | null) => {
+    if (!dep) return null;
+    const d = new Date(dep);
+    if (!ret) return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const r = new Date(ret);
+    const sameMonth = d.getFullYear() === r.getFullYear() && d.getMonth() === r.getMonth();
+    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit' } : { day: '2-digit', month: '2-digit' };
+    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    return `${d.toLocaleDateString('fr-FR', startFmt)} → ${r.toLocaleDateString('fr-FR', endFmt)}`;
+  };
   return (
     <Link href={`/offers/${offer.slug}`} className="block group h-full">
       <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl border-gray-200 border-2 transition-all duration-300 group-hover:border-yellow-400 h-full flex flex-col">
@@ -46,6 +64,14 @@ export default function OfferCard({ offer }: Props) {
               <h3 className="text-xl sm:text-2xl font-bold drop-shadow-lg">{destination}</h3>
               <p className="text-sm sm:text-base font-medium opacity-90">{category}</p>
             </div>
+            {/* Label badge */}
+            {offer.label && (
+              <div className="absolute top-4 left-4 z-10">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-gray-900 shadow">
+                  {offer.label}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right side - Content */}
@@ -72,6 +98,12 @@ export default function OfferCard({ offer }: Props) {
                   <p className="text-gray-700 font-medium text-sm sm:text-base mt-1 h-6">
                     {duration || '\u00A0'}
                   </p>
+                  {nextRange && (
+                    <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold border border-yellow-300">
+                      <span>Prochain départ</span>
+                      <span className="truncate">{formatRange(nextRange.departure_date, nextRange.return_date || undefined)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
