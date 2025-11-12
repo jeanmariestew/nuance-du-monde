@@ -124,7 +124,7 @@ export default function DestinationsSection({
                   href="/destinations"
                   className="bg-[#d9a900] text-sm text-white px-6 py-3 rounded   transition-colors inline-block mt-8"
                 >
-                  Voir toutes les destinations
+                  Voir toutes nos destinations
                 </Link>
               </div>
             </div>

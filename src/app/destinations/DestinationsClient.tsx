@@ -91,7 +91,7 @@ export default function DestinationsClient() {
         <div className="absolute top-0 left-0 right-0 flex items-start justify-center z-20 pointer-events-none pt-16 sm:pt-20 md:pt-24">
           <div className="text-center px-4">
             <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl font-[Alro]">
-              LES DESTINATIONS
+              NOS DESTINATIONS
             </h1>
             <p className="text-xl sm:text-2xl md:text-3xl text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
               Voyagez au cœur des plus belles destinations du monde à travers des
@@ -180,7 +180,7 @@ export default function DestinationsClient() {
                           }}
                           className="block px-3 py-2 text-sm text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors duration-200 font-semibold text-center border-t border-gray-200 mt-2 pt-3"
                         >
-                          Voir toutes les destinations →
+                          Voir toutes nos destinations →
                         </Link>
                       )}
                     </div>
@@ -206,7 +206,7 @@ export default function DestinationsClient() {
               }}
               className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
             >
-              Voir toutes les destinations
+              Voir toutes nos destinations
             </button>
           </div>
         </div>

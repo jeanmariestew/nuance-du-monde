@@ -52,13 +52,13 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
                 <div className="w-4 h-4 bg-[#d9a900] rounded-full pulse-animation"></div>
               </div>
                 <h2 className="text-3xl font-bold mb-6 text-black tracking-wide font-[Alro] my-10">
-                  LES THÈMES
+                  NOS THÈMES
                 </h2>
                 <Link
                   href="/themes"
                   className="bg-[#d9a900] text-base text-white px-8 py-4 rounded   transition-colors inline-block mt-8"
                 >
-                  Voir tous les thèmes
+                  Voir tous nos thèmes
                 </Link>
               </div>
             </div>

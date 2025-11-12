@@ -43,20 +43,20 @@ export default function ThemesClient() {
         <div className="absolute inset-0">
           <Image
             src="/images/themes_banner.jpeg"
-            alt="Les thèmes"
+            alt="Nos thèmes"
             fill
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">LES THÈMES</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">NOS THÈMES</h1>
         </div>
       </section>
 
       <section className="py-8 sm:py-12 md:py-16">
         <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10 text-center">
-          Tous les thèmes
+          Tous nos thèmes
         </h2>
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
           {loading ? (
