@@ -60,6 +60,8 @@ export interface Offer {
   price_excludes?: string;
   // Offer label
   label?: string;
+  // External programme PDF/link
+  programme_link?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;

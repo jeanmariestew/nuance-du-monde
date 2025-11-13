@@ -49,6 +49,7 @@ interface OfferDetail {
   travel_themes?: Array<{ id: number; title: string; slug: string }>;
   destinations?: Array<{ id: number; title: string; slug: string }>;
   dates?: Array<{ id: number; departure_date: string; return_date?: string }>;
+  programme_link?: string;
 }
 
 interface PageProps {
@@ -195,6 +196,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         description={offer.description}
         destinations={offer.destinations}
         title="Itinéraire détaillé"
+        programmeLink={offer.programme_link}
       />
 
       {/* Section Dates et Prix */}

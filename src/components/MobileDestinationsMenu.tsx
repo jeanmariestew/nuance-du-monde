@@ -62,7 +62,7 @@ const MobileDestinationsMenu: React.FC<MobileDestinationsMenuProps> = ({ onClose
           className="block text-black text-center transition-colors py-2"
           onClick={onClose}
         >
-          Toutes les destinations
+          Toutes Nos destinations
         </Link>
       </div>
     );
@@ -78,7 +78,7 @@ const MobileDestinationsMenu: React.FC<MobileDestinationsMenuProps> = ({ onClose
         className="block text-black text-center transition-colors py-2 border-b border-gray-200 mb-2"
         onClick={onClose}
       >
-        Toutes les destinations
+        Toutes Nos destinations
       </Link>
 
       {/* Liste des continents */}

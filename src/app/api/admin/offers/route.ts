@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     price_includes = null,
     price_excludes = null,
     label = null,
+    programme_link = null,
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
@@ -46,9 +47,9 @@ export async function POST(req: Request) {
 
   try {
     const res = await execute(
-      `INSERT INTO offers (title, slug, short_description, description, is_active, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, duration_days, duration_nights]
+      `INSERT INTO offers (title, slug, short_description, description, is_active, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights]
     );
     const offerId = res.insertId;
 

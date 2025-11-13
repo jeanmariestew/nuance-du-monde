@@ -43,6 +43,7 @@ type OfferData = {
   price_includes: string | null;
   price_excludes: string | null;
   label: string | null;
+  programme_link: string | null;
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
@@ -246,6 +247,16 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   onChange={(e) => setOffer({ ...(offer as OfferData), label: e.target.value || null })}
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                   placeholder="Ex: Nouveau, Populaire, Exclusif..."
+                />
+              </label>
+              <label className="text-sm">
+                Lien du programme (PDF ou page externe)
+                <input
+                  type="url"
+                  value={offer.programme_link || ''}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), programme_link: e.target.value || null })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="https://.../programme.pdf"
                 />
               </label>
             </div>

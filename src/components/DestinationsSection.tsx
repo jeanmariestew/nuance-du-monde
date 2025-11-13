@@ -113,7 +113,7 @@ export default function DestinationsSection({
 
               <div className="my-10 mb-5">
                 <h2 className="text-3xl font-bold mb-6 text-white tracking-wide font-[Alro]">
-                  LES DESTINATIONS
+                  NOS DESTINATIONS
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed">
                   Voyagez au cœur des plus belles destinations du monde à

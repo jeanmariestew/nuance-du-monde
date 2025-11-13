@@ -28,12 +28,14 @@ interface OfferItinerarySectionProps {
   description?: string;
   destinations?: Array<{ id: number; title: string; slug: string }>;
   title?: string;
+  programmeLink?: string;
 }
 
 export default function OfferItinerarySection({
   description,
   destinations,
   title = "Itinéraire détaillé",
+  programmeLink,
 }: OfferItinerarySectionProps) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,15 +85,29 @@ export default function OfferItinerarySection({
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-gray-900 mb-4 sm:mb-6 px-4">
             {title}
           </h2>
-          <div className="flex items-center justify-center gap-4 px-4">
-            <button className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-2">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="hidden sm:inline">Télécharger le programme</span>
-              <span className="sm:hidden">Télécharger</span>
-            </button>
-          </div>
+          {programmeLink && (
+            <div className="flex items-center justify-center gap-4 px-4">
+              {(() => {
+                const isPdf = programmeLink.toLowerCase().endsWith('.pdf');
+                return (
+                  <a
+                    href={programmeLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    {...(isPdf ? { download: '' } : {})}
+                    className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-2"
+                    title={isPdf ? 'Télécharger le programme (PDF)' : 'Ouvrir le programme'}
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="hidden sm:inline">{isPdf ? 'Télécharger le programme' : 'Ouvrir le programme'}</span>
+                    <span className="sm:hidden">{isPdf ? 'Télécharger' : 'Ouvrir'}</span>
+                  </a>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         {/* Map and Timeline Grid */}

@@ -42,6 +42,7 @@ type NewOfferData = {
   price_includes: string | null;
   price_excludes: string | null;
   label: string | null;
+  programme_link: string | null;
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
@@ -75,6 +76,7 @@ export default function AdminOfferNewPage() {
     price_includes: null,
     price_excludes: null,
     label: null,
+    programme_link: null,
     duration_days: null,
     duration_nights: null,
     available_dates: [],
@@ -264,6 +266,16 @@ export default function AdminOfferNewPage() {
                   onChange={(e) => setOffer({ ...offer, label: e.target.value || null })}
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                   placeholder="Ex: Nouveau, Populaire, Exclusif..."
+                />
+              </label>
+              <label className="text-sm">
+                Lien du programme (PDF ou page externe)
+                <input
+                  type="url"
+                  value={offer.programme_link || ''}
+                  onChange={(e) => setOffer({ ...offer, programme_link: e.target.value || null })}
+                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  placeholder="https://.../programme.pdf"
                 />
               </label>
             </div>
