@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Offer } from "@/types";
 
-type Props = { offer: Offer };
+type Props = { offer: Offer }; 
 
 export default function OfferCard({ offer }: Props) {
   // Extract data from offer
