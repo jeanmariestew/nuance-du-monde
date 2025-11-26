@@ -4,7 +4,7 @@ import { hasValidAdminToken } from '@/lib/auth';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-const uploadsDir = '/var/www/nextapp/public/uploads';
+const uploadsDir = '/var/www/nextapp/.next/standalone/public/uploads';
 
 // GET - Récupérer une image spécifique
 export async function GET(
