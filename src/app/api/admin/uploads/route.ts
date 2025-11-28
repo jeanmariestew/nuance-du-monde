@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { hasValidAdminToken } from '@/lib/auth';
 
-const uploadsDir = '/var/www/nextapp/.next/standalone/public/uploads';
+const uploadsDir = '/var/www/nextapp/nuande-dumonde/public/uploads';
 
 async function ensureDir() {
   try {

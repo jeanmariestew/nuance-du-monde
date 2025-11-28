@@ -82,6 +82,14 @@ export default function TestimonialsSection({
   }, [testimonials.length]);
 
   if (testimonials.length === 0) return null;
+  const imagesslider = [
+    "slider0.jpg",
+    "slider1.jpg",
+    "slider2.jpg",
+    "slider3.jpg",
+    "slider4.jpg",
+    "slider5.png",
+  ];
 
   return (
     <section className="">
@@ -185,8 +193,9 @@ export default function TestimonialsSection({
                 >
                   <Image
                     src={
-                      testimonial.image_url || `/images/slider${index % 3}.jpg`
+                      testimonial.image_url || `/images/${imagesslider[index]}`
                     }
+
                     alt={`Témoignage de ${testimonial.client_name}`}
                     fill
                     className="object-cover"

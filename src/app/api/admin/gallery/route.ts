@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
-const uploadsDir = '/var/www/nextapp/.next/standalone/public/uploads';
+const uploadsDir = '/var/www/nextapp/nuande-dumonde/public/uploads';
 
 async function ensureDir() {
   try {

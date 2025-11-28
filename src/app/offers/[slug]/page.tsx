@@ -140,7 +140,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
               <span className={`inline-block px-4 py-2 ${coverImage ? 'bg-yellow-500/90 text-white' : 'bg-yellow-500 text-white'} text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-4`}>
                 {offer.destinations?.[0]?.title || 'Voyage'}
               </span>
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold mb-4 ${coverImage ? 'text-white drop-shadow-2xl' : 'text-gray-800'}`}>
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 ${coverImage ? 'text-white drop-shadow-2xl' : 'text-gray-800'}`}>
                 {offer.title}
               </h1>
               {offer.subtitle && (
