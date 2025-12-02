@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { hasValidAdminToken } from '@/lib/auth';
 
-const uploadsDir = '/var/www/nextapp/nuance-du-monde/public/uploads';
+const uploadsDir = '/var/www/nextapp/public/uploads';
 
 async function ensureDir() {
   try {
