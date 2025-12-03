@@ -127,11 +127,26 @@ export default function AdminOfferNewPage() {
     setError(null);
     setStatus(null);
     try {
-      console.log('Données à sauvegarder:', offer);
+      // Formater les dates pour MySQL (YYYY-MM-DD uniquement)
+      const formatDate = (dateStr: string | null) => {
+        if (!dateStr) return null;
+        // Si c'est déjà au format YYYY-MM-DD, le garder tel quel
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        // Sinon, extraire juste la partie date d'un timestamp ISO
+        return dateStr.split('T')[0];
+      };
+
+      const dataToSave = {
+        ...offer,
+        promotion_start_date: formatDate(offer.promotion_start_date),
+        promotion_end_date: formatDate(offer.promotion_end_date),
+      };
+
+      console.log('Données à sauvegarder:', dataToSave);
       const response = await jsonFetch(`/api/admin/offers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(offer),
+        body: JSON.stringify(dataToSave),
       });
       console.log('Réponse API:', response);
       setStatus('Offre créée avec succès');
