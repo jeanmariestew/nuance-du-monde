@@ -164,7 +164,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-medium text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-6 leading-tight">
               {offer.title}
             </h1>
-            <div className="prose prose-base sm:prose-lg max-w-[500px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
+            <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
               <p className="text-sm sm:text-base">{offer.short_description}</p>
               {offer.description && (
                 <p className="mt-3 sm:mt-4 text-sm sm:text-base ">{offer.description.split('\n')[0]}</p>
