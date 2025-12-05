@@ -55,7 +55,7 @@ export default function TypeDeVoyageClient() {
           <div className="inline-block bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
             Catégorie
           </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 font-[Alro]">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 font-[Alro] uppercase">
             TYPE DE VOYAGE
           </h1>
           <p className="text-sm sm:text-base md:text-lg leading-relaxed">
@@ -66,7 +66,7 @@ export default function TypeDeVoyageClient() {
         </div>
       </section>
       <div className="px-4 sm:px-6 md:px-10">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-5 md:mb-6 text-yellow-500 font-[Alro]">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-5 md:mb-6 text-yellow-500 font-[Alro] uppercase">
           Type de voyage
         </h2>
         <p className="text-sm sm:text-base md:text-lg leading-relaxed">

@@ -90,7 +90,7 @@ export default function DestinationsClient() {
         {/* Titre et texte flottants en haut au centre */}
         <div className="absolute top-0 left-0 right-0 flex items-start justify-center z-20 pointer-events-none pt-16 sm:pt-20 md:pt-24">
           <div className="text-center px-4">
-            <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl font-[Alro]">
+            <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl font-[Alro] uppercase">
               NOS DESTINATIONS
             </h1>
             <p className="text-xl sm:text-2xl md:text-3xl text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">

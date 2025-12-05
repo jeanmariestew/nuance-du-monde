@@ -28,7 +28,7 @@ export default function DestinationCard({ destination }: Props) {
 
       {/* content */}
       <div className="absolute flex flex-col items-center inset-x-0 bottom-0 p-6">
-        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro]">{destination.title}</h3>
+        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro] uppercase">{destination.title}</h3>
         <Link
           href={`/destinations/${destination.slug}`}
           className="inline-block mt-4 px-4 py-2 text-sm rounded-md bg-[#d9a900] text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"

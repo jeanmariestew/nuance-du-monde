@@ -41,19 +41,19 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Mise à jour avec Roboto et tailles en px */
+/* Mise à jour avec Archivo et tailles en px */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 body {
-  font-family: 'Quicksand', sans-serif;
+  font-family: 'Archivo', sans-serif;
   font-size: 16px; /* Taille de base pour une lisibilité optimale */
   line-height: 1.6; /* Line-height confortable pour la lecture */
 }
 
-/* Typography en pixels - Quicksand nécessite des tailles généreuses pour la lisibilité */
+/* Typography en pixels - Archivo nécessite des tailles généreuses pour la lisibilité */
 .h1 { font-size: 52px; line-height: 120%; font-weight: 700; }
 .h2 { font-size: 44px; line-height: 120%; font-weight: 700; }
 .h3 { font-size: 36px; line-height: 130%; font-weight: 700; }

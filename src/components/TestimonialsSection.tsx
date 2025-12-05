@@ -122,7 +122,7 @@ export default function TestimonialsSection({
             {/* subtle paper effect */}
             <div className="absolute -left-10 -top-10 w-40 h-40 bg-gray-200/40 rounded-full" />
             <div className="relative">
-              <h2 className="text-3xl font-bold mb-6 font-[Alro]">
+              <h2 className="text-3xl font-bold mb-6 font-[Alro] uppercase">
                 ILS ONT VOYAGÉ AVEC NOUS _ INSPIREZ-VOUS DE LEURS AVIS
               </h2>
               <p className="text-base text-gray-700">

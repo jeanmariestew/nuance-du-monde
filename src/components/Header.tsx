@@ -176,7 +176,7 @@ const Header = () => {
             </button>
           </nav>
           <Link
-            href="/demander-devis"
+            href="/devis-personnalise"
             className={clsx("px-4 py-4 border border-black rounded-md transition-colors inline-block text-base font-medium")}
           >
             Demander un devis
@@ -213,7 +213,7 @@ const Header = () => {
                 Thème de voyage
               </Link>
               <Link
-                href="/demander-devis"
+                href="/devis-personnalise"
                 className="text-black text-center transition-colors mt-8 px-4 py-2 border border-black rounded-md"
                 onClick={handleMobileMenuClose}
               >

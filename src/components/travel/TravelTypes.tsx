@@ -43,7 +43,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
           <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
             <div>
-              <h3 className="text-2xl font-bold mb-4 font-[Alro]">{travelType.title}</h3>
+              <h3 className="text-2xl font-bold mb-4 font-[Alro] uppercase">{travelType.title}</h3>
               {travelType.short_description && (
                 <p className="text-base leading-relaxed">
                   {travelType.short_description}

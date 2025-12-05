@@ -71,7 +71,7 @@ export default function ValuesSection() {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 font-[Alro]">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 font-[Alro] uppercase">
                     {value.title}
                   </h3>
                   <p className="text-gray-600 leading-relaxed text-base">

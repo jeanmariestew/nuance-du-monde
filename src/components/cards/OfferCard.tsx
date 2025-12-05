@@ -77,7 +77,7 @@ export default function OfferCard({ offer }: Props) {
           {/* Right side - Content */}
           <div className="md:col-span-3 p-5 sm:p-6 flex flex-col justify-between h-full">
             <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl text-yellow-500 mb-3 font-[Alro] line-clamp-2 min-h-[3.5rem]">
+              <h2 className="text-xl sm:text-2xl text-yellow-500 mb-3 font-[Alro] uppercase line-clamp-2 min-h-[3.5rem]">
                 {title}
               </h2>
 

@@ -46,7 +46,7 @@ export default function HeroAnimated() {
       <div className="relative z-10 container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-16">
         {/* Colonne gauche */}
         <div className="text-white max-w-2xl">
-          <h1 className="h1 font-extrabold !text-4xl !tracking-wider font-[Alro]">
+          <h1 className="h1 font-extrabold !text-4xl !tracking-wider font-[Alro] uppercase">
             NUANCE DU MONDE
             VOTRE SPÉCIALISTE DU
             VOYAGE SUR MESURE

@@ -26,7 +26,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
       <div className="w-full px-4 text-center relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#d9a900] font-[Alro] uppercase tracking-wide drop-shadow-sm">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#d9a900] font-[Alro] uppercase uppercase tracking-wide drop-shadow-sm">
             NOS PARTENAIRES AGENCES DE VOYAGE
           </h2>
           <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">

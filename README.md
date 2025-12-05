@@ -95,7 +95,7 @@ nuance-du-monde/
 │   │   │   ├── newsletter/    # API newsletter
 │   │   │   └── pages/         # API pages statiques
 │   │   ├── destinations/      # Pages destinations
-│   │   ├── demander-devis/    # Page formulaire devis
+│   │   ├── devis-personnalise/    # Page formulaire devis
 │   │   ├── layout.tsx         # Layout principal
 │   │   └── page.tsx           # Page d'accueil
 │   ├── components/            # Composants React

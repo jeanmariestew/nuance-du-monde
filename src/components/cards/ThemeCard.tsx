@@ -28,7 +28,7 @@ export default function ThemeCard({ theme }: Props) {
 
       {/* content */}
       <div className="absolute inset-x-0 bottom-0 p-6">
-        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro]">
+        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro] uppercase">
           {theme.title}
         </h3>
         <Link
