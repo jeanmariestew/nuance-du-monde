@@ -64,8 +64,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [types, setTypes] = useState<RefItem[]>([]);
   const [themes, setThemes] = useState<RefItem[]>([]);
   const [destinations, setDestinations] = useState<RefItem[]>([]);
-  const [uploads, setUploads] = useState<{ name: string; url: string }[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [_uploads, setUploads] = useState<{ name: string; url: string }[]>([]);
+  const [_uploading, setUploading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -202,7 +202,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold">Modifier l'offre</h1>
+        <h1 className="text-2xl font-semibold">Modifier l&apos;offre</h1>
         <div className="ml-auto">
           <Link
             href="/admin/offers"
@@ -255,7 +255,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                 />
               </label>
               <label className="text-sm">
-                Label de l'offre
+                Label de l&apos;offre
                 <input
                   type="text"
                   value={offer.label || ''}
@@ -318,7 +318,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                 Devise
                 <input
                   type="text"
-                  value={offer.price_currency || 'EUR'}
+                  value={offer.price_currency || 'CAD'}
                   onChange={(e) => setOffer({ ...(offer as OfferData), price_currency: e.target.value })}
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
@@ -368,7 +368,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   Devise
                   <input
                     type="text"
-                    value={offer.promotional_price_currency || 'EUR'}
+                    value={offer.promotional_price_currency || 'CAD'}
                     onChange={(e) => setOffer({ ...(offer as OfferData), promotional_price_currency: e.target.value })}
                     className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                   />
@@ -543,7 +543,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   <input
                     type="text"
                     id="new-date-currency"
-                    defaultValue={(offer.price_currency || 'EUR')}
+                    defaultValue={(offer.price_currency || 'CAD')}
                     className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                     placeholder="Ex: EUR, CAD, USD"
                   />

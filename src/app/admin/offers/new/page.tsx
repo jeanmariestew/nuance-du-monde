@@ -479,7 +479,7 @@ export default function AdminOfferNewPage() {
                 Devise
                 <input
                   type="text"
-                  value={offer.price_currency || 'EUR'}
+                  value={offer.price_currency || 'CAD'}
                   onChange={(e) => setOffer({ ...offer, price_currency: e.target.value })}
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
@@ -529,7 +529,7 @@ export default function AdminOfferNewPage() {
                   Devise
                   <input
                     type="text"
-                    value={offer.promotional_price_currency || 'EUR'}
+                    value={offer.promotional_price_currency || 'CAD'}
                     onChange={(e) => setOffer({ ...offer, promotional_price_currency: e.target.value })}
                     className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                   />
@@ -704,7 +704,7 @@ export default function AdminOfferNewPage() {
                   <input
                     type="text"
                     id="new-date-currency"
-                    defaultValue={offer.price_currency || 'EUR'}
+                    defaultValue={offer.price_currency || 'CAD'}
                     className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                     placeholder="Ex: EUR, CAD, USD"
                   />
