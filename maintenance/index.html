@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nuance du Monde - Site en maintenance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --ndm-black: #050505;
+      --ndm-black-soft: #141414;
+      --ndm-gold: #d6af4b;
+      --ndm-gold-soft: #f4dba0;
+      --ndm-cream: #fdf5e6;
+      --ndm-white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 20%, #050505 0, #050505 45%, #000 100%);
+      color: var(--ndm-white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem 3.5rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, transparent 0, transparent 45%, rgba(0,0,0,0.7) 100%);
+      z-index: -3;
+    }
+
+    .bg-plane {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 8% 15%, rgba(255,255,255,0.06) 0, transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(255,255,255,0.03) 0, transparent 60%);
+      opacity: 0.9;
+      z-index: -2;
+      animation: bgMove 22s linear infinite alternate;
+    }
+
+    @keyframes bgMove {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-30px, 15px, 0); }
+    }
+
+    .plane-path {
+      position: fixed;
+      right: 8vw;
+      top: 16vh;
+      width: 230px;
+      height: 230px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .plane-path svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.85;
+    }
+
+    .plane-path path {
+      stroke-dasharray: 6 12;
+      animation: dash 3.2s linear infinite;
+    }
+
+    .plane-path .plane {
+      animation: float 3.3s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes dash {
+      to { stroke-dashoffset: -90; }
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .wrapper {
+      max-width: 720px;
+      width: 100%;
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, #101010, #171717 45%, #050505 100%);
+      box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 2.4rem 2.4rem 2rem;
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+    }
+
+    @keyframes cardIn {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .glow {
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(214,175,75,0.24), transparent 55%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.7;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    /* Logo sur fond blanc */
+    .logo img {
+      height: 34px;
+      width: auto;
+      background: var(--ndm-white);
+      padding: 0.35rem 0.8rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+
+    .logo-text {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.76rem;
+      color: var(--ndm-gold-soft);
+      opacity: 0.95;
+      white-space: nowrap;
+    }
+
+    .badge {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      padding: 0.45rem 1rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--ndm-gold-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: linear-gradient(
+        120deg,
+        rgba(214,175,75,0.22),
+        rgba(214,175,75,0.04)
+      );
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 0 1px rgba(214,175,75,0.28);
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--ndm-gold);
+      box-shadow: 0 0 12px rgba(214,175,75,0.85);
+      position: relative;
+    }
+
+    .badge-dot::after {
+      content: "";
+      position: absolute;
+      inset: -5px;
+      border-radius: inherit;
+      border: 1px solid rgba(214,175,75,0.45);
+      opacity: 0.8;
+    }
+
+    main {
+      color: var(--ndm-cream);
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 3.3vw, 2.7rem);
+      line-height: 1.2;
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ndm-gold-soft);
+      text-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
+    }
+
+    h1 span {
+      color: var(--ndm-gold);
+    }
+
+    p {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 40rem;
+    }
+
+    .paragraph + .paragraph {
+      margin-top: 0.4rem;
+    }
+
+    .footer-main {
+      margin-top: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.1rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .progress-bar {
+      width: 130px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(214,175,75,0.2),
+        rgba(214,175,75,0.9),
+        rgba(244,219,160,0.95)
+      );
+      transform-origin: left;
+      animation: progress 2.4s ease-in-out infinite;
+    }
+
+    @keyframes progress {
+      0% { transform: scaleX(0.25); }
+      50% { transform: scaleX(0.9); }
+      100% { transform: scaleX(0.45); }
+    }
+
+    .cta {
+      padding: 0.8rem 1.6rem;
+      border-radius: 999px;
+      border: none;
+      cursor: default;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      background: linear-gradient(135deg, var(--ndm-gold), var(--ndm-gold-soft));
+      color: var(--ndm-black);
+      box-shadow:
+        0 18px 38px rgba(214,175,75,0.45),
+        0 0 0 1px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      white-space: nowrap;
+    }
+
+    .cta span {
+      font-size: 1.06rem;
+    }
+
+    /* SECTION CONTACT */
+    .contact {
+      width: 100%;
+      max-width: 1060px;
+      margin-top: 2.4rem;
+      padding-top: 1.6rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 1;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.96rem;
+      line-height: 1.7;
+    }
+
+    .contact-row {
+      margin-bottom: 0.6rem;
+    }
+
+    .contact-label {
+      color: var(--ndm-gold-soft);
+      font-weight: 500;
+    }
+
+    .contact a {
+      color: var(--ndm-gold-soft);
+      text-decoration: none;
+    }
+
+    .contact a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 2.4rem 1.1rem 3rem;
+      }
+
+      .wrapper {
+        padding: 1.9rem 1.5rem 1.7rem;
+        border-radius: 24px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+      }
+
+      .logo-text {
+        font-size: 0.7rem;
+      }
+
+      .footer-main {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .plane-path {
+        opacity: 0.4;
+        right: -8vw;
+        top: 8vh;
+        width: 170px;
+        height: 170px;
+      }
+
+      .contact {
+        margin-top: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-plane"></div>
+
+  <!-- Carte principale -->
+  <div class="wrapper">
+    <div class="glow"></div>
+
+    <header>
+      <div class="logo">
+        <!-- <img src="logo.noire_blanc.png" alt="Nuance du Monde" /> -->
+        <div class="logo-text">VOYAGES &amp; EXPÉRIENCES SUR-MESURE</div>
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>AMÉLIORATION EN COURS</span>
+      </div>
+    </header>
+
+    <main>
+      <h1>SITE EN MAINTENANCE</h1>
+
+      <p class="paragraph">
+        Nous ajustons rapidement le site pour vous offrir une meilleure expérience utilisateur.
+      </p>
+      <p class="paragraph">
+        Merci de votre compréhension et à très bientôt.
+      </p>
+    </main>
+
+    <div class="footer-main">
+      <div class="progress">
+        <div class="progress-bar" aria-hidden="true"></div>
+        <span>Mise à jour en cours…</span>
+      </div>
+      <button class="cta" aria-disabled="true">
+        Nuance du monde
+      </button>
+    </div>
+  </div>
+
+  <!-- Section contact -->
+  <section class="contact">
+    <div class="contact-inner">
+      <div class="contact-row">
+        <span class="contact-label">Adresse&nbsp;:</span>
+        1087 Laurier Ouest, QC H2V2L2, Montréal, Canada
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">Téléphone&nbsp;:</span>
+        1-844-362-0555 (Numéro gratuit)
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">Courriel&nbsp;:</span>
+        <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
