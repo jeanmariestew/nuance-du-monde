@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getTravelTypeData(slug: string): Promise<TravelType | null> {
   try {
-    const typeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-types/${slug}`, { cache: 'no-store' });
+    const typeRes = await fetch(`/api/travel-types/${slug}`, { cache: 'no-store' });
     const typeData = await typeRes.json();
     return typeData.success ? typeData.data : null;
   } catch (error) {

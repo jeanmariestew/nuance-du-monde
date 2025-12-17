@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getThemeData(slug: string): Promise<TravelTheme | null> {
   try {
-    const themeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/travel-themes/${slug}`, { cache: 'no-store' });
+    const themeRes = await fetch(`/api/travel-themes/${slug}`, { cache: 'no-store' });
     const themeData = await themeRes.json();
     return themeData.success ? themeData.data : null;
   } catch (error) {
