@@ -20,18 +20,10 @@ async function getDestination(
 ): Promise<{ destination: Destination | null; offers: Offer[] }> {
   try {
     const [destinationRes, offersRes] = await Promise.all([
-      fetch(
-        `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-        }/api/destinations/${slug}`,
-        { cache: "no-store" }
-      ),
-      fetch(
-        `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-        }/api/offers?destination=${encodeURIComponent(slug)}`,
-        { cache: "no-store" }
-      ),
+      fetch(`/api/destinations/${slug}`, { cache: "no-store" }),
+      fetch(`/api/offers?destination=${encodeURIComponent(slug)}`, {
+        cache: "no-store",
+      }),
     ]);
     const destinationData = await destinationRes.json();
     const offersData = await offersRes.json();

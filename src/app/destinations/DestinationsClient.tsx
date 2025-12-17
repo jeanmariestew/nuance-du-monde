@@ -68,8 +68,8 @@ export default function DestinationsClient() {
   // Images et couleurs pour chaque continent
   const continentImagesMap: Record<string, { image: string; overlay: string }> = {
     'Afrique': { image: '/images/afrique.jpg', overlay: 'bg-black/50' },
-    'Amérique du Nord': { image: '/images/amérique-du-nord.jpg', overlay: 'bg-black/50' },
-    'Amérique du Sud': { image: '/images/amérique-du-sud.jpg', overlay: 'bg-black/50' },
+    'Amérique du Nord': { image: '/images/amerique-du-nord.jpg', overlay: 'bg-black/50' },
+    'Amérique du Sud': { image: '/images/amerique-du-sud.jpg', overlay: 'bg-black/50' },
     'Asie': { image: '/images/asie.jpg', overlay: 'bg-black/50' },
     'Europe': { image: '/images/europe.jpg', overlay: 'bg-black/50' },
     'Océanie': { image: '/images/oceanie.jpg', overlay: 'bg-black/50' },

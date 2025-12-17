@@ -65,10 +65,7 @@ export async function generateMetadata({
 
 async function getOffer(slug: string): Promise<OfferDetail | null> {
   try {
-    const res = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/api/offers/${slug}`,
+    const res = await fetch(`/api/offers/${slug}`,
       { cache: "no-store" }
     );
     const data = await res.json();
