@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { hasValidAdminToken } from '@/lib/auth';
 
-const uploadsDir = '/var/www/nextapp/public/uploads';
+const uploadsDir = process.env.UPLOADS_DIR || './public/uploads';
 
 async function ensureDir() {
   try {
