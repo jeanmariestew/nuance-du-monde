@@ -28,14 +28,17 @@ function getMimeType(filename: string) {
   }
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { path: string[] } }
-) {
+export async function GET(req: Request, context: any) {
   try {
-    const requestedPath = (params.path || []).join("/");
+    const parts: string[] = Array.isArray(context?.params?.path)
+      ? context.params.path
+      : typeof context?.params?.path === "string"
+        ? [context.params.path]
+        : [];
 
-    // Protection anti path traversal
+    const requestedPath = parts.join("/");
+
+    // Anti path traversal
     const baseDir = path.resolve(UPLOADS_DIR);
     const filePath = path.resolve(path.join(baseDir, requestedPath));
 
@@ -64,7 +67,7 @@ export async function GET(
         "Cache-Control": "no-store, max-age=0, must-revalidate",
       },
     });
-  } catch (e) {
+  } catch (e: any) {
     return new NextResponse("Server error", {
       status: 500,
       headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" },
