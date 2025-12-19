@@ -65,12 +65,11 @@ export async function generateMetadata({
 
 async function getOffer(slug: string): Promise<OfferDetail | null> {
   try {
-    const url = `/api/offers/${encodeURIComponent(slug)}`;
-  const res = await fetch(url, { cache: "no-store" });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://nuancedumonde.com";
 
-  alert("SERVER fetch url:"+ url);
-  alert("SERVER status:"+ res.status);
-  alert("SERVER content-type:"+ res.headers.get("content-type"));
+    const url = `${baseUrl}/api/offers/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, { cache: "no-store" });
+
     const data = await res.json();
     return data.success ? data.data : null;
   } catch (error) {
@@ -105,11 +104,12 @@ export default async function OfferDetailPage({ params }: PageProps) {
   }
 
   // Image de couverture principale - vérifier toutes les sources possibles
-  const coverImage = offer.images?.find(img => img.image_type === 'banner')?.image_url ||
-                     offer.image_banner || 
-                     offer.banner_image_url || 
-                     offer.images?.[0]?.image_url ||
-                     offer.image_main;
+  const coverImage =
+    offer.images?.find((img) => img.image_type === "banner")?.image_url ||
+    offer.image_banner ||
+    offer.banner_image_url ||
+    offer.images?.[0]?.image_url ||
+    offer.image_main;
 
   return (
     <div>
@@ -132,19 +132,35 @@ export default async function OfferDetailPage({ params }: PageProps) {
           /* Fond gris si pas d'image */
           <div className="absolute inset-0 bg-gray-200" />
         )}
-        
+
         {/* Titre superposé */}
         <div className="absolute inset-0 flex items-end">
           <div className="site-container pb-12 sm:pb-16 lg:pb-20">
             <div className="max-w-4xl">
-              <span className={`inline-block px-4 py-2 ${coverImage ? 'bg-yellow-500/90 text-white' : 'bg-yellow-500 text-white'} text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-4`}>
-                {offer.destinations?.[0]?.title || 'Voyage'}
+              <span
+                className={`inline-block px-4 py-2 ${
+                  coverImage
+                    ? "bg-yellow-500/90 text-white"
+                    : "bg-yellow-500 text-white"
+                } text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-4`}
+              >
+                {offer.destinations?.[0]?.title || "Voyage"}
               </span>
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 ${coverImage ? 'text-white drop-shadow-2xl' : 'text-gray-800'}`}>
+              <h1
+                className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 ${
+                  coverImage ? "text-white drop-shadow-2xl" : "text-gray-800"
+                }`}
+              >
                 {offer.title}
               </h1>
               {offer.subtitle && (
-                <p className={`text-lg sm:text-xl lg:text-2xl ${coverImage ? 'text-white/95 drop-shadow-lg' : 'text-gray-700'}`}>
+                <p
+                  className={`text-lg sm:text-xl lg:text-2xl ${
+                    coverImage
+                      ? "text-white/95 drop-shadow-lg"
+                      : "text-gray-700"
+                  }`}
+                >
                   {offer.subtitle}
                 </p>
               )}
@@ -167,7 +183,9 @@ export default async function OfferDetailPage({ params }: PageProps) {
             <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
               <p className="text-sm sm:text-base">{offer.short_description}</p>
               {offer.description && (
-                <p className="mt-3 sm:mt-4 text-sm sm:text-base ">{offer.description.split('\n')[0]}</p>
+                <p className="mt-3 sm:mt-4 text-sm sm:text-base ">
+                  {offer.description.split("\n")[0]}
+                </p>
               )}
             </div>
             <button className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
@@ -177,7 +195,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
           {/* Right: Stacked Images Carousel */}
           <div className="order-1 lg:order-2 relative">
-            <ImageStackCarousel 
+            <ImageStackCarousel
               images={offer.images || []}
               fallbackImage={
                 offer.banner_image_url ||
@@ -208,14 +226,26 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
       <section className="site-container site-section">
         <Accordion type="multiple" className="w-full space-y-4">
-
           {offer.price_includes && (
-            <AccordionItem value="includes" className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <AccordionItem
+              value="includes"
+              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+            >
               <AccordionTrigger className="text-xl sm:text-2xl font-bold text-gray-900 hover:no-underline px-6 sm:px-8 py-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-6 h-6 sm:w-7 sm:h-7 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <span>Nos tarifs comprennent</span>
@@ -230,12 +260,25 @@ export default async function OfferDetailPage({ params }: PageProps) {
           )}
 
           {offer.price_excludes && (
-            <AccordionItem value="excludes" className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <AccordionItem
+              value="excludes"
+              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+            >
               <AccordionTrigger className="text-xl sm:text-2xl font-bold text-gray-900 hover:no-underline px-6 sm:px-8 py-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-6 h-6 sm:w-7 sm:h-7 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <span>Nos tarifs ne comprennent pas</span>
