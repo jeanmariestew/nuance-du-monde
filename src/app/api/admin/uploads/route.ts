@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     const finalName = `${base || 'file'}-${hash}${ext}`;
     const destPath = path.join(uploadsDir, finalName);
     await fs.writeFile(destPath, bytes);
+    await fs.stat(destPath);
     return NextResponse.json({ success: true, url: `/uploads/${finalName}`, name: finalName });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message || 'Upload error' }, { status: 500 });

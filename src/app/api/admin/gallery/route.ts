@@ -125,7 +125,7 @@ export async function POST(req: Request) {
     
     // Sauvegarder le fichier
     await fs.writeFile(destPath, bytes);
-    
+    await fs.stat(destPath);    
     const url = `/uploads/${finalName}`;
 
     // Obtenir les dimensions de l'image (optionnel, nécessite sharp ou autre lib)
