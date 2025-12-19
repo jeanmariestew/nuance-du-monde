@@ -18,7 +18,9 @@ export default function DestinationClient({ destination, slug }: DestinationClie
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await fetch("/api/destinations?active=true");
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://nuancedumonde.com";
+
+        const response = await fetch(`${baseUrl}/api/destinations?active=true`);
         const data = await response.json();
 
         if (data.success) {

@@ -16,7 +16,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getThemeData(slug: string): Promise<TravelTheme | null> {
   try {
-    const themeRes = await fetch(`/api/travel-themes/${slug}`, { cache: 'no-store' });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://nuancedumonde.com";
+
+    const themeRes = await fetch(`${baseUrl}/api/travel-themes/${slug}`, { cache: 'no-store' });
     const themeData = await themeRes.json();
     return themeData.success ? themeData.data : null;
   } catch (error) {
