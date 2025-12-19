@@ -68,9 +68,9 @@ async function getOffer(slug: string): Promise<OfferDetail | null> {
     const url = `/api/offers/${encodeURIComponent(slug)}`;
   const res = await fetch(url, { cache: "no-store" });
 
-  console.log("SERVER fetch url:", url);
-  console.log("SERVER status:", res.status);
-  console.log("SERVER content-type:", res.headers.get("content-type"));
+  alert("SERVER fetch url:"+ url);
+  alert("SERVER status:"+ res.status);
+  alert("SERVER content-type:"+ res.headers.get("content-type"));
     const data = await res.json();
     return data.success ? data.data : null;
   } catch (error) {
