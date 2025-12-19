@@ -141,7 +141,7 @@ export default function DestinationsClient() {
                   <div className={`absolute inset-0 ${continentStyle.overlay} group-hover:bg-black/40 transition-colors duration-300`}></div>
                   
                   {/* Dégradé pour la lisibilité */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
+                  <div className="absolute inset-0 from-black/70 via-black/20 to-black/30"></div>
                   
                   {/* Contenu centré */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12">
