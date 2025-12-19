@@ -186,6 +186,7 @@ export default function NewDestinationPage() {
             <select
               id="price_currency"
               name="price_currency"
+              defaultValue={"CAD"}
               value={formData.price_currency}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"

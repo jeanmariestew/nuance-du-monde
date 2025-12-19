@@ -251,6 +251,7 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
                   <select
                     id="price_currency"
                     name="price_currency"
+                    defaultValue={"CAD"}
                     value={formData.price_currency}
                     onChange={(e) => handleChange(e)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
