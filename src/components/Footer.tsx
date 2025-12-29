@@ -92,7 +92,7 @@ const Footer = () => {
               <ul className="space-y-2.5 md:space-y-3 text-gray-300 text-sm md:text-base">
                 <li>
                   <Link
-                    href="/pages/conditions-generales-vente"
+                    href="/conditions-generales-de-vente-cgv"
                     className="hover:text-white transition-colors"
                   >
                     Conditions générales de ventes
@@ -100,7 +100,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/pages/conditions-generales-utilisation"
+                    href="/conditions-generales-dutilisation-cgu"
                     className="hover:text-white transition-colors"
                   >
                     Conditions générales d&apos;utilisation
@@ -108,7 +108,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/pages/politique-confidentialite"
+                    href="/politique-de-confidentialite"
                     className="hover:text-white transition-colors"
                   >
                     Politique de confidentialité
@@ -121,12 +121,12 @@ const Footer = () => {
             <div className="px-4 md:px-0">
               <div className="flex flex-col space-y-3 md:space-y-4 max-w-sm mx-auto md:max-w-none">
                 <a
-                  href="https://facebook.com/nuance_du_monde"
+                  href="https://www.facebook.com/Nuancedumonde"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
                 >
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     f
                   </div>
                   <span>Facebook</span>
@@ -137,29 +137,29 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
                 >
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     @
                   </div>
                   <span>Instagram</span>
                 </a>
                 <a
-                  href="https://linkedin.com/nuance-du_monde"
+                  href="https://www.linkedin.com/company/nuance-du-monde"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
                 >
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     in
                   </div>
                   <span>LinkedIn</span>
                 </a>
                 <a
-                  href="https://youtube.com/nuance_du_monde"
+                  href="https://www.youtube.com/@Nuance_du_monde"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
                 >
-                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     ▶
                   </div>
                   <span>Youtube</span>
