@@ -30,7 +30,7 @@ type AccordionItem = {
 const accordionItems: AccordionItem[] = [
   {
     number: "1",
-    title: "Le propriétaire et le responsable du traitement :-",
+    title: "Le propriétaire et le responsable du traitement :",
     html: `
       <p>Nuance du Monde</p>
       <p>1087 Laurier Ouest</p>
@@ -40,7 +40,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "2",
-    title: "Les cookies et les technologies de collecte automatique de données-",
+    title: "Les cookies et les technologies de collecte automatique de données",
     html: `
       <p>Pour une meilleure expérience utilisateur, ITTS recourt à des cookies afin de suivre le nombre de visites sur notre site web et de personnaliser nos campagnes publicitaires et nos offres promotionnelles en fonction de vos préférences.</p>
       <p>Ces fichiers, appelés cookies, sont stockés sur votre ordinateur après votre visite sur notre site web. Ils enregistrent des informations vous concernant, telles que la langue d'affichage ou certaines habitudes de navigation. Ces données sont utilisées, entre autres, pour activer certaines fonctionnalités, pour faciliter votre navigation et pour vous proposer des publicités basées sur vos centres d'intérêt.</p>
@@ -49,14 +49,14 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "3",
-    title: "Les données personnelles-",
+    title: "Les données personnelles",
     html: `
       <p>ITTS ne collecte, n'utilise et/ou ne divulgue vos renseignements personnels qu'avec votre consentement. Dans certaines circonstances, la collecte d'informations personnelles telles que votre nom ou votre adresse e-mail peut être requise, par exemple, lors d'une transaction de voyage ou de l'abonnement à notre infolettre.</p>
     `,
   },
   {
     number: "4",
-    title: "La sécurité des données-",
+    title: "La sécurité des données",
     html: `
       <p>Soyez rassuré, vos renseignements personnels sont traités de manière confidentielle et sont protégés par des mesures de sécurité qui sont en conformité avec les normes de l'industrie. Aucune information personnelle vous concernant n'est divulguée à des tiers, (des partenaires, des annonceurs et des fournisseurs), sans votre accord préalable et explicite.</p>
       <p>Nous limitons l'utilisation et l'accès à vos renseignements personnels aux employés et aux sous-traitants qui en ont besoin pour fournir des services à nos partenaires commerciaux. Nous avons mis en place des mesures de sécurité de nature physique, électronique et procédurale pour garantir la confidentialité de vos données personnelles.</p>
@@ -65,7 +65,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "5",
-    title: "Quelles sont les données personnelles que nous collectons ?-",
+    title: "Quelles sont les données personnelles que nous collectons ?",
     html: `
       <p>Nous sommes en mesure de collecter et de traiter les catégories d'informations personnelles suivantes :</p>
 
@@ -109,7 +109,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "6",
-    title: "Comment nous recueillons les données vous concernant ?-",
+    title: "Comment nous recueillons les données vous concernant ?",
     html: `
       <p>Nous utilisons différentes méthodes pour collecter des données vous concernant, notamment par le biais de :</p>
 
@@ -132,7 +132,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "7",
-    title: "Consentement au transfert de données personnelles-",
+    title: "Consentement au transfert de données personnelles",
     html: `
       <p>Notre société est basée au Canada et nous sommes en mesure de traiter, de conserver et de transférer les données personnelles que nous collectons vers des pays étrangers, dont les lois sur la confidentialité peuvent être plus ou moins complètes que celles de votre pays.</p>
       <p>En soumettant vos données personnelles ou en utilisant le site web, vous consentez à ce transfert, à ce stockage ou à ce traitement.</p>
@@ -140,7 +140,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "8",
-    title: "Demandes des consommateurs-",
+    title: "Demandes des consommateurs",
     html: `
       <p>Les lois sur la confidentialité des données, telles que le projet de loi 64 au Québec et la California Consumer Privacy Act (CCPA), confèrent à certains consommateurs des droits spécifiques concernant leurs informations personnelles.</p>
       <p>Lorsqu'une demande vérifiée est soumise par courriel à <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a>, les consommateurs ont le droit de connaître les catégories et les éléments spécifiques des informations personnelles que nous recevons concernant le consommateur demandeur.</p>
@@ -154,7 +154,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "9",
-    title: "Suppression de données personnelles-",
+    title: "Suppression de données personnelles",
     html: `
       <p>Nous sommes tenus de respecter votre droit à la suppression de toutes les données personnelles que nous avons collectées auprès de vous, sous réserve de certaines exceptions :</p>
       <ul>
@@ -168,7 +168,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "10",
-    title: "Application des droits d'accès, de portabilité et de suppression des données-",
+    title: "Application des droits d'accès, de portabilité et de suppression des données",
     html: `
       <p>Afin de faire valoir les droits énumérés précédemment, veuillez soumettre une demande vérifiable du consommateur au gestionnaire des données de Nuance du Monde par l'une des méthodes suivantes :</p>
       <ul>
@@ -198,7 +198,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "11",
-    title: "Accès et correction de vos données personnelles-",
+    title: "Accès et correction de vos données personnelles",
     html: `
       <p>Vous pouvez accéder à vos données personnelles, les consulter et les modifier en nous envoyant un courriel à l'adresse <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a> pour demander l'accès aux données personnelles que vous nous avez fournies, les corriger ou les supprimer.</p>
       <p>Il se peut que nous ne soyons pas en mesure de satisfaire une demande de modification ou de suppression d'informations si nous pensons que la modification ou la suppression violerait une loi ou une exigence légale ou aurait un effet négatif sur l'exactitude des informations.</p>
@@ -206,7 +206,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "12",
-    title: "La vie privée des enfants en ligne-",
+    title: "La vie privée des enfants en ligne",
     html: `
       <p>Le présent site web n'est pas conçu pour les mineurs et nous ne collectons pas sciemment des données personnelles auprès d'enfants âgés de moins de 18 ans ou conformément à la définition légale locale.</p>
       <p>Dans le cas où nous prendrions connaissance du fait que nous avons collecté des données personnelles relatives à un enfant sans son accord préalable, nous les supprimerons sans délai.</p>
@@ -215,14 +215,14 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "13",
-    title: "Mise à jour de notre politique de confidentialité-",
+    title: "Mise à jour de notre politique de confidentialité",
     html: `
       <p>Nuance du Monde se réserve le droit de modifier cet avis de confidentialité à notre discrétion et à tout moment. Lorsque nous apportons des modifications à cet avis de confidentialité, nous publions l'avis mis à jour sur le site web et mettons à jour la date d'entrée en vigueur de l'avis. Votre utilisation de notre site web après l'affichage des modifications constitue votre acceptation de ces modifications.</p>
     `,
   },
   {
     number: "14",
-    title: "Informations légales-",
+    title: "Informations légales",
     html: `
       <p>La présente politique de confidentialité ci-dessous a été élaborée en conformité avec plusieurs réglementations.</p>
       <p>Cette politique de confidentialité concerne uniquement ce site web, sauf indication contraire dans le présent document.</p>

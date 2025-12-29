@@ -35,7 +35,7 @@ type AccordionItem = {
 const accordionItems: AccordionItem[] = [
   {
     number: "1",
-    title: "Votre passeport pour une expérience utilisateur optimale.-",
+    title: "Votre passeport pour une expérience utilisateur optimale.",
     html: `
       <p>L'utilisation des sites édités et développés par Nuance du Monde implique votre engagement à respecter les présentes conditions. Nous vous conseillons vivement de consulter attentivement nos conditions générales d'utilisation avant toute utilisation.</p>
       <p>Bienvenue sur le site web www.nuancedumonde.com dont ITTS Inc. est le propriétaire et administrateur. Les présentes modalités d'utilisation (ci-après dénommées les Conditions générales d'Utilisation) forment un accord légal entre vous et ITTS concernant l'accès et l'utilisation du site web.</p>
@@ -44,7 +44,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "2",
-    title: "Présentation des services et des produits du site Nuance du Monde-",
+    title: "Présentation des services et des produits du site Nuance du Monde",
     html: `
       <p>Nuance du monde, une nouvelle marque commerciale issue de Stew Travel, est une plateforme de création de voyages à la carte à travers le monde. L’utilisation du site est à la fois libre et gratuite.</p>
       <p>Le site a été conçu pour faire des réservations des voyages sur-mesure en fonction des propositions d'itinéraires modifiables, avec l'aide de nos experts. En naviguant sur le site, vous aurez la possibilité de parcourir les divers circuits proposés.</p>
@@ -62,7 +62,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "3",
-    title: "Accessibilité & expérience utilisateur-",
+    title: "Accessibilité & expérience utilisateur",
     html: `
       <p>Nous nous engageons à déployer tous les moyens raisonnables pour assurer le fonctionnement continu du site web, 7 jours/7 et 24 heures/24.</p>
       <p>En aucun cas, Nuance du monde ne peut être tenu responsable de l'indisponibilité, de l'interruption ou du mauvais fonctionnement du site, quelle qu'en soit la cause, telle qu'une défaillance de son fournisseur d'accès internet, de son hébergeur, d'une intrusion de tiers ou de force majeure.</p>
@@ -73,14 +73,14 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "4",
-    title: "Droits de propriété intellectuelle-",
+    title: "Droits de propriété intellectuelle",
     html: `
       <p>Le présent Site Web et son contenu sont protégés par les lois sur les droits d’auteur, les marques et d'autres normes juridiques. Nous nous réservons tous les droits qui ne sont pas expressément octroyés par les présentes Conditions d’Utilisation.</p>
     `,
   },
   {
     number: "5",
-    title: "Marque commerciale-",
+    title: "Marque commerciale",
     html: `
       <p>«Nuance du monde», les logotypes, les marques de service et les signes distinctifs apparaissant sur le présent site web (collectivement, les « marques de commerce ») sont des marques de commerce déposées de ITTS.</p>
       <p>À l'exception des cas prévus explicitement dans les Conditions d'Utilisation ou sans une autorisation écrite explicite de ITTS Inc, vous n'êtes pas autorisé(e) à utiliser les marques de commerce ou leurs variantes dans une autre langue, seules ou associées à d'autres mots ou éléments de conception.</p>
@@ -89,7 +89,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "6",
-    title: "Droits d'auteur : les restrictions d'utilisation du contenu-",
+    title: "Droits d'auteur : les restrictions d'utilisation du contenu",
     html: `
       <p>Sauf indication contraire et à condition de respecter toutes vos obligations en vertu des présentes Conditions Générales d’Utilisation, vous êtes autorisé(e) à visionner, à copier, à imprimer, à distribuer et à utiliser (sans le modifier) le contenu du présent site web aux conditions suivantes :</p>
       <ul>
@@ -108,7 +108,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "7",
-    title: "Protection et utilisation de vos renseignements personnels-",
+    title: "Protection et utilisation de vos renseignements personnels",
     html: `
       <p>Vous reconnaissez que nous pouvons utiliser vos données et vos renseignements personnels conformément à notre politique de confidentialité.</p>
       <p>En parcourant notre portail en ligne, vous consentez à la collecte, à l'utilisation et à la conservation de vos données personnelles conformément aux dispositions de notre politique de protection de la vie privée. Notre politique de confidentialité est intégrée par référence aux présentes Conditions Générales d'Utilisation.</p>
@@ -116,7 +116,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "8",
-    title: "Les clauses de non-responsabilité et la limitation de responsabilité-",
+    title: "Les clauses de non-responsabilité et la limitation de responsabilité",
     html: `
       <p>Les clauses de non-responsabilité et de limitations de responsabilité s’appliquent dans la mesure où la loi le permet, qu’il s’agisse d’une obligation contractuelle, juridique ou délictuelle (y compris, sans s’y restreindre, la négligence) ou autrement, relativement à l’utilisation du présent site web.</p>
       <p>Bien que ITTS déploie tous les efforts raisonnables pour assurer l’exactitude des renseignements fournis sur le site web, le présent site web est fourni « tel quel ». Nous ne faisons aucune déclaration, expresse ou implicite, ni n’accordons aucune garantie à l’égard du contenu.</p>
@@ -128,7 +128,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "9",
-    title: "Lois applicables-",
+    title: "Lois applicables",
     html: `
       <p>Votre utilisation du site web et les Conditions d’Utilisation sont régies par les lois de la province de Québec et les lois du Canada, sans égard aux principes de conflit de lois.</p>
       <p>Vous reconnaissez par les présentes que tout litige ayant traits à votre utilisation du site web ou aux Conditions d’Utilisation sera soumis à la compétence des tribunaux du district de Montréal, province de Québec.</p>
@@ -136,7 +136,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "10",
-    title: "Autres conditions-",
+    title: "Autres conditions",
     html: `
       <p>Advenant qu’une partie des présentes Conditions d’Utilisation soit invalide ou inexécutable dans un territoire donné :</p>
       <ul>
@@ -149,7 +149,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "11",
-    title: "Politique de protection de la vie privée-",
+    title: "Politique de protection de la vie privée",
     html: `
       <p>Devant le développement des nouveaux outils de communication, il est nécessaire de porter une attention particulière à la protection de la vie privée. C'est pourquoi nous nous engageons à protéger votre droit à la vie privée et les renseignements personnels que nous collectons. Votre utilisation du présent site web confirme que vous acceptez que vos renseignements soient utilisés tels qu’il est décrit dans la présente politique.</p>
       <p>Si vous avez des questions ou des préoccupations à l’égard de cette politique, veuillez communiquer avec le webmestre via la rubrique “Formulaire de contact” ou nous envoyer un courriel à l’adresse <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a>.</p>
@@ -157,7 +157,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "12",
-    title: "Collecte des renseignements-",
+    title: "Collecte des renseignements",
     html: `
       <p>ITTS peut recueillir par l’entremise des fonctionnalités de ce site web des renseignements personnels fournis volontairement par les visiteurs via les fonctionnalités du Site Web. De tels renseignements peuvent inclure, mais sans s’y limiter, votre nom, votre adresse e-mail, votre code postal, votre numéro de téléphone et votre adresse postale.</p>
       <p>Nous vous invitons à prendre connaissance de notre Politique de Confidentialité pour en savoir plus sur la collecte, le traitement et l'utilisation des données à caractère personnel vous concernant.</p>
@@ -165,7 +165,7 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "13",
-    title: "Fichiers, journaux, témoins et pixels invisibles-",
+    title: "Fichiers, journaux, témoins et pixels invisibles",
     html: `
       <p>ITTS recueille sur ce site web les données standards de fichiers journaux Internet, y compris votre adresse IP, le type et la langue de votre navigateur, la fréquence d’accès et les adresses de référence de sites web.</p>
       <p>Afin d’assurer une bonne gestion de notre site web et de faciliter la navigation, nous pouvons utiliser, et permettre à nos fournisseurs de services d’utiliser, des témoins (de petits fichiers de texte stockés dans le navigateur d’un utilisateur) ou des pixels invisibles (des images électroniques qui permettent au site web d’amasser des informations statistiques quant au nombre de visiteurs qui accèdent à une page en particulier et d’accéder à certains témoins) pour recueillir des données agrégées. Nous pouvons avoir recours à la plateforme Google Analytics aux fins du traitement des données agrégées.</p>
@@ -175,21 +175,21 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "14",
-    title: "Sécurité de l’information-",
+    title: "Sécurité de l’information",
     html: `
       <p>Nous avons mis en place des normes commerciales raisonnables en matière de sécurité de la technologie et des opérations afin de protéger et de conserver au Canada pour la durée de votre relation d’affaires avec nous, tous les renseignements personnels collectés sur le présent site web contre l’accès, la divulgation, la modification ou la destruction non autorisés.</p>
     `,
   },
   {
     number: "15",
-    title: "Durée de conservation de vos renseignements personnels-",
+    title: "Durée de conservation de vos renseignements personnels",
     html: `
       <p>Nous ne conserverons les renseignements personnels que pour la durée nécessaire aux fins prévues et pour nous conformer à nos obligations légales et réglementaires. Pour en savoir plus sur la durée pendant laquelle nous conservons les renseignements personnels, veuillez vous référer à la rubrique « Formulaire de contact » ou nous envoyer un courriel à <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a>.</p>
     `,
   },
   {
     number: "16",
-    title: "Changement à notre politique de protection de la vie privée-",
+    title: "Changement à notre politique de protection de la vie privée",
     html: `
       <p>Nous pouvons modifier cette politique de temps à autre à notre discrétion. Si nous apportons des changements à cette politique, nous modifierons la date de révision au haut de la page. Cet énoncé modifié sera en vigueur en ce qui a trait à vous et à vos renseignements à compter de cette date de révision.</p>
       <p>Nous vous recommandons vivement de vous référer régulièrement à cette section du Site web pour savoir comment nous protégeons vos renseignements et les conditions applicables en vigueur.</p>
@@ -197,21 +197,21 @@ const accordionItems: AccordionItem[] = [
   },
   {
     number: "17",
-    title: "Protection des renseignements personnels des enfants-",
+    title: "Protection des renseignements personnels des enfants",
     html: `
       <p>Nous comprenons l’importance de protéger la confidentialité des enfants dans l’univers interactif en ligne. Le présent site web n’est pas conçu pour les enfants et ne leur est pas destiné. Notre politique ne vise pas à recueillir des renseignements personnels de personnes âgées de 18 ans et moins.</p>
     `,
   },
   {
     number: "18",
-    title: "Gestion des cookies sur nuancedumonde.com-",
+    title: "Gestion des cookies sur nuancedumonde.com",
     html: `
       <p>Les cookies sont de minuscules fichiers textes ou fragments de code comportant généralement un identifiant unique sous forme de code. Chaque fois que vous accédez à un site web, votre ordinateur ou appareil mobile reçoit une requête pour enregistrer un fichier et pour accéder aux données qui y sont stockées. Les données collectées par le biais des cookies peuvent inclure la date et l'heure de votre visite, ainsi que la manière dont vous interagissez avec un site web.</p>
     `,
   },
   {
     number: "19",
-    title: "Nous joindre-",
+    title: "Nous joindre",
     html: `
       <p>Pour toute demande d'information sur nos CGU ou le fonctionnement de notre plateforme, veuillez nous contacter par courriel à l'adresse <a href="mailto:info@nuancedumonde.com">info@nuancedumonde.com</a> ou par téléphone au 1.438.488.9080.</p>
     `,
