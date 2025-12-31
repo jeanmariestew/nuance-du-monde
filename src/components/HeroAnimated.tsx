@@ -46,11 +46,12 @@ export default function HeroAnimated() {
       <div className="relative z-10 container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-16">
         {/* Colonne gauche */}
         <div className="text-white max-w-2xl">
-          <h1 className="h1 font-extrabold !text-4xl !tracking-wider font-[Alro] uppercase">
+          <h1 className="h1 text-3xl font-extrabold font-[Alro] uppercase">
             NUANCE DU MONDE
-            VOTRE SPÉCIALISTE DU
-            VOYAGE SUR MESURE
           </h1>
+          <h2 className="h3 text-lg font-extrabold font-[Alro] uppercase">
+            VOTRE SPÉCIALISTE DU VOYAGE SUR MESURE
+          </h2>
 
           <p className="mt-6 text-base md:text-lg text-gray-200">
             Créez avec nous votre voyage sur mesure, partout dans le monde. Nous vous faisons vivre des expériences
