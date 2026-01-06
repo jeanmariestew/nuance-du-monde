@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import { adminApi } from '@/lib/axios';
 
 export default function EditPartnerPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string | null>(null);
@@ -32,8 +33,8 @@ export default function EditPartnerPage({ params }: { params: Promise<{ id: stri
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/admin/partners/${id}`, { credentials: 'include' });
-        const json = await res.json();
+        const res = await adminApi.get(`/partners/${id}`);
+        const json = res.data;
         if (json.success) {
           const data = json.data;
           setFormData({
@@ -80,21 +81,16 @@ export default function EditPartnerPage({ params }: { params: Promise<{ id: stri
     setError(null);
     
     try {
-      const res = await fetch(`/api/admin/partners/${id}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          agency: formData.agency,
-          logo_url: formData.image_url,
-          website_url: formData.website_url,
-          sort_order: formData.sort_order,
-          is_active: formData.is_active ? 1 : 0
-        }),
+      const res = await adminApi.put(`/partners/${id}`, {
+        name: formData.name,
+        agency: formData.agency,
+        logo_url: formData.image_url,
+        website_url: formData.website_url,
+        sort_order: formData.sort_order,
+        is_active: formData.is_active ? 1 : 0
       });
       
-      const json = await res.json();
+      const json = res.data;
       
       if (json.success) {
         router.push('/admin/partners');

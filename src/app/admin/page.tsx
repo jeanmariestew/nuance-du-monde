@@ -4,11 +4,12 @@ import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { adminApi } from '@/lib/axios';
 
 async function post(url: string) {
-  const res = await fetch(url, { method: 'POST', credentials: 'include' });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.success) {
+  const res = await adminApi.post(url);
+  const data = res.data;
+  if (!data.success) {
     throw new Error(data.error || 'Action échouée');
   }
   return data;

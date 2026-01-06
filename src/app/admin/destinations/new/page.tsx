@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import { adminApi } from '@/lib/axios';
 
 export default function NewDestinationPage() {
   const [formData, setFormData] = useState({
@@ -61,14 +62,8 @@ export default function NewDestinationPage() {
         is_active: formData.is_active ? 1 : 0
       };
 
-      const res = await fetch('/api/admin/destinations', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submitData),
-      });
-      
-      const json = await res.json();
+      const res = await adminApi.post('/destinations', submitData);
+      const json = res.data;
       
       if (json.success) {
         router.push('/admin/destinations');

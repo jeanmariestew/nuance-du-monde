@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { api } from '@/lib/axios';
 
 export default function HeroAnimated() {
   const [avatars, setAvatars] = useState<string[]>([]);
@@ -12,8 +13,8 @@ export default function HeroAnimated() {
   useEffect(() => {
     const loadImages = async () => {
       try {
-        const response = await fetch('/api/animation-images');
-        const data = await response.json();
+        const response = await api.get('/animation-images');
+        const data = response.data;
         if (data.images && data.images.length > 0) {
           setAvatars(data.images);
         }
@@ -46,10 +47,10 @@ export default function HeroAnimated() {
       <div className="relative z-10 container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-16">
         {/* Colonne gauche */}
         <div className="text-white max-w-2xl">
-          <h1 className="h1 text-3xl font-extrabold font-[Alro] uppercase">
+          <h1 className="h1 text-3xl font-extrabold font-[Alro] uppercase mb-20">
             NUANCE DU MONDE
           </h1>
-          <h2 className="h3 text-lg font-extrabold font-[Alro] uppercase">
+          <h2 className="h4 font-extrabold font-[Alro] uppercase">
             VOTRE SPÉCIALISTE DU VOYAGE SUR MESURE
           </h2>
 

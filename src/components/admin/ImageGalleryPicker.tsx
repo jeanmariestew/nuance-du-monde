@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { adminApi } from '@/lib/axios';
 
 interface GalleryImage {
   id: number;
@@ -66,10 +67,8 @@ export default function ImageGalleryPicker({
     const myKey = requestKey;
 
     try {
-      const res = await fetch(`/api/admin/gallery?${buildQuery(0)}`, {
-        cache: "no-store",
-      });
-      const data = await res.json();
+      const res = await adminApi.get(`/gallery?${buildQuery(0)}`);
+      const data = res.data;
 
       // Si le user a changé les filtres entre temps, on ignore
       if (myKey !== requestKey) return;
@@ -101,10 +100,8 @@ export default function ImageGalleryPicker({
     const myKey = requestKey;
 
     try {
-      const res = await fetch(`/api/admin/gallery?${buildQuery(nextOffset)}`, {
-        cache: "no-store",
-      });
-      const data = await res.json();
+      const res = await adminApi.get(`/gallery?${buildQuery(nextOffset)}`);
+      const data = res.data;
 
       // Ignore si filtres ont changé
       if (myKey !== requestKey) return;
@@ -169,12 +166,10 @@ export default function ImageGalleryPicker({
     formData.append("alt_text", file.name);
 
     try {
-      const res = await fetch("/api/admin/gallery", {
-        method: "POST",
-        body: formData,
+      const res = await adminApi.post('/gallery', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         // On recharge la première page (nouvelle image en haut)
         await loadFirstPage();

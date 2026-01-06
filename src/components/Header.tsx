@@ -72,6 +72,14 @@ const Header = () => {
           {/* Navigation Desktop */}
           <nav className="flex justify-between items-center space-x-8">
             {/* Menu Types Desktop */}
+
+              <Link
+                href="/qui-sommes-nous/"
+                className="text-black text-center transition-colors"
+                onClick={handleMobileMenuClose}
+              >
+                Qui sommes nous
+              </Link>
             <div 
               ref={typesRef}
               className="relative hidden lg:block"
@@ -211,6 +219,13 @@ const Header = () => {
                 onClick={handleMobileMenuClose}
               >
                 Thème de voyage
+              </Link>
+              <Link
+                href="/themes"
+                className="text-black text-center transition-colors"
+                onClick={handleMobileMenuClose}
+              >
+                Qui sommes nous
               </Link>
               <Link
                 href="/devis-personnalise"

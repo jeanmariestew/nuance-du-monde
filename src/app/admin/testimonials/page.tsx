@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { Testimonial } from '@/types';
 import ImageInput from '@/components/admin/ImageInput';
+import { api } from '@/lib/axios';
 
 type Editable = Partial<Testimonial> & { id?: number };
 
@@ -23,8 +24,8 @@ export default function AdminTestimonialsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/testimonials?active=true');
-      const data = await res.json();
+      const res = await api.get('/testimonials?active=true');
+      const data = res.data;
       if (data.success) setItems(data.data);
     } catch (e) {
       console.error('Failed to load testimonials', e);
@@ -60,13 +61,10 @@ export default function AdminTestimonialsPage() {
     if (!form.client_name || !form.testimonial_text) return alert('Nom et témoignage requis');
     setSaving(true);
     try {
-      const method = form.id ? 'PATCH' : 'POST';
-      const res = await fetch('/api/testimonials', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
+      const res = form.id 
+        ? await api.patch('/testimonials', form)
+        : await api.post('/testimonials', form);
+      const data = res.data;
       if (!data.success) throw new Error(data.error || 'Erreur API');
       await load();
       resetForm();

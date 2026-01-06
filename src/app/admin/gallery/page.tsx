@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { adminApi } from '@/lib/axios';
 
 interface GalleryImage {
   id: number;
@@ -31,8 +32,8 @@ export default function GalleryPage() {
       if (searchTerm) params.append("search", searchTerm);
       if (selectedTags) params.append("tags", selectedTags);
 
-      const res = await fetch(`/api/admin/gallery?${params}`);
-      const data = await res.json();
+      const res = await adminApi.get(`/gallery?${params}`);
+      const data = res.data;
       
       if (data.success) {
         setImages(data.data);
@@ -60,12 +61,10 @@ export default function GalleryPage() {
     formData.append("alt_text", file.name);
 
     try {
-      const res = await fetch("/api/admin/gallery", {
-        method: "POST",
-        body: formData,
+      const res = await adminApi.post('/gallery', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         await loadImages();
         alert("Image uploadée avec succès !");
@@ -86,17 +85,12 @@ export default function GalleryPage() {
     if (!editingImage) return;
 
     try {
-      const res = await fetch(`/api/admin/gallery/${editingImage.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: editingImage.title,
-          alt_text: editingImage.alt_text,
-          tags: editingImage.tags,
-        }),
+      const res = await adminApi.put(`/gallery/${editingImage.id}`, {
+        title: editingImage.title,
+        alt_text: editingImage.alt_text,
+        tags: editingImage.tags,
       });
-
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         await loadImages();
         setEditingImage(null);
@@ -112,11 +106,8 @@ export default function GalleryPage() {
     if (!confirm("Supprimer cette image ?")) return;
 
     try {
-      const res = await fetch(`/api/admin/gallery/${id}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
+      const res = await adminApi.delete(`/gallery/${id}`);
+      const data = res.data;
       if (data.success) {
         await loadImages();
         alert("Image supprimée !");

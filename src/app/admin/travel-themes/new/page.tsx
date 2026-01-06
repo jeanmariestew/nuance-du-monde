@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import { adminApi } from '@/lib/axios';
 
 export default function NewTravelThemePage() {
   const [formData, setFormData] = useState({
@@ -42,17 +43,11 @@ export default function NewTravelThemePage() {
     setError(null);
     
     try {
-      const res = await fetch('/api/admin/travel-themes', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          is_active: formData.is_active ? 1 : 0
-        }),
+      const res = await adminApi.post('/travel-themes', {
+        ...formData,
+        is_active: formData.is_active ? 1 : 0
       });
-      
-      const json = await res.json();
+      const json = res.data;
       
       if (json.success) {
         router.push('/admin/travel-themes');

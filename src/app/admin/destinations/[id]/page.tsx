@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { adminApi } from '@/lib/axios';
 
 export default function EditDestinationPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<number | null>(null);
@@ -42,8 +43,8 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
           return;
         }
         
-        const res = await fetch(`/api/admin/destinations/${resolvedId}`, { credentials: 'include' });
-        const json = await res.json();
+        const res = await adminApi.get(`/destinations/${resolvedId}`);
+        const json = res.data;
         if (mounted && json.success && json.data) {
           const data = json.data;
           setFormData({
@@ -108,14 +109,8 @@ export default function EditDestinationPage({ params }: { params: Promise<{ id: 
       };
 
       if (!id) return;
-      const res = await fetch(`/api/admin/destinations/${id}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submitData),
-      });
-
-      const json = await res.json();
+      const res = await adminApi.put(`/destinations/${id}`, submitData);
+      const json = res.data;
 
       if (json.success) {
         router.push('/admin/destinations');

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
+import { api } from '@/lib/axios';
 
 interface TravelType {
   id: number;
@@ -24,9 +25,8 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
   useEffect(() => {
     const fetchTravelTypes = async () => {
       try {
-        const response = await fetch('/api/travel-types?active=true');
-        if (!response.ok) throw new Error('Erreur de chargement');
-        const data = await response.json();
+        const response = await api.get('/travel-types?active=true');
+        const data = response.data;
         setTravelTypes(data.data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');

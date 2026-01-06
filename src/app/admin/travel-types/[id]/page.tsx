@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import ImageInput from "@/components/admin/ImageInput";
+import { adminApi } from '@/lib/axios';
 
 export default function EditTravelTypePage({
   params,
@@ -38,10 +39,8 @@ export default function EditTravelTypePage({
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`/api/admin/travel-types/${id}`, {
-          credentials: "include",
-        });
-        const json = await res.json();
+        const res = await adminApi.get(`/travel-types/${id}`);
+        const json = res.data;
         if (mounted && json.success && json.data) {
           setFormData({
             title: json.data.title || "",
@@ -92,17 +91,11 @@ export default function EditTravelTypePage({
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/travel-types/${id}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          is_active: formData.is_active ? 1 : 0,
-        }),
+      const res = await adminApi.put(`/travel-types/${id}`, {
+        ...formData,
+        is_active: formData.is_active ? 1 : 0,
       });
-
-      const json = await res.json();
+      const json = res.data;
 
       if (json.success) {
         router.push("/admin/travel-types");

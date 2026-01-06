@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import { adminApi } from '@/lib/axios';
 
 export default function EditTravelThemePage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string | null>(null);
@@ -34,8 +35,8 @@ export default function EditTravelThemePage({ params }: { params: Promise<{ id: 
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/admin/travel-themes/${id}`, { credentials: 'include' });
-        const json = await res.json();
+        const res = await adminApi.get(`/travel-themes/${id}`);
+        const json = res.data;
         if (json.success) {
           const data = json.data;
           setFormData({
@@ -84,17 +85,12 @@ export default function EditTravelThemePage({ params }: { params: Promise<{ id: 
     setError(null);
     
     try {
-      const res = await fetch(`/api/admin/travel-themes/${id}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          is_active: formData.is_active ? 1 : 0
-        }),
+      const res = await adminApi.put(`/travel-themes/${id}`, {
+        ...formData,
+        is_active: formData.is_active ? 1 : 0
       });
       
-      const json = await res.json();
+      const json = res.data;
       
       if (json.success) {
         router.push('/admin/travel-themes');

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PageMetadata } from '@/types';
+import { adminApi } from '@/lib/axios';
 
 export default function MetadataManagementPage() {
   const [metadata, setMetadata] = useState<PageMetadata[]>([]);
@@ -31,8 +32,8 @@ export default function MetadataManagementPage() {
 
   const fetchMetadata = async () => {
     try {
-      const response = await fetch('/api/admin/metadata');
-      const data = await response.json();
+      const response = await adminApi.get('/metadata');
+      const data = response.data;
       
       if (data.success) {
         setMetadata(data.data);
@@ -48,21 +49,11 @@ export default function MetadataManagementPage() {
 
   const handleSubmit = async (formData: PageMetadata) => {
     try {
-      const url = editingItem 
-        ? `/api/admin/metadata/${editingItem.id}`
-        : '/api/admin/metadata';
-      
-      const method = editingItem ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = editingItem 
+        ? await adminApi.put(`/metadata/${editingItem.id}`, formData)
+        : await adminApi.post('/metadata', formData);
 
-      const data = await response.json();
+      const data = response.data;
       
       if (data.success) {
         await fetchMetadata();
@@ -82,11 +73,8 @@ export default function MetadataManagementPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/metadata/${id}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
+      const response = await adminApi.delete(`/metadata/${id}`);
+      const data = response.data;
       
       if (data.success) {
         await fetchMetadata();

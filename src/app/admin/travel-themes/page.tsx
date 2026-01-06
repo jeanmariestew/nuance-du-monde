@@ -6,8 +6,9 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Pencil, Trash2 } from 'lucide-react';
+import { adminApi } from '@/lib/axios';
 
-const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((r) => r.json());
+const fetcher = (url: string) => adminApi.get(url).then((r) => r.data);
 
 type TravelTheme = {
   id: number;
@@ -17,11 +18,11 @@ type TravelTheme = {
 };
 
 export default function AdminTravelThemesPage() {
-  const { data, error, isLoading, mutate } = useSWR('/api/admin/travel-themes', fetcher);
+  const { data, error, isLoading, mutate } = useSWR('/travel-themes', fetcher);
   const onDelete = async (id: number) => {
     if (!confirm('Supprimer ce thème ?')) return;
-    const res = await fetch(`/api/admin/travel-themes/${id}`, { method: 'DELETE', credentials: 'include' });
-    const json = await res.json();
+    const res = await adminApi.delete(`/travel-themes/${id}`);
+    const json = res.data;
     if (json.success) mutate();
     else alert(json.error || 'Erreur de suppression');
   };

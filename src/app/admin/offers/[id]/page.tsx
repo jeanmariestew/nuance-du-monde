@@ -5,15 +5,7 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import OfferImagesManager from '@/components/admin/OfferImagesManager';
-
-async function jsonFetch(url: string, init?: RequestInit) {
-  const res = await fetch(url, { credentials: 'include', ...(init || {}) });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || data?.success === false) {
-    throw new Error(data?.error || `HTTP ${res.status}`);
-  }
-  return data;
-}
+import { adminApi } from '@/lib/axios';
 
 type RefItem = { id: number; title: string; slug: string };
 
@@ -81,10 +73,10 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         }
         
         const [o, t, th, d] = await Promise.all([
-          jsonFetch(`/api/admin/offers/${resolvedId}`),
-          jsonFetch(`/api/admin/travel-types`),
-          jsonFetch(`/api/admin/travel-themes`),
-          jsonFetch(`/api/admin/destinations`),
+          adminApi.get(`/offers/${resolvedId}`).then(res => res.data),
+          adminApi.get(`/travel-types`).then(res => res.data),
+          adminApi.get(`/travel-themes`).then(res => res.data),
+          adminApi.get(`/destinations`).then(res => res.data),
         ]);
         if (!mounted) return;
         setOffer(o.data);
@@ -93,7 +85,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         setDestinations((d.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         // load uploads list
         try {
-          const up = await jsonFetch('/api/admin/uploads');
+          const up = await adminApi.get('/uploads').then(res => res.data);
           setUploads(up.data || []);
         } catch {}
       } catch (e: any) {
@@ -129,11 +121,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       };
 
       console.log('Données à sauvegarder:', dataToSave);
-      const response = await jsonFetch(`/api/admin/offers/${id}` , {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSave),
-      });
+      const response = await adminApi.put(`/offers/${id}`, dataToSave).then(res => res.data);
       console.log('Réponse API:', response);
       setStatus('Offre enregistrée avec succès');
     } catch (e: any) {
@@ -150,7 +138,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
 
   async function refreshUploads() {
     try {
-      const up = await jsonFetch('/api/admin/uploads');
+      const up = await adminApi.get('/uploads').then(res => res.data);
       setUploads(up.data || []);
     } catch {}
   }
@@ -164,9 +152,11 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/admin/uploads', { method: 'POST', body: fd, credentials: 'include' });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data?.success === false) throw new Error(data?.error || `Erreur upload (${res.status})`);
+      const res = await adminApi.post('/uploads', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const data = res.data;
+      if (data?.success === false) throw new Error(data?.error || 'Erreur upload');
       await refreshUploads();
       if (data.url && offer) {
         const newImage: OfferImage = {

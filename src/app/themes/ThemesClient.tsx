@@ -6,6 +6,7 @@ import { TravelTheme } from "@/types";
 import ThemeCard from "@/components/cards/ThemeCard";
 import { ThemeCardSkeleton } from "@/components/ui/SkeletonLoader";
 import OffersGrid from "@/components/OffersGrid";
+import { api } from "@/lib/axios";
 
 export default function ThemesClient() {
   const [themes, setThemes] = useState<TravelTheme[]>([]);
@@ -14,8 +15,8 @@ export default function ThemesClient() {
   useEffect(() => {
     const fetchThemes = async () => {
       try {
-        const response = await fetch("/api/travel-themes?active=true");
-        const data = await response.json();
+        const response = await api.get("/travel-themes?active=true");
+        const data = response.data;
         if (data.success) setThemes(data.data);
       } catch (error) {
         console.error("Erreur lors du chargement des thèmes:", error);

@@ -7,8 +7,9 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Pencil, Trash2 } from 'lucide-react';
+import { adminApi } from '@/lib/axios';
 
-const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then((r) => r.json());
+const fetcher = (url: string) => adminApi.get(url).then((r) => r.data);
 
 type AdminOffer = {
   id: number;
@@ -21,11 +22,11 @@ type AdminOffer = {
 };
 
 export default function AdminOffersPage() {
-  const { data, error, isLoading, mutate } = useSWR('/api/admin/offers', fetcher);
+  const { data, error, isLoading, mutate } = useSWR('/offers', fetcher);
   const onDelete = async (id: number) => {
     if (!confirm('Supprimer cette offre ?')) return;
-    const res = await fetch(`/api/admin/offers/${id}`, { method: 'DELETE', credentials: 'include' });
-    const json = await res.json();
+    const res = await adminApi.delete(`/offers/${id}`);
+    const json = res.data;
     if (json.success) mutate();
     else alert(json.error || 'Erreur de suppression');
   };

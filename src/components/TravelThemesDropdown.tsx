@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Palette } from 'lucide-react';
+import { api } from '@/lib/axios';
 
 interface TravelTheme {
   id: number;
@@ -24,9 +25,8 @@ const TravelThemesDropdown: React.FC<TravelThemesDropdownProps> = ({ onClose }) 
   useEffect(() => {
     const fetchTravelThemes = async () => {
       try {
-        const response = await fetch('/api/travel-themes?active=true&limit=50');
-        if (!response.ok) throw new Error('Erreur de chargement');
-        const data = await response.json();
+        const response = await api.get('/travel-themes?active=true&limit=50');
+        const data = response.data;
         setTravelThemes(data.data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');

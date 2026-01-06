@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Destination, DestinationsByContinent } from '@/types';
+import { api } from '@/lib/axios';
 
 interface UseDestinationsByContinentReturn {
   destinations: DestinationsByContinent | null;
@@ -23,12 +24,8 @@ export const useDestinationsByContinent = (): UseDestinationsByContinentReturn =
     setError(null);
 
     try {
-      const response = await fetch('/api/destinations/grouped-by-continent');
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Erreur lors du chargement des destinations');
-      }
+      const response = await api.get('/destinations/grouped-by-continent');
+      const result = response.data;
 
       if (result.success && result.data) {
         setDestinations(result.data.grouped);

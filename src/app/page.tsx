@@ -9,6 +9,7 @@ import DestinationsSection from "@/components/DestinationsSection";
 import ThemesSection from "@/components/ThemesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import PartnersSection from "@/components/PartnersSection";
+import { api } from "@/lib/axios";
 
 interface Testimonial {
   id: number;
@@ -38,28 +39,18 @@ export default function Home() {
       try {
         const [destRes, typesRes, themesRes, testimonialsRes, partnersRes] =
           await Promise.all([
-            fetch("/api/destinations?active=true&limit=5"),
-            fetch("/api/travel-types?active=true"),
-            fetch("/api/travel-themes?active=true&limit=20"),
-            fetch(
-              "/api/testimonials?featured=true&active=true&published=true&limit=6"
-            ),
-            fetch("/api/partners"),
+            api.get("/destinations?active=true&limit=5"),
+            api.get("/travel-types?active=true"),
+            api.get("/travel-themes?active=true&limit=20"),
+            api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
+            api.get("/partners"),
           ]);
 
-        const [
-          destData,
-          typesData,
-          themesData,
-          testimonialsData,
-          partnersData,
-        ] = await Promise.all([
-          destRes.json(),
-          typesRes.json(),
-          themesRes.json(),
-          testimonialsRes.json(),
-          partnersRes.json(),
-        ]);
+        const destData = destRes.data;
+        const typesData = typesRes.data;
+        const themesData = themesRes.data;
+        const testimonialsData = testimonialsRes.data;
+        const partnersData = partnersRes.data;
 
         if (destData.success) setDestinations(destData.data);
         if (typesData.success) setTravelTypes(typesData.data);

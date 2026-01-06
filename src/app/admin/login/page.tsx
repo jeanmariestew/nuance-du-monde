@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import axios from 'axios';
 
 export default function AdminLoginPage() {
   const [token, setToken] = useState("");
@@ -14,14 +15,11 @@ export default function AdminLoginPage() {
     setLoading(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-        credentials: 'include',
+      const res = await axios.post('/api/admin/login', { token }, {
+        withCredentials: true
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      const data = res.data;
+      if (data.success) {
         window.location.assign('/admin');
       } else {
         setMessage(data.error || 'Connexion échouée');

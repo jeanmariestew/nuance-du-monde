@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { api } from '@/lib/axios';
 
 const NewsletterForm = () => {
   const [email, setEmail] = useState('');
@@ -14,15 +15,8 @@ const NewsletterForm = () => {
     setMessage('');
 
     try {
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
+      const response = await api.post('/newsletter', { email });
+      const data = response.data;
 
       if (data.success) {
         setIsSuccess(true);

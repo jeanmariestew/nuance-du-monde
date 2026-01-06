@@ -6,6 +6,7 @@ import Image from "next/image";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import OffersGrid from "@/components/OffersGrid";
 import { useDestinationsByContinent } from "@/hooks/useDestinationsByContinent";
+import { api } from "@/lib/axios";
 
 interface Destination {
   id: number;
@@ -30,8 +31,8 @@ export default function DestinationsClient() {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await fetch("/api/destinations?active=true");
-        const data = await response.json();
+        const response = await api.get("/destinations?active=true");
+        const data = response.data;
 
         if (data.success) {
           setDestinations(data.data);

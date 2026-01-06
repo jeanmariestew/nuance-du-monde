@@ -4,6 +4,7 @@ import OfferCard from '@/components/cards/OfferCard';
 import { OfferCardSkeleton } from '@/components/ui/SkeletonLoader';
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { api } from '@/lib/axios';
 
 interface OfferListItem {
   id: number;
@@ -36,9 +37,9 @@ function OffersListContent() {
   useEffect(() => {
     const load = async () => {
       try {
-        const url = "/api/offers" + (queryString ? `?${queryString}` : "");
-        const res = await fetch(url);
-        const data = await res.json();
+        const url = "/offers" + (queryString ? `?${queryString}` : "");
+        const res = await api.get(url);
+        const data = res.data;
         if (data.success) setOffers(data.data);
         else setError(data.error || "Erreur lors du chargement des offres");
       } catch (err) {

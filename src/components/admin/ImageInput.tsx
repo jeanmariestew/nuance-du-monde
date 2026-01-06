@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import ImageGalleryPicker from "./ImageGalleryPicker";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
+import { adminApi } from '@/lib/axios';
 
 // Types pour supporter simple et multiple
 type SingleValue = string;
@@ -86,14 +87,11 @@ export default function ImageInput(props: ImageInputProps) {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch("/api/admin/uploads", {
-          method: "POST",
-          credentials: "include",
-          body: formData,
+        const response = await adminApi.post('/uploads', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "Upload failed");
+        const result = response.data;
+        if (!result.url) throw new Error(result.error || "Upload failed");
 
         uploadedUrls.push(result.url);
       }

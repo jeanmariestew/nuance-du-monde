@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import { adminApi } from '@/lib/axios';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -14,9 +15,9 @@ export default function AdminSettingsPage() {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch('/api/admin/settings', { credentials: 'include' });
-        const data = await res.json();
-        if (mounted && res.ok && data.success) {
+        const res = await adminApi.get('/settings');
+        const data = res.data;
+        if (mounted && data.success) {
           setMaintenance(String(data.data?.maintenance_mode || 'FALSE').toUpperCase() === 'TRUE');
         }
       } catch {}
@@ -31,14 +32,9 @@ export default function AdminSettingsPage() {
     setSaving(true);
     setStatus(null);
     try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ maintenance_mode: maintenance ? 'TRUE' : 'FALSE' }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success) setStatus('Paramètres enregistrés');
+      const res = await adminApi.post('/settings', { maintenance_mode: maintenance ? 'TRUE' : 'FALSE' });
+      const data = res.data;
+      if (data.success) setStatus('Paramètres enregistrés');
       else setStatus(data.error || 'Erreur lors de la sauvegarde');
     } catch (e: any) {
       setStatus(e.message || 'Erreur réseau');

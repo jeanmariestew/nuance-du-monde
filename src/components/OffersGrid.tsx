@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Offer, Destination, TravelType, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
 import { OfferCardSkeleton } from "@/components/ui/SkeletonLoader";
+import { api } from "@/lib/axios";
 
 interface OffersGridProps {
   destination?: string;
@@ -50,10 +51,8 @@ export default function OffersGrid({
         if (type) params.append("type", type);
         if (theme) params.append("theme", theme);
 
-        const response = await fetch(
-          `/api/offers/filters?${params.toString()}`
-        );
-        const data = await response.json();
+        const response = await api.get(`/offers/filters?${params.toString()}`);
+        const data = response.data;
 
         if (data.success) {
           setDestinations(data.data.destinations);
@@ -90,8 +89,8 @@ export default function OffersGrid({
         if (selectedType) params.append("type", selectedType);
         if (selectedTheme) params.append("theme", selectedTheme);
 
-        const response = await fetch(`/api/offers?${params.toString()}`);
-        const data = await response.json();
+        const response = await api.get(`/offers?${params.toString()}`);
+        const data = response.data;
 
         if (data.success) {
           setOffers(data.data);

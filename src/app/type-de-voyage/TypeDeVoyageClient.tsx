@@ -6,6 +6,7 @@ import { TravelType } from "@/types";
 import TravelTypesSection from "@/components/TravelTypesSection";
 import ValuesSection from "@/components/ValuesSection";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
+import { api } from "@/lib/axios";
 
 export default function TypeDeVoyageClient() {
   const [types, setTypes] = useState<TravelType[]>([]);
@@ -14,8 +15,8 @@ export default function TypeDeVoyageClient() {
   useEffect(() => {
     const fetchTypes = async () => {
       try {
-        const response = await fetch("/api/travel-types?active=true");
-        const data = await response.json();
+        const response = await api.get("/travel-types?active=true");
+        const data = response.data;
         if (data.success) setTypes(data.data);
       } catch (error) {
         console.error("Erreur lors du chargement des types de voyage:", error);

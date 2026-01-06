@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import { adminApi } from '@/lib/axios';
 
 export default function NewTravelTypePage() {
   const [formData, setFormData] = useState({
@@ -41,17 +42,11 @@ export default function NewTravelTypePage() {
     setError(null);
     
     try {
-      const res = await fetch('/api/admin/travel-types', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          is_active: formData.is_active ? 1 : 0
-        }),
+      const res = await adminApi.post('/travel-types', {
+        ...formData,
+        is_active: formData.is_active ? 1 : 0
       });
-      
-      const json = await res.json();
+      const json = res.data;
       
       if (json.success) {
         window.location.href = '/admin/travel-types';

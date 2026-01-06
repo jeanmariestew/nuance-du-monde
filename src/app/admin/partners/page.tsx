@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { adminApi } from '@/lib/axios';
 
 interface Partner {
   id: number;
@@ -26,8 +27,8 @@ export default function PartnersPage() {
   const fetchPartners = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/partners', { credentials: 'include' });
-      const json = await res.json();
+      const res = await adminApi.get('/partners');
+      const json = res.data;
       if (json.success) {
         setPartners(json.data);
       } else {
@@ -44,11 +45,8 @@ export default function PartnersPage() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce partenaire ?')) return;
     
     try {
-      const res = await fetch(`/api/admin/partners/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const json = await res.json();
+      const res = await adminApi.delete(`/partners/${id}`);
+      const json = res.data;
       if (json.success) {
         fetchPartners();
       } else {
