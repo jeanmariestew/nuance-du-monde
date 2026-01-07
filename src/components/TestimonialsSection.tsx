@@ -105,11 +105,8 @@ export default function TestimonialsSection({
             />
             <div className="flex">
               {/* Icône circulaire exacte comme la capture */}
-              <div className=" top-0 left-8 w-16 h-16 bg-black/20 rounded-full flex items-center justify-center ripple-container">
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="w-4 h-4 bg-black rounded-full pulse-animation"></div>
+              <div className=" top-0 left-8 w-16 h-16 rounded-full flex items-center justify-center ripple-container">
+                
               </div>
               <Image
                 src="/images/map2.svg"

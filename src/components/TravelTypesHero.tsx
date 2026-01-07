@@ -17,11 +17,7 @@ export default function TravelTypesHero() {
               />
             </div>
             {/* Icône circulaire exacte comme la capture */}
-            <div className="absolute top-8 left-48 w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center ripple-container">
-              <div className="ripple-wave"></div>
-              <div className="ripple-wave"></div>
-              <div className="ripple-wave"></div>
-              <div className="w-4 h-4 bg-[#d9a900] rounded-full pulse-animation"></div>
+            <div className="absolute top-8 left-48 w-16 h-16  rounded-full flex items-center justify-center ripple-container">
             </div>
 
             <div className="my-20">

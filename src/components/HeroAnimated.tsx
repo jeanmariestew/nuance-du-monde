@@ -47,10 +47,10 @@ export default function HeroAnimated() {
       <div className="relative z-10 container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center py-16">
         {/* Colonne gauche */}
         <div className="text-white max-w-2xl">
-          <h1 className="h1 text-3xl font-extrabold font-[Alro] uppercase mb-20">
+          <h1 className="h1 text-3xl font-extrabold font-[Alro] uppercase">
             NUANCE DU MONDE
           </h1>
-          <h2 className="h4 font-extrabold font-[Alro] uppercase">
+          <h2 className="h4 font-extrabold font-[Alro] uppercase my-16">
             VOTRE SPÉCIALISTE DU VOYAGE SUR MESURE
           </h2>
 

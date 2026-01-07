@@ -45,11 +45,7 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
               <div className="relative min-h-80 z-10 flex p-4 flex-col items-start justify-center w-full">
 
               {/* Icône circulaire exacte comme la capture */}
-              <div className=" top-0 left-8 w-16 h-16 bg-[#d9a900]/20 rounded-full flex items-center justify-center ripple-container">
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="w-4 h-4 bg-[#d9a900] rounded-full pulse-animation"></div>
+              <div className=" top-0 left-8 w-16 h-16  rounded-full flex items-center justify-center ripple-container">
               </div>
                 <h2 className="text-3xl font-bold mb-6 text-black tracking-wide font-[Alro] uppercase my-10">
                   NOS THÈMES

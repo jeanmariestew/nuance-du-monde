@@ -57,11 +57,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
               >
                 Explorer
               </Link>
-              <div className="w-12 h-12 bg-gray-600/80 rounded-full flex items-center justify-center ripple-container">
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="ripple-wave"></div>
-                <div className="w-3 h-3 bg-[#d9a900] rounded-full pulse-animation"></div>
+              <div className="w-12 h-12  rounded-full flex items-center justify-center ripple-container">
               </div>
             </div>
           </div>
