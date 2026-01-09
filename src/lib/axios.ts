@@ -9,7 +9,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 600000,
+  timeout: 6000000,
 });
 
 /**
@@ -22,7 +22,7 @@ export const adminApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000,
+  timeout: 600000,
 });
 
 // Intercepteur pour ajouter le token d'authentification aux requêtes admin

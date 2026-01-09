@@ -62,7 +62,7 @@ export default function QuiSommesNousPage() {
           <h2 className="text-4xl font-bold uppercase text-[#d9a900]">
             Qui sommes-nous ?
           </h2>
-          <p className="mt-6 text-[14px] leading-relaxed font-[Quicksand]">
+          <p className="mt-6 text-md leading-relaxed font-[Quicksand]">
             Le voyage est pour nous le 5ème élément de la vie. Sa valeur dépasse
             le cadre de simples services consommables : le voyage est le sens
             même de ce qui nous unit tous sur cette magnifique planète. Chaque
@@ -104,7 +104,7 @@ export default function QuiSommesNousPage() {
                     >
                       {valeur.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed">
+                    <p className="mt-2 text-md leading-relaxed">
                       {valeur.text}
                     </p>
                   </div>
