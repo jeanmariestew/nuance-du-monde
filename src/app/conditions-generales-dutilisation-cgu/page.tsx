@@ -272,7 +272,7 @@ export default function CGUPage() {
         </div>
       </header>
 
-      <main className="space-y-12 sm:space-y-16 md:space-y-20 pb-16 sm:pb-20 md:pb-24">
+      <main className="">
         <section className="site-section">
           <div className="site-container max-w-5xl space-y-8">
             <div className="space-y-5 text-gray-800">
@@ -286,7 +286,7 @@ export default function CGUPage() {
           </div>
         </section>
 
-        <section className="site-section pt-0">
+        <section className="site-section pt-0 -mt-20 lg:-mt-32">
           <div className="site-container max-w-5xl space-y-8">
             <div className="space-y-4">
               {accordionItems.map((item) => (

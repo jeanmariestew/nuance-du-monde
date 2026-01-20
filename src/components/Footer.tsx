@@ -51,13 +51,13 @@ const Footer = () => {
               <ul className="space-y-2.5 md:space-y-3 text-gray-300 text-sm md:text-base">
                 <li>
                   <Link
-                    href="/pages/qui-sommes-nous"
+                    href="/qui-sommes-nous"
                     className="hover:text-white transition-colors"
                   >
                     Qui sommes nous
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     href="/pages/aide"
                     className="hover:text-white transition-colors"
@@ -72,15 +72,15 @@ const Footer = () => {
                   >
                     FAQ
                   </Link>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <Link
                     href="/avis-client"
                     className="hover:text-white transition-colors"
                   >
                     Avis client
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
 
@@ -177,7 +177,7 @@ const Footer = () => {
                   Canada
                 </p>
                 <p className="mb-2">
-                  Téléphone : 1-844-362-0555 (Numéro gratuit)
+                  <a href="tel:1-844-362-0555" className="text-white">Téléphone : 1-844-362-0555</a>(Numéro gratuit)
                 </p>
                 <p>Adresse courriel : info@nuancedumonde.com</p>
               </div>
