@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi } from '@/lib/axios';
-import { Upload } from 'lucide-react';
+import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+
+type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
+interface FileUploadState {
+  name: string;
+  status: UploadStatus;
+}
 
 interface GalleryImage {
   id: number;
@@ -22,7 +28,7 @@ export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ total: number; current: number; filename: string } | null>(null);
+  const [uploadQueue, setUploadQueue] = useState<FileUploadState[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -134,28 +140,37 @@ export default function GalleryPage() {
     const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
     if (fileArray.length === 0) return;
 
+    // Initialiser la queue avec tous les fichiers en pending
+    const initialQueue: FileUploadState[] = fileArray.map(f => ({
+      name: f.name,
+      status: 'pending' as UploadStatus,
+    }));
+    setUploadQueue(initialQueue);
     setUploading(true);
-    let successCount = 0;
-    let errorCount = 0;
 
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
-      setUploadProgress({ total: fileArray.length, current: i + 1, filename: file.name });
+      
+      // Mettre à jour le statut à "uploading"
+      setUploadQueue(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'uploading' } : item
+      ));
       
       const success = await uploadSingleImage(file);
-      if (success) successCount++;
-      else errorCount++;
+      
+      // Mettre à jour le statut final
+      setUploadQueue(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: success ? 'success' : 'error' } : item
+      ));
     }
 
     setUploading(false);
-    setUploadProgress(null);
     await loadImages();
 
-    if (errorCount === 0) {
-      alert(`${successCount} image(s) uploadée(s) avec succès !`);
-    } else {
-      alert(`${successCount} image(s) uploadée(s), ${errorCount} erreur(s)`);
-    }
+    // Garder la queue visible 3 secondes après la fin
+    setTimeout(() => {
+      setUploadQueue([]);
+    }, 3000);
   };
 
   // Handler pour input file
@@ -251,7 +266,7 @@ export default function GalleryPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">Galerie d'Images</h1>
+          <h1 className="text-4xl font-bold text-gray-900">Galerie d&apos;Images</h1>
           <button
             onClick={() => router.push("/admin")}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
@@ -290,25 +305,7 @@ export default function GalleryPage() {
                   className="hidden"
                 />
                 
-                {uploading && uploadProgress ? (
-                  <div className="space-y-3">
-                    <div className="animate-pulse">
-                      <Upload className="h-10 w-10 mx-auto text-yellow-500" />
-                    </div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Upload {uploadProgress.current}/{uploadProgress.total}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate max-w-xs mx-auto">
-                      {uploadProgress.filename}
-                    </p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
-                      <div
-                        className="bg-yellow-500 h-2 rounded-full transition-all"
-                        style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ) : (
+                {uploadQueue.length === 0 ? (
                   <>
                     <Upload className={`h-10 w-10 mx-auto mb-3 ${isDragging ? 'text-yellow-500' : 'text-gray-400'}`} />
                     <p className="text-sm font-medium text-gray-700">
@@ -321,6 +318,45 @@ export default function GalleryPage() {
                       Les images sont automatiquement optimisées
                     </p>
                   </>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    <p className="text-sm font-medium text-gray-700 mb-3">
+                      Upload {uploadQueue.filter(f => f.status === 'success').length}/{uploadQueue.length} terminé(s)
+                    </p>
+                    {uploadQueue.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm ${
+                          file.status === 'error' ? 'bg-red-50' :
+                          file.status === 'success' ? 'bg-green-50' :
+                          file.status === 'uploading' ? 'bg-yellow-50' : 'bg-gray-50'
+                        }`}
+                      >
+                        {file.status === 'pending' && (
+                          <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
+                        )}
+                        {file.status === 'uploading' && (
+                          <Loader2 className="h-4 w-4 text-yellow-500 animate-spin" />
+                        )}
+                        {file.status === 'success' && (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        )}
+                        {file.status === 'error' && (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                        <span className={`truncate flex-1 ${
+                          file.status === 'error' ? 'text-red-700' :
+                          file.status === 'success' ? 'text-green-700' :
+                          file.status === 'uploading' ? 'text-yellow-700' : 'text-gray-500'
+                        }`}>
+                          {file.name}
+                        </span>
+                        {file.status === 'error' && (
+                          <span className="text-xs text-red-500">Erreur</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
