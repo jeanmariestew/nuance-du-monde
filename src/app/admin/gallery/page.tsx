@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi } from '@/lib/axios';
+import { Upload } from 'lucide-react';
 
 interface GalleryImage {
   id: number;
@@ -21,6 +22,9 @@ export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ total: number; current: number; filename: string } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState("");
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
@@ -49,34 +53,151 @@ export default function GalleryPage() {
     loadImages();
   }, [searchTerm, selectedTags]);
 
-  // Upload d'image
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Optimiser une image côté client (compression sans perte de qualité visible)
+  const optimizeImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      // Si ce n'est pas une image ou si c'est un GIF/SVG, ne pas optimiser
+      if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/svg+xml') {
+        resolve(file);
+        return;
+      }
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", file.name);
-    formData.append("alt_text", file.name);
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
+      img.onload = () => {
+        // Limiter la taille max à 2000px tout en gardant le ratio
+        const maxSize = 2000;
+        let { width, height } = img;
+        
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = (height / width) * maxSize;
+            width = maxSize;
+          } else {
+            width = (width / height) * maxSize;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convertir en blob avec qualité optimale (0.85 pour JPEG)
+        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        const quality = file.type === 'image/png' ? 1 : 0.85;
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              // Utiliser l'image optimisée seulement si elle est plus petite
+              const optimizedFile = new File([blob], file.name, { type: outputType });
+              resolve(optimizedFile);
+            } else {
+              // Garder l'original si l'optimisation n'aide pas
+              resolve(file);
+            }
+          },
+          outputType,
+          quality
+        );
+      };
+
+      img.onerror = () => resolve(file);
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Upload d'une seule image
+  const uploadSingleImage = async (file: File): Promise<boolean> => {
     try {
+      const optimizedFile = await optimizeImage(file);
+      const formData = new FormData();
+      formData.append("file", optimizedFile);
+      formData.append("title", file.name.replace(/\.[^/.]+$/, ""));
+      formData.append("alt_text", file.name.replace(/\.[^/.]+$/, ""));
+
       const res = await adminApi.post('/gallery', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const data = res.data;
-      if (data.success) {
-        await loadImages();
-        alert("Image uploadée avec succès !");
-      } else {
-        alert("Erreur: " + data.error);
-      }
+      return res.data.success;
     } catch (error) {
       console.error("Erreur upload:", error);
-      alert("Erreur lors de l'upload");
-    } finally {
-      setUploading(false);
-      e.target.value = "";
+      return false;
+    }
+  };
+
+  // Upload multiple d'images
+  const handleMultipleUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (fileArray.length === 0) return;
+
+    setUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      setUploadProgress({ total: fileArray.length, current: i + 1, filename: file.name });
+      
+      const success = await uploadSingleImage(file);
+      if (success) successCount++;
+      else errorCount++;
+    }
+
+    setUploading(false);
+    setUploadProgress(null);
+    await loadImages();
+
+    if (errorCount === 0) {
+      alert(`${successCount} image(s) uploadée(s) avec succès !`);
+    } else {
+      alert(`${successCount} image(s) uploadée(s), ${errorCount} erreur(s)`);
+    }
+  };
+
+  // Handler pour input file
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await handleMultipleUpload(files);
+    e.target.value = "";
+  };
+
+  // Drag & Drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Vérifier si on quitte vraiment la zone
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      await handleMultipleUpload(files);
     }
   };
 
@@ -142,21 +263,72 @@ export default function GalleryPage() {
         {/* Upload et Filtres */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Upload */}
-            <div>
+            {/* Upload avec Drag & Drop */}
+            <div className="md:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Uploader une image
+                Uploader des images
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUpload}
-                disabled={uploading}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
-              />
-              {uploading && <p className="text-sm text-gray-500 mt-2">Upload en cours...</p>}
+              <div
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => !uploading && fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                  isDragging
+                    ? 'border-yellow-500 bg-yellow-50'
+                    : 'border-gray-300 hover:border-yellow-400 hover:bg-yellow-50/50'
+                } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                
+                {uploading && uploadProgress ? (
+                  <div className="space-y-3">
+                    <div className="animate-pulse">
+                      <Upload className="h-10 w-10 mx-auto text-yellow-500" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Upload {uploadProgress.current}/{uploadProgress.total}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate max-w-xs mx-auto">
+                      {uploadProgress.filename}
+                    </p>
+                    <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
+                      <div
+                        className="bg-yellow-500 h-2 rounded-full transition-all"
+                        style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className={`h-10 w-10 mx-auto mb-3 ${isDragging ? 'text-yellow-500' : 'text-gray-400'}`} />
+                    <p className="text-sm font-medium text-gray-700">
+                      {isDragging ? 'Déposez les images ici' : 'Glissez-déposez vos images ici'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      ou cliquez pour sélectionner (plusieurs fichiers possibles)
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Les images sont automatiquement optimisées
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
 
+          </div>
+
+          {/* Filtres */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {/* Recherche */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
