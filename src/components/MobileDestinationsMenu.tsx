@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState } from 'react';
@@ -119,7 +120,7 @@ const MobileDestinationsMenu: React.FC<MobileDestinationsMenuProps> = ({ onClose
                   >
                     <div className="flex items-start gap-3">
                       {destination.banner_image_url && (
-                        <div className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden">
+                        <div className="shrink-0 w-12 h-12 rounded-md overflow-hidden">
                           <img
                             src={destination.banner_image_url}
                             alt={destination.title}

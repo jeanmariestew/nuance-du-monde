@@ -90,7 +90,7 @@ export default function DestinationsGrid({
                     <h2 className="absolute z-20 bottom-4 text-2xl font-[Alro] uppercase text-center w-full text-white">
                       {destination.title}
                     </h2>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
                   </div>
                 </div>
               </Link>

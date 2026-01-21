@@ -38,7 +38,7 @@ export default function ImageStackCarousel({
   if (imageList.length === 0) {
     return (
       <div className="relative">
-        <div className="w-full h-[500px] bg-gradient-to-r from-yellow-600/50 to-yellow-900/50 rounded-3xl shadow-2xl" />
+        <div className="w-full h-[500px] bg-linear-to-r from-yellow-600/50 to-yellow-900/50 rounded-3xl shadow-2xl" />
       </div>
     );
   }
@@ -171,7 +171,7 @@ export default function ImageStackCarousel({
 
         {/* Counter */}
         {imageList.length > 1 && (
-          <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold z-[110]">
+          <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold z-110">
             {currentIndex + 1} / {imageList.length}
           </div>
         )}

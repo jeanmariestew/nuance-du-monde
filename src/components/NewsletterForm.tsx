@@ -27,6 +27,7 @@ const NewsletterForm = () => {
         setMessage(data.error);
       }
     } catch (error) {
+      console.log(error)
       setIsSuccess(false);
       setMessage('Une erreur est survenue. Veuillez réessayer.');
     } finally {
@@ -35,7 +36,7 @@ const NewsletterForm = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-16">
+    <div className="bg-linear-to-r from-blue-600 to-purple-600 py-16">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl font-bold text-white mb-4">
           Des bons plans de voyages directement dans votre boîte mail

@@ -58,7 +58,7 @@ export default function OfferCard({ offer }: Props) {
               }}
             />
             {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent m-2 rounded-xl" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent m-2 rounded-xl" />
             {/* Overlay text */}
             <div className="absolute bottom-4 left-4 text-white z-10">
               <h3 className="text-xl sm:text-2xl font-bold drop-shadow-lg">{destination}</h3>
@@ -77,12 +77,12 @@ export default function OfferCard({ offer }: Props) {
           {/* Right side - Content */}
           <div className="md:col-span-3 p-5 sm:p-6 flex flex-col justify-between h-full">
             <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl text-yellow-500 mb-3 font-[Alro] uppercase line-clamp-2 min-h-[3.5rem]">
+              <h2 className="text-xl sm:text-2xl text-yellow-500 mb-3 font-[Alro] uppercase line-clamp-2 min-h-14">
                 {title}
               </h2>
 
               <div className="flex items-start gap-3 mb-4">
-                <div className="flex-shrink-0 mt-1">
+                <div className="shrink-0 mt-1">
                   <Image
                     src="/images/moving.map.png"
                     alt=""
@@ -92,7 +92,7 @@ export default function OfferCard({ offer }: Props) {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-800 font-semibold text-sm sm:text-base leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                  <p className="text-gray-800 font-semibold text-sm sm:text-base leading-relaxed line-clamp-2 min-h-10">
                     {description}
                   </p>
                   <p className="text-gray-700 font-medium text-sm sm:text-base mt-1 h-6">
@@ -109,7 +109,7 @@ export default function OfferCard({ offer }: Props) {
             </div>
 
             {/* Price section */}
-            <div className="border-2 border-gray-200 rounded-xl p-4 bg-gradient-to-br from-yellow-50 to-orange-50 mt-auto">
+            <div className="border-2 border-gray-200 rounded-xl p-4 bg-linear-to-br from-yellow-50 to-orange-50 mt-auto">
               <p className="text-sm text-gray-600 mb-1">À partir de</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-bold text-yellow-600">

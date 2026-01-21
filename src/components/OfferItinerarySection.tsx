@@ -95,7 +95,7 @@ export default function OfferItinerarySection({
                     target="_blank"
                     rel="noopener noreferrer"
                     {...(isPdf ? { download: '' } : {})}
-                    className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-2"
+                    className="bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center gap-2"
                     title={isPdf ? 'Télécharger le programme (PDF)' : 'Ouvrir le programme'}
                   >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

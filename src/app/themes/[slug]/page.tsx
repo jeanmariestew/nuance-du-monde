@@ -54,7 +54,7 @@ export default async function ThemePage({ params }: PageProps) {
           ) : theme.image_url ? (
             <Image src={theme.image_url} alt={theme.title} fill className="object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
+            <div className="w-full h-full bg-linear-to-r from-blue-600 to-purple-600" />
           )}
           <div className="absolute inset-0 bg-black/30" />
         </div>

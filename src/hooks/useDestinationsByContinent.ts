@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Destination, DestinationsByContinent } from '@/types';
+import { DestinationsByContinent } from '@/types';
 import { api } from '@/lib/axios';
 
 interface UseDestinationsByContinentReturn {

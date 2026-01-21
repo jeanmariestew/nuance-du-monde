@@ -15,7 +15,7 @@ interface PartnersSectionProps {
 
 export default function PartnersSection({ partners }: PartnersSectionProps) {
   return (
-    <section className="bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-100 relative overflow-hidden py-20">
+    <section className="bg-linear-to-br from-yellow-50 via-orange-50 to-yellow-100 relative overflow-hidden py-20">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-96 h-96 bg-yellow-400 rounded-full blur-3xl"></div>
@@ -26,7 +26,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
       <div className="w-full px-4 text-center relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#d9a900] font-[Alro] uppercase uppercase tracking-wide drop-shadow-sm">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#d9a900] font-[Alro] uppercase tracking-wide drop-shadow-sm">
             NOS PARTENAIRES AGENCES DE VOYAGE
           </h2>
           <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
@@ -46,7 +46,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
               href={partner.website_url || "#"}
             >
               {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/0 to-orange-500/0 group-hover:from-yellow-400/10 group-hover:to-orange-500/10 rounded-3xl transition-all duration-500"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-yellow-400/0 to-orange-500/0 group-hover:from-yellow-400/10 group-hover:to-orange-500/10 rounded-3xl transition-all duration-500"></div>
               
               <div className="relative">
                 {/* Logo Container */}
@@ -63,7 +63,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
                       />
                     </div>
                   ) : (
-                    <div className="w-32 h-32 bg-gradient-to-br from-yellow-100 to-orange-200 rounded-2xl flex items-center justify-center">
+                    <div className="w-32 h-32 bg-linear-to-br from-yellow-100 to-orange-200 rounded-2xl flex items-center justify-center">
                       <span className="text-4xl">✈️</span>
                     </div>
                   )}
@@ -80,7 +80,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
                 </div>
 
                 {/* Hover indicator */}
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center shadow-lg">
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-linear-to-br from-yellow-400 to-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center shadow-lg">
                   <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                   </svg>

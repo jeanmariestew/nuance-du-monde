@@ -27,14 +27,14 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
           <div key={day.day} className="relative">
             {/* Timeline connector */}
             {index < itinerary.length - 1 && (
-              <div className="absolute left-[19px] sm:left-[23px] top-12 sm:top-14 bottom-0 w-0.5 sm:w-1 bg-gradient-to-b from-yellow-500 via-yellow-400 to-yellow-300" />
+              <div className="absolute left-[19px] sm:left-[23px] top-12 sm:top-14 bottom-0 w-0.5 sm:w-1 bg-linear-to-b from-yellow-500 via-yellow-400 to-yellow-300" />
             )}
 
             {/* Day content */}
             <div className="flex gap-3 sm:gap-5">
               {/* Day number circle */}
-              <div className="flex-shrink-0 relative z-10">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white">
+              <div className="shrink-0 relative z-10">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white">
                   {day.day}
                 </div>
               </div>
@@ -47,7 +47,7 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
                 {day.location && (
                   <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                     <svg
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0"
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

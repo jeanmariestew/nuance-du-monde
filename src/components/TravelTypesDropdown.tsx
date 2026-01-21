@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -80,7 +81,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
             >
               <div className="flex items-start gap-3">
                 {type.image_url ? (
-                  <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm">
+                  <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm">
                     <img
                       src={type.image_url}
                       alt={type.title}
@@ -89,7 +90,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
                     />
                   </div>
                 ) : (
-                  <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-yellow-100 flex items-center justify-center">
+                  <div className="shrink-0 w-16 h-16 rounded-lg bg-yellow-100 flex items-center justify-center">
                     <Compass className="h-8 w-8 text-yellow-600" />
                   </div>
                 )}

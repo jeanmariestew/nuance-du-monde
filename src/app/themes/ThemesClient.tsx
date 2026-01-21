@@ -56,7 +56,7 @@ export default function ThemesClient() {
       </section>
 
       <section className="py-8 sm:py-12 md:py-16">
-        <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] uppercase px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10 text-center">
+        <h2 className="uppercase text-xl sm:text-2xl text-yellow-500 font-semibold font-[Alro] px-4 sm:px-6 md:px-10 pb-6 sm:pb-8 md:pb-10 text-center">
           Tous nos thèmes
         </h2>
         <div className="container mx-auto px-4 sm:px-6 md:px-8">

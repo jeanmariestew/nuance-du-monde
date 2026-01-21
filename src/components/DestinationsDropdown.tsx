@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronRight, MapPin, Users, Clock } from 'lucide-react';
+import { ChevronRight, MapPin, Clock } from 'lucide-react';
 import { useDestinationsByContinent } from '@/hooks/useDestinationsByContinent';
 import { Destination } from '@/types';
 
@@ -29,9 +30,6 @@ const DestinationsDropdown: React.FC<DestinationsDropdownProps> = ({ onClose }) 
     setHoveredContinent(continent);
   };
 
-  const handleContinentLeave = () => {
-    // Ne pas masquer le continent au survol, garder ouvert pour la navigation
-  };
 
   // Pas de gestion des événements de souris ici - tout est géré par le Header
 
@@ -40,6 +38,7 @@ const DestinationsDropdown: React.FC<DestinationsDropdownProps> = ({ onClose }) 
   };
 
   const formatPrice = (price?: number, currency?: string) => {
+    console.log('currency', currency);
     if (!price) return '';
     return `À partir de ${price.toLocaleString()} ${ 'CAD'}`;
   };
@@ -97,7 +96,7 @@ const DestinationsDropdown: React.FC<DestinationsDropdownProps> = ({ onClose }) 
     >
       <div className="flex" style={{ minHeight: '300px', maxHeight: '500px' }}>
         {/* Colonne des continents */}
-        <div className="w-72 min-w-[240px] border-r border-gray-200 flex-shrink-0">
+        <div className="w-72 min-w-[240px] border-r border-gray-200 shrink-0">
           <div className="p-3">
             <h3 className="text-sm font-semibold text-gray-900 px-3 py-3 border-b border-gray-100 mb-2">Destinations par continent</h3>
             {continents.map((continent) => (
@@ -137,7 +136,7 @@ const DestinationsDropdown: React.FC<DestinationsDropdownProps> = ({ onClose }) 
                   >
                     <div className="flex items-start gap-4">
                       {destination.banner_image_url && (
-                        <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm">
+                        <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm">
                           <img
                             src={destination.banner_image_url}
                             alt={destination.title}

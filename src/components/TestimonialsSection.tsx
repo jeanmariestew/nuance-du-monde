@@ -199,7 +199,7 @@ export default function TestimonialsSection({
                   />
 
                   {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
 
                   {/* Testimonial content */}
                   <div className="absolute bottom-6  max-w-sm right-6 text-black">
@@ -209,14 +209,14 @@ export default function TestimonialsSection({
                       </p>
                       <div className="flex items-start gap-3 mb-4">
                         <Quote
-                          className="text-yellow-400 flex-shrink-0 mt-1"
+                          className="text-yellow-400 shrink-0 mt-1"
                           size={20}
                         />
                         <p className="text-black text-base leading-relaxed">
                           {testimonial.testimonial_text}
                         </p>
                         <Quote
-                          className="text-yellow-400 flex-shrink-0 mt-1 rotate-180"
+                          className="text-yellow-400 shrink-0 mt-1 rotate-180"
                           size={20}
                         />
                       </div>

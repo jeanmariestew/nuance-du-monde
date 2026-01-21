@@ -128,7 +128,7 @@ export default function DatesAndPricing({
   };
 
   return (
-    <section className="site-section bg-gradient-to-b from-gray-50 to-white">
+    <section className="site-section bg-linear-to-b from-gray-50 to-white">
       <div className="site-container">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 sm:mb-10">
@@ -142,7 +142,7 @@ export default function DatesAndPricing({
 
         <div className="grid lg:grid-cols-[380px_1fr] gap-6 md:gap-8">
           {/* Calendrier */}
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl border-2 border-yellow-300 p-5 h-fit">
+          <div className="bg-linear-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl border-2 border-yellow-300 p-5 h-fit">
             {/* Navigation mois */}
             <div className="flex items-center justify-between mb-4">
               <button
@@ -213,7 +213,7 @@ export default function DatesAndPricing({
                       aspect-square rounded-md flex items-center justify-center text-xs font-semibold transition-all
                       ${
                         isSelected
-                          ? "bg-gradient-to-br from-yellow-500 to-orange-500 text-white shadow-lg scale-110 ring-2 ring-yellow-600"
+                          ? "bg-linear-to-br from-yellow-500 to-orange-500 text-white shadow-lg scale-110 ring-2 ring-yellow-600"
                           : isAvailable
                           ? "bg-white text-yellow-900 hover:bg-yellow-200 hover:scale-105 border-2 border-yellow-400 shadow-sm"
                           : "text-gray-300 cursor-not-allowed bg-gray-50"
@@ -230,7 +230,7 @@ export default function DatesAndPricing({
             <div className="mt-4 pt-3 border-t-2 border-yellow-300">
               <div className="flex items-center gap-3 text-xs font-medium text-gray-700">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded bg-gradient-to-br from-yellow-500 to-orange-500 ring-2 ring-yellow-600" />
+                  <div className="w-3 h-3 rounded bg-linear-to-br from-yellow-500 to-orange-500 ring-2 ring-yellow-600" />
                   <span>Sélectionné</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -258,7 +258,7 @@ export default function DatesAndPricing({
                       onClick={() => setSelectedDate(date)}
                       className={`w-full text-left p-4 rounded-xl transition-all border-2 flex items-center justify-between ${
                         isSelected
-                          ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
+                          ? "bg-linear-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
                           : "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-gray-900"
                       }`}
                     >
@@ -270,7 +270,7 @@ export default function DatesAndPricing({
                           {date.return_date ? 'Date de retour incluse' : 'Départ unique'}
                         </p>
                       </div>
-                      <div className={`text-right flex-shrink-0`}>
+                      <div className={`text-right shrink-0`}>
                         <p className={`text-lg font-extrabold ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
                           {formatPrice(date.price, date.price_currency)}
                         </p>
@@ -284,7 +284,7 @@ export default function DatesAndPricing({
 
             {/* Détails de la date sélectionnée */}
             {selectedDate && (
-              <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-xl border-2 border-yellow-600 p-6 text-white">
+              <div className="bg-linear-to-br from-gray-800 to-black rounded-2xl shadow-xl border-2 border-yellow-600 p-6 text-white">
                 <h3 className="text-xl sm:text-2xl font-bold mb-5">Détails du départ</h3>
 
                 <div className="space-y-5">

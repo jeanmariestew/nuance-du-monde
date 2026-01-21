@@ -23,7 +23,7 @@ export default function ThemeCard({ theme }: ThemeCardProps) {
               <span className="text-gray-400">Pas d&apos;image</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t rounded-xl from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t rounded-xl from-black/60 to-transparent" />
           <div className="absolute bottom-4 left-4 text-white">
             <h3 className="text-xl font-semibold font-[Alro] uppercase">{theme.title}</h3>
           </div>

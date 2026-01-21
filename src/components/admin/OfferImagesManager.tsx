@@ -136,12 +136,12 @@ export default function OfferImagesManager({ images, onChange }: OfferImagesMana
                 } cursor-move`}
               >
                 {/* Drag handle */}
-                <div className="flex-shrink-0 mt-2 text-gray-400 hover:text-gray-600">
+                <div className="shrink-0 mt-2 text-gray-400 hover:text-gray-600">
                   <GripVertical className="w-5 h-5" />
                 </div>
 
                 {/* Image preview */}
-                <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                   <Image
                     src={img.image_url}
                     alt={img.alt_text || 'Preview'}
@@ -193,7 +193,7 @@ export default function OfferImagesManager({ images, onChange }: OfferImagesMana
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
-                  className="flex-shrink-0 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                  className="shrink-0 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
                   title="Supprimer"
                 >
                   <X className="w-5 h-5" />
