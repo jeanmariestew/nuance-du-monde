@@ -33,14 +33,14 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
               }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+            <div className="w-full h-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
               <div className="text-white text-center">
                 <div className="text-4xl mb-2">🌍</div>
                 <p className="text-base">Image à venir</p>
               </div>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+          <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/50"></div>
           <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
             <div>
               <h3 className="text-2xl font-bold mb-4 font-[Alro] uppercase">{travelType.title}</h3>

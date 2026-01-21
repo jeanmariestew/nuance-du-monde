@@ -65,10 +65,36 @@ export async function GET(
     const bannerImage = images?.find(img => img.image_type === 'banner')?.image_url || offer.image_banner;
     const availableDates = dates?.map(d => d.departure_date) || [];
     
+    // Parse coordinates JSON if present
+    let coordinates = null;
+    if (offer.coordinates) {
+      try {
+        coordinates = typeof offer.coordinates === 'string' 
+          ? JSON.parse(offer.coordinates) 
+          : offer.coordinates;
+      } catch (e) {
+        console.error('Error parsing coordinates:', e);
+      }
+    }
+    
+    // Parse map_center JSON if present
+    let map_center = null;
+    if (offer.map_center) {
+      try {
+        map_center = typeof offer.map_center === 'string' 
+          ? JSON.parse(offer.map_center) 
+          : offer.map_center;
+      } catch (e) {
+        console.error('Error parsing map_center:', e);
+      }
+    }
+    
     return NextResponse.json({
       success: true,
       data: {
         ...offer,
+        coordinates,
+        map_center,
         // convenience aliases
         banner_image_url: bannerImage,
         image_url: mainImage,

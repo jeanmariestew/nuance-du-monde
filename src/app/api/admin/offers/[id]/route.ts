@@ -28,6 +28,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     price_excludes: row.price_excludes,
     label: row.label,
     programme_link: row.programme_link,
+    coordinates: row.coordinates ? (typeof row.coordinates === 'string' ? JSON.parse(row.coordinates) : row.coordinates) : [],
+    map_center: row.map_center ? (typeof row.map_center === 'string' ? JSON.parse(row.map_center) : row.map_center) : null,
     duration_days: row.duration_days,
     duration_nights: row.duration_nights,
   } as any;
@@ -77,6 +79,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     price_excludes = null,
     label = null,
     programme_link = null,
+    coordinates = [] as Array<{ name: string; lat: number; lng: number }>,
+    map_center = null as { lat: number; lng: number; zoom: number } | null,
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
@@ -88,9 +92,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
 
   try {
+    // Serialize coordinates and map_center to JSON string
+    const coordinatesJson = Array.isArray(coordinates) && coordinates.length > 0 
+      ? JSON.stringify(coordinates) 
+      : null;
+    const mapCenterJson = map_center && map_center.lat && map_center.lng
+      ? JSON.stringify(map_center)
+      : null;
+
     await query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, duration_days=?, duration_nights=? WHERE id=?`,
+      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, duration_days, duration_nights, id]
     );
 
     await query('DELETE FROM offer_travel_types WHERE offer_id = ?', [id]);

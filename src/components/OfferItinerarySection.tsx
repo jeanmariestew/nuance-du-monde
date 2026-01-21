@@ -29,6 +29,10 @@ interface OfferItinerarySectionProps {
   destinations?: Array<{ id: number; title: string; slug: string }>;
   title?: string;
   programmeLink?: string;
+  // Coordonnées manuelles (prioritaires sur l'extraction automatique)
+  coordinates?: Array<{ name: string; lat: number; lng: number }>;
+  // Centre personnalisé de la carte
+  mapCenter?: { lat: number; lng: number; zoom: number } | null;
 }
 
 export default function OfferItinerarySection({
@@ -36,6 +40,8 @@ export default function OfferItinerarySection({
   destinations,
   title = "Itinéraire détaillé",
   programmeLink,
+  coordinates,
+  mapCenter,
 }: OfferItinerarySectionProps) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,10 +55,17 @@ export default function OfferItinerarySection({
     async function loadLocations() {
       setIsLoading(true);
       
-      // Extrait les localisations depuis l'itinéraire
+      // 1. Priorité aux coordonnées manuelles si fournies
+      if (coordinates && coordinates.length > 0) {
+        setLocations(coordinates);
+        setIsLoading(false);
+        return;
+      }
+      
+      // 2. Sinon, extrait les localisations depuis l'itinéraire
       let locs = await extractLocations(itinerary);
       
-      // Si pas de localisations trouvées dans l'itinéraire, utilise les destinations
+      // 3. Si pas de localisations trouvées dans l'itinéraire, utilise les destinations
       if (locs.length === 0 && destinations) {
         locs = await getDestinationLocations(destinations);
       }
@@ -62,7 +75,7 @@ export default function OfferItinerarySection({
     }
 
     loadLocations();
-  }, [itinerary, destinations]);
+  }, [itinerary, destinations, coordinates]);
 
   // Si pas d'itinéraire ni de localisations, ne rien afficher
   if (itinerary.length === 0 && locations.length === 0 && !isLoading) {
@@ -116,7 +129,7 @@ export default function OfferItinerarySection({
           <div className="order-2 lg:order-1">
             <div className="sticky top-20 sm:top-24 h-[400px] sm:h-[500px] lg:h-[700px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 sm:border-4 border-white">
               {locations.length > 0 ? (
-                <ItineraryMap locations={locations} title={destinations?.[0]?.title} />
+                <ItineraryMap locations={locations} title={destinations?.[0]?.title} mapCenter={mapCenter} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-100">
                   <p className="text-gray-500 text-sm sm:text-base">Carte non disponible</p>

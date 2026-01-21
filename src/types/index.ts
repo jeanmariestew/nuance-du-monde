@@ -62,6 +62,10 @@ export interface Offer {
   label?: string;
   // External programme PDF/link
   programme_link?: string;
+  // Coordinates for itinerary map (JSON array)
+  coordinates?: Array<{ name: string; lat: number; lng: number }>;
+  // Map center for itinerary map
+  map_center?: { lat: number; lng: number; zoom: number } | null;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;

@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import OfferImagesManager from '@/components/admin/OfferImagesManager';
+import CoordinatesEditor from '@/components/admin/CoordinatesEditor';
 import { adminApi } from '@/lib/axios';
 
 type RefItem = { id: number; title: string; slug: string };
@@ -36,6 +37,8 @@ type OfferData = {
   price_excludes: string | null;
   label: string | null;
   programme_link: string | null;
+  coordinates: Array<{ name: string; lat: number; lng: number }>;
+  map_center: { lat: number; lng: number; zoom: number } | null;
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
@@ -53,11 +56,18 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [status, setStatus] = useState<string | null>(null);
 
   const [offer, setOffer] = useState<OfferData | null>(null);
+  const [originalOffer, setOriginalOffer] = useState<OfferData | null>(null);
   const [types, setTypes] = useState<RefItem[]>([]);
   const [themes, setThemes] = useState<RefItem[]>([]);
   const [destinations, setDestinations] = useState<RefItem[]>([]);
   const [_uploads, setUploads] = useState<{ name: string; url: string }[]>([]);
-  const [_uploading, setUploading] = useState(false);
+  // const [_uploading, setUploading] = useState(false);
+
+  // Détecter si des modifications ont été apportées
+  const hasChanges = useMemo(() => {
+    if (!offer || !originalOffer) return false;
+    return JSON.stringify(offer) !== JSON.stringify(originalOffer);
+  }, [offer, originalOffer]);
 
   useEffect(() => {
     let mounted = true;
@@ -80,6 +90,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         ]);
         if (!mounted) return;
         setOffer(o.data);
+        setOriginalOffer(JSON.parse(JSON.stringify(o.data)));
         setTypes((t.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setThemes((th.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setDestinations((d.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
@@ -124,6 +135,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       const response = await adminApi.put(`/offers/${id}`, dataToSave).then(res => res.data);
       console.log('Réponse API:', response);
       setStatus('Offre enregistrée avec succès');
+      setOriginalOffer(JSON.parse(JSON.stringify(offer)));
     } catch (e: any) {
       console.error('Erreur sauvegarde:', e);
       setError(e.message || 'Erreur de sauvegarde');
@@ -136,46 +148,46 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
     return arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id];
   }
 
-  async function refreshUploads() {
-    try {
-      const up = await adminApi.get('/uploads').then(res => res.data);
-      setUploads(up.data || []);
-    } catch {}
-  }
+  // async function refreshUploads() {
+  //   try {
+  //     const up = await adminApi.get('/uploads').then(res => res.data);
+  //     setUploads(up.data || []);
+  //   } catch {}
+  // }
 
-  async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setStatus(null);
-    setError(null);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await adminApi.post('/uploads', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      const data = res.data;
-      if (data?.success === false) throw new Error(data?.error || 'Erreur upload');
-      await refreshUploads();
-      if (data.url && offer) {
-        const newImage: OfferImage = {
-          image_url: data.url,
-          image_type: 'gallery',
-          alt_text: '',
-          sort_order: offer.images.length
-        };
-        setOffer({ ...offer, images: [...offer.images, newImage] });
-      }
-      setStatus('Image téléversée');
-    } catch (err: any) {
-      setError(err.message || 'Erreur upload');
-    } finally {
-      setUploading(false);
-      // reset input
-      e.target.value = '';
-    }
-  }
+  // async function onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //   setUploading(true);
+  //   setStatus(null);
+  //   setError(null);
+  //   try {
+  //     const fd = new FormData();
+  //     fd.append('file', file);
+  //     const res = await adminApi.post('/uploads', fd, {
+  //       headers: { 'Content-Type': 'multipart/form-data' }
+  //     });
+  //     const data = res.data;
+  //     if (data?.success === false) throw new Error(data?.error || 'Erreur upload');
+  //     await refreshUploads();
+  //     if (data.url && offer) {
+  //       const newImage: OfferImage = {
+  //         image_url: data.url,
+  //         image_type: 'gallery',
+  //         alt_text: '',
+  //         sort_order: offer.images.length
+  //       };
+  //       setOffer({ ...offer, images: [...offer.images, newImage] });
+  //     }
+  //     setStatus('Image téléversée');
+  //   } catch (err: any) {
+  //     setError(err.message || 'Erreur upload');
+  //   } finally {
+  //     setUploading(false);
+  //     // reset input
+  //     e.target.value = '';
+  //   }
+  // }
 
   if (loading) return (
     <div className="mx-auto max-w-6xl p-6">
@@ -276,6 +288,21 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <OfferImagesManager
               images={offer.images}
               onChange={(images) => setOffer({ ...(offer as OfferData), images })}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Coordonnées de l&apos;itinéraire</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CoordinatesEditor
+              coordinates={offer.coordinates || []}
+              onChange={(coordinates) => setOffer({ ...(offer as OfferData), coordinates })}
+              description={offer.description}
+              mapCenter={offer.map_center}
+              onMapCenterChange={(map_center) => setOffer({ ...(offer as OfferData), map_center })}
             />
           </CardContent>
         </Card>
@@ -602,18 +629,34 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
 
-        <div className="flex items-center gap-3 bg-yellow-500">
-          <Button onClick={save} disabled={!canSave || saving}>
-            {saving ? (
-              <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
-            ) : (
-              'Enregistrer'
-            )}
-          </Button>
-          {status && <span className="text-sm text-neutral-700">{status}</span>}
-          {error && <span className="text-sm text-red-600">{error}</span>}
-        </div>
+        {/* Messages de statut */}
+        {status && (
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+            <span className="text-sm text-green-700">{status}</span>
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <span className="text-sm text-red-600">{error}</span>
+          </div>
+        )}
       </div>
+
+      {/* Bouton flottant Enregistrer */}
+      {hasChanges && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-150">
+          <div className="bg-white rounded-full shadow-2xl border border-neutral-200 px-6 py-3 flex items-center gap-4">
+            <span className="text-sm text-neutral-600">Modifications non enregistrées</span>
+            <Button onClick={save} disabled={!canSave || saving} className="rounded-full!">
+              {saving ? (
+                <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
+              ) : (
+                'Enregistrer'
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -51,7 +51,7 @@ export default function TypeDeVoyageClient() {
           />
           <div className="absolute inset-0 bg-black/30" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40"></div>
         <div className="relative z-10 text-left text-white px-4 sm:px-6 md:px-8 max-w-2xl">
           <div className="inline-block bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
             Catégorie

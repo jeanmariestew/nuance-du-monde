@@ -52,7 +52,7 @@ export default async function TravelTypePage({ params }: PageProps) {
           {type.image_url ? (
             <Image src={type.image_url} alt={type.title} fill className="object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-purple-600" />
+            <div className="w-full h-full bg-linear-to-r from-blue-600 to-purple-600" />
           )}
           <div className="absolute inset-0 bg-black/30" />
         </div>
