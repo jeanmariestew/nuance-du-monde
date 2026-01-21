@@ -1,10 +1,10 @@
 "use client";
 import useSWR from 'swr';
 import Link from 'next/link';
-import { Table, THead, TBody, Tr, Th, Td } from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import DataTable, { Column } from '@/components/admin/DataTable';
 import { Pencil, Trash2 } from 'lucide-react';
 import { adminApi } from '@/lib/axios';
 
@@ -26,6 +26,41 @@ export default function AdminTravelThemesPage() {
     if (json.success) mutate();
     else alert(json.error || 'Erreur de suppression');
   };
+
+  const columns: Column<TravelTheme>[] = [
+    { key: 'title', label: 'Titre', sortable: true, render: (t) => <span className="font-medium">{t.title}</span> },
+    { key: 'slug', label: 'Slug', sortable: true },
+    {
+      key: 'is_active',
+      label: 'Actif',
+      sortable: true,
+      render: (t) => t.is_active ? <Badge variant="success">Oui</Badge> : <Badge variant="muted">Non</Badge>,
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (t) => (
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/travel-themes/${t.id}`} aria-label="Modifier" title="Modifier" className="inline-flex">
+            <Button variant="ghost" size="sm" iconLeft={<Pencil className="h-4 w-4" />}>
+              <span className="sr-only">Modifier</span>
+            </Button>
+          </Link>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => onDelete(t.id)}
+            aria-label="Supprimer"
+            title="Supprimer"
+            iconLeft={<Trash2 className="h-4 w-4" />}
+          >
+            <span className="sr-only">Supprimer</span>
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-4 flex items-center gap-3">
@@ -45,46 +80,13 @@ export default function AdminTravelThemesPage() {
       )}
 
       {data?.success && (
-        <Table>
-          <THead>
-            <Tr>
-              <Th>Titre</Th>
-              <Th>Slug</Th>
-              <Th>Actif</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {data.data.map((t: TravelTheme) => (
-              <Tr key={t.id}>
-                <Td className="font-medium">{t.title}</Td>
-                <Td>{t.slug}</Td>
-                <Td>
-                  {t.is_active ? <Badge variant="success">Oui</Badge> : <Badge variant="muted">Non</Badge>}
-                </Td>
-                <Td>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/admin/travel-themes/${t.id}`} aria-label="Modifier" title="Modifier" className="inline-flex">
-                      <Button variant="ghost" size="sm" iconLeft={<Pencil className="h-4 w-4" />}>
-                        <span className="sr-only">Modifier</span>
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => onDelete(t.id)}
-                      aria-label="Supprimer"
-                      title="Supprimer"
-                      iconLeft={<Trash2 className="h-4 w-4" />}
-                    >
-                      <span className="sr-only">Supprimer</span>
-                    </Button>
-                  </div>
-                </Td>
-              </Tr>
-            ))}
-          </TBody>
-        </Table>
+        <DataTable
+          data={data.data}
+          columns={columns}
+          searchKeys={['title', 'slug']}
+          pageSize={10}
+          getRowKey={(t) => t.id}
+        />
       )}
     </div>
   );
