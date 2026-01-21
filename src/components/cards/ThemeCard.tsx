@@ -10,7 +10,7 @@ export default function ThemeCard({ theme }: Props) {
   const img = theme.banner_image_url || theme.image_url;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[650px] w-full">
+    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[420px] w-full">
       {img ? (
         <Image
           src={img}

@@ -4,25 +4,27 @@ import { Destination, ApiResponse, DestinationsByContinent } from '@/types';
 
 export async function GET() {
   try {
-    // Récupère toutes les destinations actives avec leur continent
+    // Récupère les destinations actives qui ont au moins une offre active
     const squery = `
-      SELECT 
-        id,
-        title,
-        slug,
-        continent,
-        short_description,
-        banner_image_url,
-        price_from,
-        price_currency,
-        duration_days,
-        duration_nights,
-        sort_order
-      FROM destinations 
-      WHERE is_active = 1 
-        AND continent IS NOT NULL 
-        AND continent != ''
-      ORDER BY continent ASC, sort_order ASC, title ASC
+      SELECT DISTINCT
+        d.id,
+        d.title,
+        d.slug,
+        d.continent,
+        d.short_description,
+        d.banner_image_url,
+        d.price_from,
+        d.price_currency,
+        d.duration_days,
+        d.duration_nights,
+        d.sort_order
+      FROM destinations d
+      INNER JOIN offer_destinations od ON od.destination_id = d.id
+      INNER JOIN offers o ON o.id = od.offer_id AND o.is_active = 1
+      WHERE d.is_active = 1 
+        AND d.continent IS NOT NULL 
+        AND d.continent != ''
+      ORDER BY d.continent ASC, d.sort_order ASC, d.title ASC
     `;
 
     const rows = await query(squery);

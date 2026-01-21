@@ -69,15 +69,15 @@ export default function ThemesClient() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 justify-center gap-8">
               {themes.map((theme) => (
-                <ThemeCard key={theme.id} theme={theme} />
+                <ThemeCard theme={theme}  key={theme.id}/>
               ))}
             </div>
           )}
         </div>
       </section>
-      <OffersGrid itemsPerPage={10}/>
+      <OffersGrid itemsPerPage={10} hasTheme/>
     </div>
   );
 }

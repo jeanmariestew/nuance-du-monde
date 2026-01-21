@@ -13,6 +13,7 @@ interface OffersGridProps {
   title?: string;
   emptyMessage?: string;
   itemsPerPage?: number;
+  hasTheme?: boolean
 }
 
 export default function OffersGrid({
@@ -22,6 +23,7 @@ export default function OffersGrid({
   title = "Offres",
   emptyMessage = "Aucune offre disponible.",
   itemsPerPage = 4,
+  hasTheme=false,
 }: OffersGridProps) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,7 @@ export default function OffersGrid({
         if (destination) params.append("destination", destination);
         if (type) params.append("type", type);
         if (theme) params.append("theme", theme);
+        if (hasTheme) params.append("hasActiveTheme", "true");
 
         // Paramètres des selects
         if (selectedDestination)
@@ -93,6 +96,7 @@ export default function OffersGrid({
         const data = response.data;
 
         if (data.success) {
+          console.log("===>>",data.data[0])
           setOffers(data.data);
           setCurrentPage(1); // Retourner à la première page quand les offres changent
         } else {
@@ -111,6 +115,7 @@ export default function OffersGrid({
     destination,
     type,
     theme,
+    hasTheme,
     selectedDestination,
     selectedType,
     selectedTheme,

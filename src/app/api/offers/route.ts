@@ -8,6 +8,7 @@ export async function GET(req: Request) {
     const continent = url.searchParams.get('continent'); // continent name
     const type = url.searchParams.get('type'); // slug
     const theme = url.searchParams.get('theme'); // slug
+    const hasActiveTheme = url.searchParams.get('hasActiveTheme'); // filter offers with active themes
 
     const parts: string[] = [];
     const params: (string | number)[] = [];
@@ -38,6 +39,11 @@ export async function GET(req: Request) {
       sql += `\nJOIN offer_travel_themes oth ON oth.offer_id = o.id\nJOIN travel_themes th ON th.id = oth.travel_theme_id`;
       parts.push('th.slug = ?');
       params.push(theme);
+    }
+    
+    // Filter offers that have at least one active theme
+    if (hasActiveTheme === 'true') {
+      sql += `\nJOIN offer_travel_themes oth_active ON oth_active.offer_id = o.id\nJOIN travel_themes th_active ON th_active.id = oth_active.travel_theme_id AND th_active.is_active = 1`;
     }
 
     sql += `\nWHERE o.is_active = 1`;
@@ -72,11 +78,12 @@ export async function GET(req: Request) {
       [key: string]: unknown;
     };
     
-    // Fetch available dates and images for all offers
+    // Fetch available dates, images and themes for all offers
     const offerIds = (rows as OfferRow[]).map(o => o.id);
     let availableDatesMap: Record<number, string[]> = {};
     let minPriceMap: Record<number, number | null> = {};
     let imagesMap: Record<number, any[]> = {};
+    let themesMap: Record<number, any[]> = {};
     
     if (offerIds.length > 0) {
       const datesRows = await query(
@@ -112,6 +119,25 @@ export async function GET(req: Request) {
         acc[row.offer_id].push(row);
         return acc;
       }, {} as Record<number, any[]>);
+      
+      // Fetch themes for offers
+      const themesRows = await query(
+        `SELECT oth.offer_id, th.id, th.title, th.slug, th.is_active
+         FROM offer_travel_themes oth
+         JOIN travel_themes th ON th.id = oth.travel_theme_id
+         WHERE oth.offer_id IN (${offerIds.map(() => '?').join(',')})`,
+        offerIds
+      );
+      themesMap = (themesRows as any[]).reduce((acc, row) => {
+        if (!acc[row.offer_id]) acc[row.offer_id] = [];
+        acc[row.offer_id].push({
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          is_active: row.is_active
+        });
+        return acc;
+      }, {} as Record<number, any[]>);
     }
     
     const data = (rows as OfferRow[]).map((o) => {
@@ -127,6 +153,7 @@ export async function GET(req: Request) {
         price_from: (minPriceMap[o.id] ?? null) ?? o.price_from ?? o.price ?? null,
         available_dates: availableDatesMap[o.id] || [],
         images: offerImages,
+        themes: themesMap[o.id] || [],
       };
     });
     return NextResponse.json({ success: true, data });
