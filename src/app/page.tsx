@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Destination, TravelType, TravelTheme } from "@/types";
 import HeroAnimated from "@/components/HeroAnimated";
 import TravelTypesHero from "@/components/TravelTypesHero";
@@ -10,6 +11,7 @@ import ThemesSection from "@/components/ThemesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import PartnersSection from "@/components/PartnersSection";
 import { api } from "@/lib/axios";
+import AnimatedBentoGrid from "@/components/banner/partenariat";
 
 interface Testimonial {
   id: number;
@@ -42,7 +44,9 @@ export default function Home() {
             api.get("/destinations?active=true&limit=5"),
             api.get("/travel-types?active=true"),
             api.get("/travel-themes?active=true&limit=20"),
-            api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
+            api.get(
+              "/testimonials?featured=true&active=true&published=true&limit=6",
+            ),
             api.get("/partners"),
           ]);
 
@@ -81,6 +85,28 @@ export default function Home() {
 
       {/* Thèmes Section */}
       <ThemesSection travelThemes={travelThemes} />
+
+      {/* Section avec image background */}
+      <div
+        className="w-full h-auto p-3 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage:
+            "url('/Bannière - Partenariat Nuance du Monde x Espace Multisoleil/fond_Bannière.svg')",
+        }}
+      >
+        <a href="https://www.espacemultisoleil.org">
+        <div className="max-w-[1500px] mx-auto items-center py-5 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <Image 
+            src="/Bannière - Partenariat Nuance du Monde x Espace Multisoleil/gauche.svg" 
+            alt="Partenariat Nuance du Monde x Espace Multisoleil" 
+            width={500}
+            height={400}
+            className="w-full h-auto object-contain"
+          />
+          <AnimatedBentoGrid />
+        </div>
+        </a>
+      </div>
 
       {/* Témoignages Section */}
       <TestimonialsSection testimonials={testimonials} />
