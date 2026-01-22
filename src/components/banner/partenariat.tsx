@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 const IMAGES = Array.from({ length: 8 }).map((_, i) => ({
   id: i,
-  src: `/images/Bannière - Partenariat Nuance du Monde x Espace Multisoleil/Rectangle ${i + 1}.png`,
+  src: `/images/Rectangle${i + 1}.png`,
 
   alt: `Grid Item ${i}`,
 }));

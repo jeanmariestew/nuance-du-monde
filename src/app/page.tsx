@@ -91,13 +91,13 @@ export default function Home() {
         className="w-full h-auto p-3 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage:
-            "url('/images/Bannière - Partenariat Nuance du Monde x Espace Multisoleil/fond_Bannière.svg')",
+            "url('/images/fond_Banniere.svg')",
         }}
       >
         <a href="https://www.espacemultisoleil.org">
         <div className="max-w-[1500px] mx-auto items-center py-5 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <Image 
-            src="/images/Bannière - Partenariat Nuance du Monde x Espace Multisoleil/gauche.svg" 
+            src="/images/gauche.svg" 
             alt="Partenariat Nuance du Monde x Espace Multisoleil" 
             width={500}
             height={400}
