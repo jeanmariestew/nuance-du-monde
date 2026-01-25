@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {query} from '@/lib/db';
+import {query, execute} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -170,26 +170,26 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           const img = validImages[index];
           
           // 1. Créer ou récupérer l'image dans la table images
-          const [existingImage] = await query(
+          const existingImages = await query(
             'SELECT id FROM images WHERE url = ? LIMIT 1',
             [img.image_url]
           );
           
           let imageId;
-          if (existingImage) {
-            imageId = (existingImage as any).id;
+          if (existingImages.length > 0) {
+            imageId = (existingImages[0] as any).id;
           } else {
             // Créer une nouvelle image
             const filename = img.image_url.split('/').pop() || 'unknown';
-            const result = await query(
+            const result = await execute(
               `INSERT INTO images (url, filename, title, alt_text, uploaded_by) VALUES (?, ?, ?, ?, ?)`,
               [img.image_url, filename, img.alt_text || filename, img.alt_text || '', 'admin']
             );
-            imageId = (result as any).insertId;
+            imageId = result.insertId;
           }
           
           // 2. Créer la relation dans offer_images
-          await query(
+          await execute(
             `INSERT INTO offer_images (offer_id, image_id, image_type, alt_text, sort_order) VALUES (?, ?, ?, ?, ?)`,
             [
               id,

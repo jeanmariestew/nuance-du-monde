@@ -22,7 +22,7 @@ export default function TravelTypesHero() {
 
             <div className="my-20">
               <h2 className="text-3xl font-bold mb-6 text-white tracking-wide font-[Alro] uppercase">
-                TYPE DE VOYAGE
+                NOS TYPE DE VOYAGE
               </h2>
               <p className="text-sm text-gray-300 leading-relaxed">
                 Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos

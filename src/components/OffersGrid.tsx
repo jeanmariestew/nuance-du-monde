@@ -201,7 +201,7 @@ export default function OffersGrid({
               {!type && types.length > 0 && (
                 <div className="flex-1 max-w-md">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type de voyage
+                    Nos Type de voyage
                   </label>
                   <select
                     value={selectedType}
