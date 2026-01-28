@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Destination, TravelType, TravelTheme } from "@/types";
 import HeroAnimated from "@/components/HeroAnimated";
 import TravelTypesHero from "@/components/TravelTypesHero";
@@ -96,9 +96,9 @@ export default function Home() {
       >
         <a href="https://www.espacemultisoleil.org">
         <div className="max-w-[1500px] mx-auto items-center py-5 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          <Image 
-            src="/images/gauche.svg" 
-            alt="Partenariat Nuance du Monde x Espace Multisoleil" 
+          <OptimizedImage
+            src="/images/gauche.svg"
+            alt="Partenariat Nuance du Monde x Espace Multisoleil"
             width={500}
             height={400}
             className="w-full h-auto object-contain"

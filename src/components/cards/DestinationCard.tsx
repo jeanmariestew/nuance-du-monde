@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import type { Destination } from "@/types";
 
@@ -12,7 +12,7 @@ export default function DestinationCard({ destination }: Props) {
   return (
     <div className="relative rounded-3xl overflow-hidden shadow-md group h-[420px] w-full">
       {img ? (
-        <Image
+        <OptimizedImage
           src={img}
           alt={destination.title}
           fill

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { TravelType } from "@/types";
 import OffersGrid from "@/components/OffersGrid";
@@ -50,7 +50,7 @@ export default async function TravelTypePage({ params }: PageProps) {
       <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-center justify-center">
         <div className="absolute inset-0">
           {type.image_url ? (
-            <Image src={type.image_url} alt={type.title} fill className="object-cover" />
+            <OptimizedImage src={type.image_url} alt={type.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-linear-to-r from-blue-600 to-purple-600" />
           )}

@@ -1,4 +1,4 @@
-import Image from "next/image"
+import OptimizedImage from "@/components/OptimizedImage"
 import type { Destination, Offer } from "@/types"
 import OffersGrid from "@/components/OffersGrid"
 import DestinationsGrid from "@/components/DestinationsGrid"
@@ -27,7 +27,7 @@ export default function DestinationClient({
       <section className="relative h-screen flex items-center md:items-end overflow-hidden">
         <div className="absolute inset-0">
           {coverImage ? (
-            <Image
+            <OptimizedImage
               src={coverImage}
               alt={destination.title}
               fill

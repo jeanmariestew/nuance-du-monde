@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { adminApi } from '@/lib/axios';
 
 interface GalleryImage {
@@ -294,7 +294,7 @@ export default function ImageGalleryPicker({
                         isSelected ? "border-yellow-500 ring-2 ring-yellow-500" : "border-gray-200 hover:border-yellow-300"
                       }`}
                     >
-                      <Image src={image.url} alt={image.alt_text} fill className="object-cover" unoptimized />
+                      <OptimizedImage src={image.url} alt={image.alt_text} fill className="object-cover" unoptimized />
                       <div className="absolute inset-0 bg-black/10 bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
                         <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-center p-2">
                           <p className="text-sm font-semibold truncate">{image.title}</p>

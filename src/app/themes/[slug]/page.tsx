@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { TravelTheme } from "@/types";
 import { generateMetadata as getMetadata } from '@/lib/metadata';
@@ -50,9 +50,9 @@ export default async function ThemePage({ params }: PageProps) {
       <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-center justify-center">
         <div className="absolute inset-0">
           {theme.banner_image_url ? (
-            <Image src={theme.banner_image_url} alt={theme.title} fill className="object-cover" />
+            <OptimizedImage src={theme.banner_image_url} alt={theme.title} fill className="object-cover" />
           ) : theme.image_url ? (
-            <Image src={theme.image_url} alt={theme.title} fill className="object-cover" />
+            <OptimizedImage src={theme.image_url} alt={theme.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-linear-to-r from-blue-600 to-purple-600" />
           )}

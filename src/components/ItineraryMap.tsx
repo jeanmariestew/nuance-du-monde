@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface Location {
   name: string;
@@ -149,7 +149,7 @@ export default function ItineraryMap({ locations, title, mapCenter }: ItineraryM
           </h3>
         )}
         <div className="w-full max-w-xl mb-4">
-          <Image
+          <OptimizedImage
             src="/images/map.png"
             alt="Carte non disponible"
             width={200}

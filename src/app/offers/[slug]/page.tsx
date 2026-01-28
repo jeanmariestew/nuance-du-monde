@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import {
@@ -119,7 +119,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
       <section className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] w-full overflow-hidden">
         {coverImage ? (
           <>
-            <Image
+            <OptimizedImage
               src={coverImage}
               alt={offer.title}
               fill

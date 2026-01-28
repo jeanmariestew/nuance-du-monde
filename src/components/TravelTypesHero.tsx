@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 export default function TravelTypesHero() {
   return (
@@ -8,7 +8,7 @@ export default function TravelTypesHero() {
           {/* Colonne gauche - Texte avec fond texturé */}
           <div className="relative flex flex-col justify-center px-4">
             <div className="absolute inset-0 -z-10 overflow-hidden">
-              <Image
+              <OptimizedImage
                 src="/images/texture.png"
                 alt=""
                 fill
@@ -34,7 +34,7 @@ export default function TravelTypesHero() {
 
           {/* Colonne droite - Image pleine hauteur */}
           <div className="relative h-full">
-            <Image
+            <OptimizedImage
               src="/images/a-la-une-3-1.png"
               alt="Type de voyage - Vue urbaine"
               fill

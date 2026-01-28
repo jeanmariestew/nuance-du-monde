@@ -28,12 +28,17 @@ function getMimeType(filename: string) {
   }
 }
 
-export async function GET(req: Request, context: any) {
+interface RouteParams {
+  params: Promise<{ path: string[] }>;
+}
+
+export async function GET(req: Request, context: RouteParams) {
   try {
-    const parts: string[] = Array.isArray(context?.params?.path)
-      ? context.params.path
-      : typeof context?.params?.path === "string"
-        ? [context.params.path]
+    const params = await context.params;
+    const parts: string[] = Array.isArray(params.path)
+      ? params.path
+      : typeof params.path === "string"
+        ? [params.path]
         : [];
 
     const requestedPath = parts.join("/");

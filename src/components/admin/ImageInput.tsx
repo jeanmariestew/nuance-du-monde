@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import ImageGalleryPicker from "./ImageGalleryPicker";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { adminApi } from '@/lib/axios';
@@ -220,7 +220,7 @@ export default function ImageInput(props: ImageInputProps) {
         {singleValue && (
           <div className="mt-2">
             <div className={`${previewClassName} relative rounded-md overflow-hidden border border-gray-200`}>
-              <Image src={singleValue} alt="Preview" fill className="object-cover" />
+              <OptimizedImage src={singleValue} alt="Preview" fill className="object-cover" />
             </div>
           </div>
         )}
@@ -300,7 +300,7 @@ export default function ImageInput(props: ImageInputProps) {
               onDrop={(e) => handleDrop(e, index)}
               className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200 hover:border-yellow-400 cursor-move transition-all"
             >
-              <Image src={url} alt={`Image ${index + 1}`} fill className="object-cover" />
+              <OptimizedImage src={url} alt={`Image ${index + 1}`} fill className="object-cover" />
               <div className="absolute top-2 left-2 bg-black/60 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                 {index + 1}
               </div>

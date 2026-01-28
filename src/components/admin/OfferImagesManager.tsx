@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { X, GripVertical } from "lucide-react";
 import ImageInput from "./ImageInput";
 
@@ -142,7 +142,7 @@ export default function OfferImagesManager({ images, onChange }: OfferImagesMana
 
                 {/* Image preview */}
                 <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                  <Image
+                  <OptimizedImage
                     src={img.image_url}
                     alt={img.alt_text || 'Preview'}
                     fill

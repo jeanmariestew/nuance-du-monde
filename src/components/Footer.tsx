@@ -1,18 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const Footer = () => {
   return (
     <div>
       <div className="relative w-full p-5 h-[450px] bg-black">
-        <Image
+        <OptimizedImage
           src="/images/fond_position.png"
           alt="Background themes"
           fill
           className="object-cover"
         />
         <div className=" backdrop-blur-[2px] rounded-2xl bg-white/10 h-[400px]">
-          <Image
+          <OptimizedImage
             src="/images/positionnement.svg"
             alt="Background themes"
             fill
@@ -22,7 +22,7 @@ const Footer = () => {
       </div>
       <footer className="bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <Image
+          <OptimizedImage
             src="/images/footer_bg.png"
             alt=""
             fill
@@ -33,7 +33,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
             {/* Logo */}
             <div className="md:col-span-1 flex justify-center md:justify-start mb-4 md:mb-0">
-              <Image
+              <OptimizedImage
                 src="/images/logo.png"
                 alt="Nuance du Monde"
                 width={250}

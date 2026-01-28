@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import type { Offer } from "@/types";
 
@@ -47,12 +47,12 @@ export default function OfferCard({ offer }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-5 flex-1">
           {/* Left side - Image */}
           <div className="relative md:col-span-2 h-[220px] md:h-auto">
-            <Image
+            <OptimizedImage
               src={imageUrl}
               alt={destination}
               fill
               className="object-cover p-2 rounded-xl group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => {
+              onError={(e: any) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/images/destination_fond.png";
               }}
@@ -83,7 +83,7 @@ export default function OfferCard({ offer }: Props) {
 
               <div className="flex items-start gap-3 mb-4">
                 <div className="shrink-0 mt-1">
-                  <Image
+                  <OptimizedImage
                     src="/images/moving.map.png"
                     alt=""
                     width={20}

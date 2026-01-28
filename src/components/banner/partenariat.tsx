@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { motion } from "framer-motion";
 
 const IMAGES = Array.from({ length: 8 }).map((_, i) => ({
@@ -137,7 +137,7 @@ export default function AnimatedFluidGrid() {
               `}
             >
               <div className="relative w-full h-full">
-                <Image
+                <OptimizedImage
                   src={img.src}
                   alt={img.alt}
                   fill

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { api } from '@/lib/axios';
+import OptimizedImage from "./OptimizedImage";
 
 export default function HeroAnimated() {
   const [avatars, setAvatars] = useState<string[]>([]);
@@ -163,7 +164,7 @@ function Slot({ size, avatarId }: { size: "sm" | "md" | "lg"; avatarId: string }
           transition={{ duration: 0.5, type: "spring", stiffness: 200 }} 
           className="absolute inset-0"
         >
-          <Image src={avatarId} alt="avatar" fill className="object-cover" />
+          <OptimizedImage src={avatarId} alt="avatar" fill className="object-cover" />
         </motion.div>
       </AnimatePresence>
     </motion.div>
