@@ -57,7 +57,7 @@ export default function TypeDeVoyageClient() {
             Catégorie
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 font-[Alro] uppercase">
-            NOS TYPES DE VOYAGE
+            NOS TYPES DE VOYAGES
           </h1>
           <p className="text-sm sm:text-base md:text-lg leading-relaxed">
             Que vous soyez en groupe, en solo ou en voyage d&apos;affaires, nos
@@ -68,7 +68,7 @@ export default function TypeDeVoyageClient() {
       </section>
       <div className="px-4 sm:px-6 md:px-10">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-5 md:mb-6 text-yellow-500 font-[Alro] uppercase">
-          Nos Types de voyage
+          Nos Types de voyages
         </h2>
         <p className="text-sm sm:text-base md:text-lg leading-relaxed">
           Inspirez-vous avec nos sélections exclusives de voyages pour une
