@@ -27,12 +27,17 @@ export default function OptimizedImage({
   // Gestionnaire d'erreur par défaut
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
-    // Essayer d'utiliser une image de fallback si elle existe
-    if (target.src !== "/images/destination_fond.png" && target.src !== "/images/fallback.png") {
-      target.src = "/images/destination_fond.png";
-      // Empêcher la récursion infinie
+    const fallbackSrc = "/images/destination_fond.png";
+    
+    // Éviter la récursion infinie
+    if (target.src.includes(fallbackSrc)) {
       target.onerror = null;
+      return;
     }
+    
+    // Utiliser l'image de fallback
+    target.src = fallbackSrc;
+    target.onerror = null;
 
     // Appeler le gestionnaire onError personnalisé si fourni
     if (onError) {
