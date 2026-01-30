@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import dynamic from "next/dynamic";
-import { parseItinerary, extractLocations, getDestinationLocations } from "@/lib/itineraryParser";
+import { 
+  // useEffect, useState, 
+  useMemo } from "react";
+// import dynamic from "next/dynamic";
+import { parseItinerary, 
+  // extractLocations, getDestinationLocations 
+} from "@/lib/itineraryParser";
 import ItineraryTimeline from "./ItineraryTimeline";
+import OptimizedImage from "./OptimizedImage";
 
 // Import dynamique de la carte pour éviter les problèmes SSR avec Leaflet
+// COMMENTÉ: Carte dynamique désactivée temporairement, remplacée par image statique
+/*
 const ItineraryMap = dynamic(() => import("./ItineraryMap"), {
   ssr: false,
   loading: () => (
@@ -17,6 +24,7 @@ const ItineraryMap = dynamic(() => import("./ItineraryMap"), {
     </div>
   ),
 });
+*/
 
 interface Location {
   name: string;
@@ -33,6 +41,8 @@ interface OfferItinerarySectionProps {
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   // Centre personnalisé de la carte
   mapCenter?: { lat: number; lng: number; zoom: number } | null;
+  // Image statique de la carte (remplace la carte dynamique)
+  mapImage?: string;
 }
 
 export default function OfferItinerarySection({
@@ -42,15 +52,21 @@ export default function OfferItinerarySection({
   programmeLink,
   coordinates,
   mapCenter,
+  mapImage,
 }: OfferItinerarySectionProps) {
+  // COMMENTÉ: État pour la carte dynamique
+  /*
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  */
 
   // Parse l'itinéraire depuis la description (memoized pour éviter re-parsing)
   const itinerary = useMemo(() => {
     return description ? parseItinerary(description) : [];
   }, [description]);
 
+  // COMMENTÉ: Chargement des localisations pour la carte dynamique
+  /*
   useEffect(() => {
     async function loadLocations() {
       setIsLoading(true);
@@ -76,9 +92,10 @@ export default function OfferItinerarySection({
 
     loadLocations();
   }, [itinerary, destinations, coordinates]);
+  */
 
-  // Si pas d'itinéraire ni de localisations, ne rien afficher
-  if (itinerary.length === 0 && locations.length === 0 && !isLoading) {
+  // Si pas d'itinéraire, ne rien afficher
+  if (itinerary.length === 0) {
     return null;
   }
 
@@ -87,7 +104,7 @@ export default function OfferItinerarySection({
       <div className="site-container">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-2 bg-yellow-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 sm:mb-4">
+          <div className="inline-flex items-center gap-2  px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 sm:mb-4">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
@@ -128,6 +145,23 @@ export default function OfferItinerarySection({
           {/* Left: Map */}
           <div className="order-2 lg:order-1">
             <div className="sticky top-20 sm:top-24 h-[400px] sm:h-[500px] lg:h-[700px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 sm:border-4 border-white">
+              
+              {/* OPTION 1: Image statique de la carte (ACTIF) */}
+              {mapImage ? (
+                <OptimizedImage
+                  src={mapImage}
+                  alt={`Carte de l'itinéraire - ${destinations?.[0]?.title || title}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-500 text-sm sm:text-base">Carte non disponible</p>
+                </div>
+              )}
+
+              {/* OPTION 2: Carte dynamique Leaflet (COMMENTÉ)
               {locations.length > 0 ? (
                 <ItineraryMap locations={locations} title={destinations?.[0]?.title} mapCenter={mapCenter} />
               ) : (
@@ -135,6 +169,8 @@ export default function OfferItinerarySection({
                   <p className="text-gray-500 text-sm sm:text-base">Carte non disponible</p>
                 </div>
               )}
+              */}
+
             </div>
           </div>
 

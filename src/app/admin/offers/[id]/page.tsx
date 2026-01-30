@@ -6,6 +6,7 @@ import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import OfferImagesManager from '@/components/admin/OfferImagesManager';
 import CoordinatesEditor from '@/components/admin/CoordinatesEditor';
+import ImageInput from '@/components/admin/ImageInput';
 import { adminApi } from '@/lib/axios';
 
 type RefItem = { id: number; title: string; slug: string };
@@ -39,6 +40,7 @@ type OfferData = {
   programme_link: string | null;
   coordinates: Array<{ name: string; lat: number; lng: number }>;
   map_center: { lat: number; lng: number; zoom: number } | null;
+  map_image: string | null;
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
@@ -276,6 +278,17 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   placeholder="https://.../programme.pdf"
                 />
               </label>
+              <div className="col-span-2">
+                <ImageInput
+                  label="Image de la carte de l'itinéraire"
+                  value={offer.map_image || ''}
+                  onChange={(url) => setOffer({ ...(offer as OfferData), map_image: url || null })}
+                  mode="both"
+                  placeholder="Sélectionnez ou uploadez une image de carte"
+                  previewClassName="h-48 w-full max-w-md"
+                />
+                <span className="text-xs text-gray-500 mt-1 block">Image statique de la carte (remplace la carte dynamique Leaflet)</span>
+              </div>
             </div>
           </CardContent>
         </Card>

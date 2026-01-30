@@ -30,6 +30,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     programme_link: row.programme_link,
     coordinates: row.coordinates ? (typeof row.coordinates === 'string' ? JSON.parse(row.coordinates) : row.coordinates) : [],
     map_center: row.map_center ? (typeof row.map_center === 'string' ? JSON.parse(row.map_center) : row.map_center) : null,
+    map_image: row.map_image || null,
     duration_days: row.duration_days,
     duration_nights: row.duration_nights,
   } as any;
@@ -81,6 +82,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     programme_link = null,
     coordinates = [] as Array<{ name: string; lat: number; lng: number }>,
     map_center = null as { lat: number; lng: number; zoom: number } | null,
+    map_image = null as string | null,
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
@@ -101,8 +103,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       : null;
 
     await query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, duration_days, duration_nights, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
+      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
     );
 
     await query('DELETE FROM offer_travel_types WHERE offer_id = ?', [id]);

@@ -52,6 +52,7 @@ interface OfferDetail {
   programme_link?: string;
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   map_center?: { lat: number; lng: number; zoom: number } | null;
+  map_image?: string;
 }
 
 interface PageProps {
@@ -219,6 +220,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         programmeLink={offer.programme_link}
         coordinates={offer.coordinates}
         mapCenter={offer.map_center}
+        mapImage={offer.map_image}
       />
 
       {/* Section Dates et Prix */}

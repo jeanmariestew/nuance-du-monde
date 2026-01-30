@@ -66,6 +66,8 @@ export interface Offer {
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   // Map center for itinerary map
   map_center?: { lat: number; lng: number; zoom: number } | null;
+  // Static map image URL (replaces dynamic map)
+  map_image?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
