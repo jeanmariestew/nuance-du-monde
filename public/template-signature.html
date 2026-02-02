@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Signature Safari Kenya</title>
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+        }
+        #copyButton {
+            margin: 15px auto;
+            display: block;
+            padding: 10px 15px;
+            background-color: #0A369D;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+        #copyButton:hover {
+            background-color: #131312;
+        }
+        #signatureContent img {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            border: 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Bouton Copier -->
+<button id="copyButton">Copier la signature</button>
+
+<!-- Contenu de la signature -->
+<div id="signatureContent">
+    <a href="https://www.vascospatial.com/forfaits-voyage/forfait/?v=2924" target="_blank">
+        <img src="/Signature - Nacira  Benramdane - VS-131026-EG Vasco Spatial  Egypte sur 14 jours - 12 nuits + extension jordanie en 4 jours et 3 nuits.gif" alt="Egypte & Jordanie - Octore 2026">
+    </a>
+</div>
+
+<script>
+    document.getElementById("copyButton").addEventListener("click", async function () {
+        try {
+            const signature = document.getElementById("signatureContent");
+            const range = document.createRange();
+            range.selectNode(signature);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Copie avec format HTML visuel
+            document.execCommand('copy');
+            selection.removeAllRanges();
+
+            alert("La signature visuelle a été copiée !");
+        } catch (err) {
+            alert("Échec de la copie. Veuillez copier manuellement.");
+            console.error(err);
+        }
+    });
+</script>
+
+</body>
+</html>
