@@ -54,12 +54,51 @@ export async function GET(
        ORDER BY oi.sort_order, oi.id`,
       [offer.id]
     );
+    
+    // Récupérer les options d'activités par jour
+    let dayOptionsResult: any[] = [];
+    try {
+      dayOptionsResult = await query(
+        `SELECT * FROM offer_day_options 
+         WHERE offer_id = ? AND is_active = TRUE 
+         ORDER BY day_number, sort_order`,
+        [offer.id]
+      ) as any[];
+    } catch (e) {
+      // Table might not exist yet
+      console.log('offer_day_options table not found or error:', e);
+    }
 
     const types = typesResult as any[];
     const themes = themesResult as any[];
     const dests = destsResult as any[];
     const dates = datesResult as any[];
     const images = imagesResult as any[];
+    const dayOptions = dayOptionsResult;
+    
+    // Récupérer les extensions
+    let extensionsResult: any[] = [];
+    try {
+      extensionsResult = await query(
+        `SELECT * FROM offer_extensions 
+         WHERE offer_id = ? AND is_active = TRUE 
+         ORDER BY sort_order`,
+        [offer.id]
+      ) as any[];
+      
+      // Récupérer les images pour chaque extension
+      for (const ext of extensionsResult) {
+        const extImages = await query(
+          `SELECT * FROM offer_extension_images 
+           WHERE extension_id = ? 
+           ORDER BY sort_order`,
+          [ext.id]
+        );
+        ext.images = extImages;
+      }
+    } catch (e) {
+      console.log('offer_extensions table not found or error:', e);
+    }
 
     const mainImage = images?.find(img => img.image_type === 'main')?.image_url || offer.image_main;
     const bannerImage = images?.find(img => img.image_type === 'banner')?.image_url || offer.image_banner;
@@ -105,6 +144,8 @@ export async function GET(
         travel_themes: themes,
         destinations: dests,
         dates,
+        day_options: dayOptions,
+        extensions: extensionsResult,
       },
     });
   } catch (error) {

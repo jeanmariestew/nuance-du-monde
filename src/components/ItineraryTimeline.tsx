@@ -1,17 +1,52 @@
 "use client";
 
+import clsx from "clsx";
+import OptimizedImage from "./OptimizedImage";
+
 interface DayItinerary {
   day: number;
   title: string;
   description: string;
   location?: string;
+  activities?: string;
+  transports?: string;
+  accommodation?: string;
+}
+
+export interface DayOption {
+  id?: number;
+  day_number: number;
+  title: string;
+  description?: string;
+  image_url?: string;
+  price_supplement?: number;
+  price_currency?: string;
+  is_included?: boolean;
 }
 
 interface ItineraryTimelineProps {
   itinerary: DayItinerary[];
+  introduction?: string;
+  dayOptions?: DayOption[];
+  onDayClick?: (dayIndex: number) => void;
 }
 
-export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps) {
+export default function ItineraryTimeline({
+  itinerary,
+  introduction,
+  dayOptions,
+  onDayClick,
+}: ItineraryTimelineProps) {
+  // Grouper les options par jour
+  const optionsByDay: Record<number, DayOption[]> = {};
+  if (dayOptions) {
+    dayOptions.forEach((opt) => {
+      if (!optionsByDay[opt.day_number]) {
+        optionsByDay[opt.day_number] = [];
+      }
+      optionsByDay[opt.day_number].push(opt);
+    });
+  }
   if (itinerary.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -22,9 +57,34 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
 
   return (
     <div className="h-full overflow-y-auto pr-1 sm:pr-2">
+      {/* Introduction / Points forts */}
+      {introduction && (
+        <div className="mb-6 sm:mb-8 p-4 sm:p-6 ">
+          <div className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-line">
+            {introduction.split("\n").map((line, idx) => {
+              if (
+                line.includes("Nos expériences") ||
+                line.includes('Nos expériences "Plus"')
+              ) {
+                return (
+                  <p key={idx} className="font-bold text-gray-900">
+                    {line}
+                  </p>
+                );
+              }
+              return <p key={idx}>{line}</p>;
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-6 sm:space-y-8">
         {itinerary.map((day, index) => (
-          <div key={day.day} className="relative">
+          <div 
+            key={day.day} 
+            className={`relative ${onDayClick ? 'cursor-pointer hover:bg-yellow-50/50 rounded-lg transition-colors -mx-2 px-2 py-1' : ''}`}
+            onClick={() => onDayClick?.(index)}
+          >
             {/* Timeline connector */}
             {index < itinerary.length - 1 && (
               <div className="absolute left-[19px] sm:left-[23px] top-12 sm:top-14 bottom-0 w-0.5 sm:w-1 bg-linear-to-b from-yellow-500 via-yellow-400 to-yellow-300" />
@@ -34,7 +94,7 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
             <div className="flex gap-3 sm:gap-5">
               {/* Day number circle */}
               <div className="shrink-0 relative z-10">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white ${onDayClick ? 'hover:scale-110 transition-transform' : ''}`}>
                   {day.day}
                 </div>
               </div>
@@ -70,9 +130,93 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
                     </span>
                   </div>
                 )}
-                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                  {day.description}
-                </p>
+                {/* Description générale */}
+                {day.description && (
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 first-letter:uppercase">
+                    {day.description}
+                  </p>
+                )}
+
+                {/* Activités */}
+                {day.activities && (
+                  <div className="flex items-start gap-2 mb-2">
+                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                      {day.activities}
+                    </span>
+                  </div>
+                )}
+
+                {/* Transports */}
+                {day.transports && (
+                  <div className="flex items-start gap-2 mb-2">
+                    <span className="text-blue-600 font-semibold text-sm sm:text-base shrink-0">
+                      Transports :
+                    </span>
+                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                      {day.transports}
+                    </span>
+                  </div>
+                )}
+
+                {/* Hébergements */}
+                {day.accommodation && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-semibold text-sm sm:text-base shrink-0">
+                      Hébergement :
+                    </span>
+                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                      {day.accommodation}
+                    </span>
+                  </div>
+                )}
+
+                {/* Options d'activités */}
+                {optionsByDay[day.day] && optionsByDay[day.day].length > 0 && (
+                  <div className="mt-4 p-3 sm:p-4 rounded-xl border-4 border-yellow-200">
+                    <div className="text-sm w-full sm:text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      En options
+                    </div>
+                    <div className="space-y-5 ">
+                      {optionsByDay[day.day].map((option, optIdx) => (
+                        <div key={optIdx} className={clsx("gap-3",optIdx > 0 && " border-t pt-4 ")}>
+                          <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-sm sm:text-base text-gray-900">
+                                {option.title}
+                              </span>
+                              {option.is_included && (
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                  Inclus
+                                </span>
+                              )}
+                              {/* {option.price_supplement && option.price_supplement > 0 && (
+                                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+                                  +{option.price_supplement} {option.price_currency || 'CAD'}
+                                </span>
+                              )} */}
+                            </div>
+                          <div className="flex gap-3 min-w-0">
+                            
+                            {option.image_url && (
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 relative rounded-lg overflow-hidden">
+                                <OptimizedImage
+                                  src={option.image_url}
+                                  alt={option.title}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            {option.description && (
+                              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                                {option.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

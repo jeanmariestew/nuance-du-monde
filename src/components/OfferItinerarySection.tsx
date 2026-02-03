@@ -1,18 +1,13 @@
 "use client";
 
-import { 
-  // useEffect, useState, 
-  useMemo } from "react";
-// import dynamic from "next/dynamic";
-import { parseItinerary, 
-  // extractLocations, getDestinationLocations 
-} from "@/lib/itineraryParser";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { parseItineraryWithIntro, extractLocations, getDestinationLocations } from "@/lib/itineraryParser";
 import ItineraryTimeline from "./ItineraryTimeline";
 import OptimizedImage from "./OptimizedImage";
+import type { ItineraryMapRef } from "./ItineraryMap";
 
 // Import dynamique de la carte pour éviter les problèmes SSR avec Leaflet
-// COMMENTÉ: Carte dynamique désactivée temporairement, remplacée par image statique
-/*
 const ItineraryMap = dynamic(() => import("./ItineraryMap"), {
   ssr: false,
   loading: () => (
@@ -24,12 +19,22 @@ const ItineraryMap = dynamic(() => import("./ItineraryMap"), {
     </div>
   ),
 });
-*/
 
 interface Location {
   name: string;
   lat: number;
   lng: number;
+}
+
+export interface DayOption {
+  id?: number;
+  day_number: number;
+  title: string;
+  description?: string;
+  image_url?: string;
+  price_supplement?: number;
+  price_currency?: string;
+  is_included?: boolean;
 }
 
 interface OfferItinerarySectionProps {
@@ -43,6 +48,8 @@ interface OfferItinerarySectionProps {
   mapCenter?: { lat: number; lng: number; zoom: number } | null;
   // Image statique de la carte (remplace la carte dynamique)
   mapImage?: string;
+  // Options d'activités par jour
+  dayOptions?: DayOption[];
 }
 
 export default function OfferItinerarySection({
@@ -53,20 +60,23 @@ export default function OfferItinerarySection({
   coordinates,
   mapCenter,
   mapImage,
+  dayOptions,
 }: OfferItinerarySectionProps) {
-  // COMMENTÉ: État pour la carte dynamique
-  /*
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  */
+  const mapRef = useRef<ItineraryMapRef>(null);
+
+  // Callback quand on clique sur un jour dans la timeline
+  const handleDayClick = useCallback((dayIndex: number) => {
+    mapRef.current?.zoomToDay(dayIndex);
+  }, []);
 
   // Parse l'itinéraire depuis la description (memoized pour éviter re-parsing)
-  const itinerary = useMemo(() => {
-    return description ? parseItinerary(description) : [];
+  const { introduction, days: itinerary } = useMemo(() => {
+    return description ? parseItineraryWithIntro(description) : { days: [] };
   }, [description]);
 
-  // COMMENTÉ: Chargement des localisations pour la carte dynamique
-  /*
+  // Chargement des localisations pour la carte dynamique
   useEffect(() => {
     async function loadLocations() {
       setIsLoading(true);
@@ -92,7 +102,6 @@ export default function OfferItinerarySection({
 
     loadLocations();
   }, [itinerary, destinations, coordinates]);
-  */
 
   // Si pas d'itinéraire, ne rien afficher
   if (itinerary.length === 0) {
@@ -146,8 +155,17 @@ export default function OfferItinerarySection({
           <div className="order-2 lg:order-1">
             <div className="sticky top-20 sm:top-24 h-[400px] sm:h-[500px] lg:h-[700px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 sm:border-4 border-white">
               
-              {/* OPTION 1: Image statique de la carte (ACTIF) */}
-              {mapImage ? (
+              {/* Carte dynamique Leaflet ou image statique */}
+              {isLoading ? (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Chargement de la carte...</p>
+                  </div>
+                </div>
+              ) : locations.length > 0 ? (
+                <ItineraryMap ref={mapRef} locations={locations} title={destinations?.[0]?.title} mapCenter={mapCenter} />
+              ) : mapImage ? (
                 <OptimizedImage
                   src={mapImage}
                   alt={`Carte de l'itinéraire - ${destinations?.[0]?.title || title}`}
@@ -161,16 +179,6 @@ export default function OfferItinerarySection({
                 </div>
               )}
 
-              {/* OPTION 2: Carte dynamique Leaflet (COMMENTÉ)
-              {locations.length > 0 ? (
-                <ItineraryMap locations={locations} title={destinations?.[0]?.title} mapCenter={mapCenter} />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-500 text-sm sm:text-base">Carte non disponible</p>
-                </div>
-              )}
-              */}
-
             </div>
           </div>
 
@@ -178,7 +186,7 @@ export default function OfferItinerarySection({
           <div className="order-1 lg:order-2">
             <div className="h-[400px] sm:h-[500px] lg:h-[700px] shadow-xl">
               {itinerary.length > 0 ? (
-                <ItineraryTimeline itinerary={itinerary} />
+                <ItineraryTimeline itinerary={itinerary} introduction={introduction} dayOptions={dayOptions} onDayClick={handleDayClick} />
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-gray-500 text-base sm:text-lg">Itinéraire non disponible</p>

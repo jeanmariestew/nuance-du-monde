@@ -6,6 +6,9 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { adminApi } from '@/lib/axios';
+import ItineraryEditor from '@/components/admin/ItineraryEditor';
+import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
+import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
 
 type RefItem = { id: number; title: string; slug: string };
 
@@ -83,6 +86,8 @@ export default function AdminOfferNewPage() {
   const [destinations, setDestinations] = useState<RefItem[]>([]);
   const [uploads, setUploads] = useState<{ name: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [dayOptions, setDayOptions] = useState<DayOption[]>([]);
+  const [extensions, setExtensions] = useState<OfferExtension[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -137,6 +142,17 @@ export default function AdminOfferNewPage() {
       console.log('Données à sauvegarder:', dataToSave);
       const response = await adminApi.post('/offers', dataToSave).then(res => res.data);
       console.log('Réponse API:', response);
+      
+      // Sauvegarder les options d'activités si l'offre a été créée
+      if (response.data?.id && dayOptions.length > 0) {
+        await adminApi.put(`/offers/${response.data.id}/options`, { options: dayOptions });
+      }
+      
+      // Sauvegarder les extensions si l'offre a été créée
+      if (response.data?.id && extensions.length > 0) {
+        await adminApi.put(`/offers/${response.data.id}/extensions`, { extensions });
+      }
+      
       setStatus('Offre créée avec succès');
       // Rediriger vers la page d'édition de l'offre créée
       if (response.data?.id) {
@@ -247,6 +263,8 @@ export default function AdminOfferNewPage() {
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
               </label>
+            </div>
+            <div className="grid gap-3 mt-3">
               <label className="text-sm">
                 Résumé
                 <textarea
@@ -255,14 +273,17 @@ export default function AdminOfferNewPage() {
                   className="mt-1 w-full min-h-[80px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
               </label>
-              <label className="text-sm">
-                Description
-                <textarea
-                  value={offer.description || ''}
-                  onChange={(e) => setOffer({ ...offer, description: e.target.value })}
-                  className="mt-1 w-full min-h-[140px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                />
+            </div>
+            <div className="mt-3">
+              <label className="text-sm block mb-2">
+                Description / Itinéraire
               </label>
+              <ItineraryEditor
+                value={offer.description || ''}
+                onChange={(description) => setOffer({ ...offer, description })}
+              />
+            </div>
+            <div className="grid gap-3 mt-3 md:grid-cols-2">
               <label className="text-sm">
                 Label de l&apos;offre
                 <input
@@ -438,6 +459,31 @@ export default function AdminOfferNewPage() {
                 </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Options d&apos;activités par jour</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DayOptionsEditor
+              options={dayOptions}
+              onChange={setDayOptions}
+              maxDays={offer.duration_days || 30}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Extensions / Prolongations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ExtensionEditor
+              extensions={extensions}
+              onChange={setExtensions}
+            />
           </CardContent>
         </Card>
 

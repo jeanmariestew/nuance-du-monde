@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import OptimizedImage from "@/components/OptimizedImage";
@@ -17,9 +17,55 @@ interface ItineraryMapProps {
   mapCenter?: { lat: number; lng: number; zoom: number } | null;
 }
 
-export default function ItineraryMap({ locations, title, mapCenter }: ItineraryMapProps) {
+export interface ItineraryMapRef {
+  zoomToDay: (dayIndex: number) => void;
+}
+
+// Fonction pour décaler les pins qui se superposent
+function getOffsetForDuplicates(locations: Location[], index: number): { latOffset: number; lngOffset: number } {
+  const current = locations[index];
+  let duplicateCount = 0;
+  let duplicateIndex = 0;
+  
+  // Compter combien de pins ont les mêmes coordonnées avant celui-ci
+  for (let i = 0; i < locations.length; i++) {
+    if (Math.abs(locations[i].lat - current.lat) < 0.001 && Math.abs(locations[i].lng - current.lng) < 0.001) {
+      if (i < index) duplicateIndex++;
+      duplicateCount++;
+    }
+  }
+  
+  // Si pas de duplicata, pas de décalage
+  if (duplicateCount <= 1) return { latOffset: 0, lngOffset: 0 };
+  
+  // Décaler en cercle autour du point central
+  const angle = (duplicateIndex * 2 * Math.PI) / duplicateCount;
+  const offset = 0.008; // ~800m de décalage
+  return {
+    latOffset: Math.sin(angle) * offset,
+    lngOffset: Math.cos(angle) * offset,
+  };
+}
+
+const ItineraryMap = forwardRef<ItineraryMapRef, ItineraryMapProps>(function ItineraryMap({ locations, title, mapCenter }, ref) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+  const adjustedLocationsRef = useRef<Array<{ lat: number; lng: number }>>([]);
+
+  // Exposer la fonction zoomToDay au parent
+  useImperativeHandle(ref, () => ({
+    zoomToDay: (dayIndex: number) => {
+      if (mapInstanceRef.current && adjustedLocationsRef.current[dayIndex]) {
+        const loc = adjustedLocationsRef.current[dayIndex];
+        mapInstanceRef.current.setView([loc.lat, loc.lng], 12, { animate: true });
+        // Ouvrir le popup du marqueur
+        if (markersRef.current[dayIndex]) {
+          markersRef.current[dayIndex].openPopup();
+        }
+      }
+    },
+  }));
 
   useEffect(() => {
     if (!mapRef.current || locations.length === 0) return;
@@ -43,11 +89,25 @@ export default function ItineraryMap({ locations, title, mapCenter }: ItineraryM
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    // Créer les coordonnées pour les marqueurs et la ligne
-    const latLngs: L.LatLngExpression[] = locations.map((loc) => [loc.lat, loc.lng]);
+    // Créer les coordonnées pour les marqueurs et la ligne (avec décalage pour les duplicatas)
+    const adjustedLocations = locations.map((loc, index) => {
+      const offset = getOffsetForDuplicates(locations, index);
+      return {
+        lat: loc.lat + offset.latOffset,
+        lng: loc.lng + offset.lngOffset,
+      };
+    });
+    adjustedLocationsRef.current = adjustedLocations;
+    
+    const latLngs: L.LatLngExpression[] = adjustedLocations.map((loc) => [loc.lat, loc.lng]);
+
+    // Réinitialiser les marqueurs
+    markersRef.current = [];
 
     // Ajouter les marqueurs avec numéros
     locations.forEach((loc, index) => {
+      const adjustedLoc = adjustedLocations[index];
+      
       // Créer un icône personnalisé avec numéro
       const icon = L.divIcon({
         className: "custom-marker",
@@ -84,9 +144,11 @@ export default function ItineraryMap({ locations, title, mapCenter }: ItineraryM
         iconAnchor: [20, 20],
       });
 
-      L.marker([loc.lat, loc.lng], { icon })
+      const marker = L.marker([adjustedLoc.lat, adjustedLoc.lng], { icon })
         .addTo(map)
         .bindPopup(`<strong>${index + 1}. ${loc.name}</strong>`);
+      
+      markersRef.current.push(marker);
     });
 
     // Ajouter la ligne de trajet (double ligne pour visibilité)
@@ -169,4 +231,6 @@ export default function ItineraryMap({ locations, title, mapCenter }: ItineraryM
       <div ref={mapRef} className="w-full h-full rounded-2xl" />
     </div>
   );
-}
+});
+
+export default ItineraryMap;

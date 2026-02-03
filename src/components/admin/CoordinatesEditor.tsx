@@ -219,12 +219,38 @@ export default function CoordinatesEditor({
     };
   }, [pendingClick]);
 
-  // Générer les coordonnées depuis la description
+  // Générer les coordonnées depuis la description avec IA
   async function generateFromDescription() {
     if (!description) return;
     
     setIsGenerating(true);
     try {
+      // Appel à l'API qui utilise Gemini côté serveur
+      const response = await fetch('/api/admin/extract-coordinates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itinerary: description }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.data && result.data.length > 0) {
+          const validCoords = result.data
+            .filter((c: { lat?: number; lng?: number }) => c.lat && c.lng)
+            .map((c: { day: number; location: string; lat: number; lng: number }) => ({
+              name: `Jour ${c.day}: ${c.location}`,
+              lat: c.lat,
+              lng: c.lng,
+            }));
+          
+          if (validCoords.length > 0) {
+            onChange(validCoords);
+            return;
+          }
+        }
+      }
+      
+      // Fallback: utiliser l'ancienne méthode si l'API échoue
       const itinerary = parseItinerary(description);
       const locations = await extractLocations(itinerary);
       
@@ -233,6 +259,16 @@ export default function CoordinatesEditor({
       }
     } catch (error) {
       console.error("Erreur lors de la génération des coordonnées:", error);
+      // Fallback en cas d'erreur
+      try {
+        const itinerary = parseItinerary(description);
+        const locations = await extractLocations(itinerary);
+        if (locations.length > 0) {
+          onChange(locations);
+        }
+      } catch (fallbackError) {
+        console.error("Erreur fallback:", fallbackError);
+      }
     } finally {
       setIsGenerating(false);
     }

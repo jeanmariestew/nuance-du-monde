@@ -11,6 +11,7 @@ import {
 import OfferItinerarySection from "@/components/OfferItinerarySection";
 import DatesAndPricing from "@/components/DatesAndPricing";
 import ImageStackCarousel from "@/components/ImageStackCarousel";
+import OfferExtensions from "@/components/OfferExtensions";
 
 interface OfferImage {
   id?: number;
@@ -53,6 +54,29 @@ interface OfferDetail {
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   map_center?: { lat: number; lng: number; zoom: number } | null;
   map_image?: string;
+  day_options?: Array<{
+    id: number;
+    day_number: number;
+    title: string;
+    description?: string;
+    image_url?: string;
+    price_supplement?: number;
+    price_currency?: string;
+    is_included?: boolean;
+  }>;
+  extensions?: Array<{
+    id: number;
+    title: string;
+    subtitle?: string;
+    description?: string;
+    duration_days?: number;
+    duration_nights?: number;
+    price?: number;
+    price_currency?: string;
+    price_note?: string;
+    itinerary?: string;
+    images?: Array<{ id?: number; image_url: string; alt_text?: string }>;
+  }>;
 }
 
 interface PageProps {
@@ -173,7 +197,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
       </section>
 
       {/* Header Section avec disposition image 1 */}
-      <section className="site-container site-section">
+      <section className="site-container ">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
@@ -221,6 +245,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         coordinates={offer.coordinates}
         mapCenter={offer.map_center}
         mapImage={offer.map_image}
+        dayOptions={offer.day_options}
       />
 
       {/* Section Dates et Prix */}
@@ -229,6 +254,11 @@ export default async function OfferDetailPage({ params }: PageProps) {
         basePrice={offer.price}
         baseCurrency={offer.price_currency}
       />
+
+      {/* Section Extensions */}
+      {offer.extensions && offer.extensions.length > 0 && (
+        <OfferExtensions extensions={offer.extensions} />
+      )}
 
       <section className="site-container site-section">
         <Accordion type="multiple" className="w-full space-y-4">

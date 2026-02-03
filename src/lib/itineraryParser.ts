@@ -3,6 +3,14 @@ interface DayItinerary {
   title: string;
   description: string;
   location?: string;
+  activities?: string;
+  transports?: string;
+  accommodation?: string;
+}
+
+export interface ItineraryResult {
+  introduction?: string;
+  days: DayItinerary[];
 }
 
 interface Location {
@@ -55,19 +63,39 @@ const LOCATION_COORDINATES: Record<string, { lat: number; lng: number }> = {
  * Parse la description d'une offre pour extraire l'itinéraire jour par jour
  */
 export function parseItinerary(description: string): DayItinerary[] {
-  if (!description) return [];
+  return parseItineraryWithIntro(description).days;
+}
+
+/**
+ * Parse la description d'une offre pour extraire l'introduction et l'itinéraire
+ */
+export function parseItineraryWithIntro(description: string): ItineraryResult {
+  if (!description) return { days: [] };
 
   const lines = description.split("\n");
   const itinerary: DayItinerary[] = [];
   let currentDay: DayItinerary | null = null;
+  let currentSection: 'introduction' | 'description' | 'activities' | 'transports' | 'accommodation' = 'introduction';
+  const introduction: string[] = [];
+  let inIntroduction = true;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
+    
+    // Détecte "Introduction :" au début
+    const introMatch = trimmedLine.match(/^Introduction\s*:\s*(.*)$/i);
+    if (introMatch) {
+      if (introMatch[1]) {
+        introduction.push(introMatch[1]);
+      }
+      continue;
+    }
     
     // Détecte les lignes de type "Jour 1", "JOUR 14", etc.
     const dayMatch = trimmedLine.match(/^Jour\s+(\d+)\s*:?\s*(.*)$/i);
     
     if (dayMatch) {
+      inIntroduction = false;
       // Si on avait un jour en cours, on le sauvegarde
       if (currentDay) {
         itinerary.push(currentDay);
@@ -82,13 +110,57 @@ export function parseItinerary(description: string): DayItinerary[] {
         title: title,
         description: "",
         location: extractLocation(title),
+        activities: undefined,
+        transports: undefined,
+        accommodation: undefined,
       };
+      currentSection = 'description';
+    } else if (inIntroduction && trimmedLine) {
+      // On est encore dans l'introduction
+      introduction.push(trimmedLine);
     } else if (currentDay && trimmedLine) {
-      // Ajoute la ligne à la description du jour courant
-      if (currentDay.description) {
-        currentDay.description += " ";
+      // Détecte les sections spécifiques
+      const activitiesMatch = trimmedLine.match(/^Activit[ée]s?\s*:\s*(.*)$/i);
+      const transportsMatch = trimmedLine.match(/^Transports?\s*:\s*(.*)$/i);
+      const accommodationMatch = trimmedLine.match(/^H[ée]bergements?\s*:\s*(.*)$/i);
+      
+      if (activitiesMatch) {
+        currentSection = 'activities';
+        if (activitiesMatch[1]) {
+          currentDay.activities = activitiesMatch[1].trim();
+        }
+      } else if (transportsMatch) {
+        currentSection = 'transports';
+        if (transportsMatch[1]) {
+          currentDay.transports = transportsMatch[1].trim();
+        }
+      } else if (accommodationMatch) {
+        currentSection = 'accommodation';
+        if (accommodationMatch[1]) {
+          currentDay.accommodation = accommodationMatch[1].trim();
+        }
+      } else {
+        // Ajoute la ligne à la section courante
+        if (currentSection === 'activities') {
+          currentDay.activities = currentDay.activities 
+            ? currentDay.activities + ' ' + trimmedLine 
+            : trimmedLine;
+        } else if (currentSection === 'transports') {
+          currentDay.transports = currentDay.transports 
+            ? currentDay.transports + ' ' + trimmedLine 
+            : trimmedLine;
+        } else if (currentSection === 'accommodation') {
+          currentDay.accommodation = currentDay.accommodation 
+            ? currentDay.accommodation + ' ' + trimmedLine 
+            : trimmedLine;
+        } else {
+          // Description générale
+          if (currentDay.description) {
+            currentDay.description += " ";
+          }
+          currentDay.description += trimmedLine;
+        }
       }
-      currentDay.description += trimmedLine;
       
       // Essaie d'extraire une localisation si pas encore trouvée
       if (!currentDay.location) {
@@ -102,7 +174,10 @@ export function parseItinerary(description: string): DayItinerary[] {
     itinerary.push(currentDay);
   }
 
-  return itinerary;
+  return {
+    introduction: introduction.length > 0 ? introduction.join('\n') : undefined,
+    days: itinerary,
+  };
 }
 
 /**
@@ -158,9 +233,9 @@ function extractLocation(text: string): string | undefined {
 
 /**
  * Trouve les coordonnées d'une localisation
- * Utilise d'abord le cache local, puis l'API Nominatim si nécessaire
+ * Utilise d'abord le cache local, puis l'API de géolocalisation intelligente
  */
-async function findCoordinates(locationName: string): Promise<{ lat: number; lng: number } | null> {
+async function findCoordinates(locationName: string, context?: { country?: string; itinerary?: string }): Promise<{ lat: number; lng: number } | null> {
   const normalized = locationName.toLowerCase().trim();
   
   // Recherche exacte dans le cache
@@ -175,8 +250,31 @@ async function findCoordinates(locationName: string): Promise<{ lat: number; lng
     }
   }
 
-  // Si pas trouvé dans le cache, utiliser l'API Nominatim
+  // Si pas trouvé dans le cache, utiliser l'API de géolocalisation intelligente
   try {
+    // Essayer d'abord l'API admin avec sélection IA
+    const apiResponse = await fetch('/api/admin/geocode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        locations: [locationName],
+        context: context || {},
+      }),
+    });
+    
+    if (apiResponse.ok) {
+      const result = await apiResponse.json();
+      if (result.data && result.data.length > 0) {
+        const coords = {
+          lat: result.data[0].lat,
+          lng: result.data[0].lng,
+        };
+        LOCATION_COORDINATES[normalized] = coords;
+        return coords;
+      }
+    }
+    
+    // Fallback: API Nominatim directe
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationName)}&format=json&limit=1`,
       {

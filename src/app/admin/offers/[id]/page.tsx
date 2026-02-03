@@ -7,6 +7,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import OfferImagesManager from '@/components/admin/OfferImagesManager';
 import CoordinatesEditor from '@/components/admin/CoordinatesEditor';
 import ImageInput from '@/components/admin/ImageInput';
+import ItineraryEditor from '@/components/admin/ItineraryEditor';
+import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
+import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
 import { adminApi } from '@/lib/axios';
 
 type RefItem = { id: number; title: string; slug: string };
@@ -63,13 +66,20 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [themes, setThemes] = useState<RefItem[]>([]);
   const [destinations, setDestinations] = useState<RefItem[]>([]);
   const [_uploads, setUploads] = useState<{ name: string; url: string }[]>([]);
+  const [dayOptions, setDayOptions] = useState<DayOption[]>([]);
+  const [originalDayOptions, setOriginalDayOptions] = useState<DayOption[]>([]);
+  const [extensions, setExtensions] = useState<OfferExtension[]>([]);
+  const [originalExtensions, setOriginalExtensions] = useState<OfferExtension[]>([]);
   // const [_uploading, setUploading] = useState(false);
 
   // Détecter si des modifications ont été apportées
   const hasChanges = useMemo(() => {
     if (!offer || !originalOffer) return false;
-    return JSON.stringify(offer) !== JSON.stringify(originalOffer);
-  }, [offer, originalOffer]);
+    const offerChanged = JSON.stringify(offer) !== JSON.stringify(originalOffer);
+    const optionsChanged = JSON.stringify(dayOptions) !== JSON.stringify(originalDayOptions);
+    const extensionsChanged = JSON.stringify(extensions) !== JSON.stringify(originalExtensions);
+    return offerChanged || optionsChanged || extensionsChanged;
+  }, [offer, originalOffer, dayOptions, originalDayOptions, extensions, originalExtensions]);
 
   useEffect(() => {
     let mounted = true;
@@ -84,15 +94,21 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           return;
         }
         
-        const [o, t, th, d] = await Promise.all([
+        const [o, t, th, d, opts, exts] = await Promise.all([
           adminApi.get(`/offers/${resolvedId}`).then(res => res.data),
           adminApi.get(`/travel-types`).then(res => res.data),
           adminApi.get(`/travel-themes`).then(res => res.data),
           adminApi.get(`/destinations`).then(res => res.data),
+          adminApi.get(`/offers/${resolvedId}/options`).then(res => res.data).catch(() => ({ data: [] })),
+          adminApi.get(`/offers/${resolvedId}/extensions`).then(res => res.data).catch(() => ({ data: [] })),
         ]);
         if (!mounted) return;
         setOffer(o.data);
         setOriginalOffer(JSON.parse(JSON.stringify(o.data)));
+        setDayOptions(opts.data || []);
+        setOriginalDayOptions(JSON.parse(JSON.stringify(opts.data || [])));
+        setExtensions(exts.data || []);
+        setOriginalExtensions(JSON.parse(JSON.stringify(exts.data || [])));
         setTypes((t.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setThemes((th.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setDestinations((d.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
@@ -136,6 +152,19 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       console.log('Données à sauvegarder:', dataToSave);
       const response = await adminApi.put(`/offers/${id}`, dataToSave).then(res => res.data);
       console.log('Réponse API:', response);
+      
+      // Sauvegarder les options d'activités
+      if (JSON.stringify(dayOptions) !== JSON.stringify(originalDayOptions)) {
+        await adminApi.put(`/offers/${id}/options`, { options: dayOptions });
+        setOriginalDayOptions(JSON.parse(JSON.stringify(dayOptions)));
+      }
+      
+      // Sauvegarder les extensions
+      if (JSON.stringify(extensions) !== JSON.stringify(originalExtensions)) {
+        await adminApi.put(`/offers/${id}/extensions`, { extensions });
+        setOriginalExtensions(JSON.parse(JSON.stringify(extensions)));
+      }
+      
       setStatus('Offre enregistrée avec succès');
       setOriginalOffer(JSON.parse(JSON.stringify(offer)));
     } catch (e: any) {
@@ -242,6 +271,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
               </label>
+            </div>
+            <div className="grid gap-3 mt-3">
               <label className="text-sm">
                 Résumé
                 <textarea
@@ -250,14 +281,17 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   className="mt-1 w-full min-h-[80px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
                 />
               </label>
-              <label className="text-sm">
-                Description
-                <textarea
-                  value={offer.description || ''}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), description: e.target.value })}
-                  className="mt-1 w-full min-h-[140px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                />
+            </div>
+            <div className="mt-3">
+              <label className="text-sm block mb-2">
+                Description / Itinéraire
               </label>
+              <ItineraryEditor
+                value={offer.description || ''}
+                onChange={(description) => setOffer({ ...(offer as OfferData), description })}
+              />
+            </div>
+            <div className="grid gap-3 mt-3 md:grid-cols-2">
               <label className="text-sm">
                 Label de l&apos;offre
                 <input
@@ -278,18 +312,32 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   placeholder="https://.../programme.pdf"
                 />
               </label>
-              <div className="col-span-2">
-                <ImageInput
-                  label="Image de la carte de l'itinéraire"
-                  value={offer.map_image || ''}
-                  onChange={(url) => setOffer({ ...(offer as OfferData), map_image: url || null })}
-                  mode="both"
-                  placeholder="Sélectionnez ou uploadez une image de carte"
-                  previewClassName="h-48 w-full max-w-md"
-                />
-                <span className="text-xs text-gray-500 mt-1 block">Image statique de la carte (remplace la carte dynamique Leaflet)</span>
-              </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Options d&apos;activités par jour</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DayOptionsEditor
+              options={dayOptions}
+              onChange={setDayOptions}
+              maxDays={offer.duration_days || 30}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Extensions / Prolongations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ExtensionEditor
+              extensions={extensions}
+              onChange={setExtensions}
+            />
           </CardContent>
         </Card>
 
@@ -310,6 +358,18 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Coordonnées de l&apos;itinéraire</CardTitle>
           </CardHeader>
           <CardContent>
+
+            <div className="mb-5">
+              <ImageInput
+                label="Image de la carte de l'itinéraire"
+                value={offer.map_image || ''}
+                onChange={(url) => setOffer({ ...(offer as OfferData), map_image: url || null })}
+                mode="both"
+                placeholder="Sélectionnez ou uploadez une image de carte"
+                previewClassName="h-48 w-full max-w-md"
+              />
+              <span className="text-xs text-gray-500 mt-1 block">Image statique de la carte (remplace la carte dynamique Leaflet)</span>
+            </div>
             <CoordinatesEditor
               coordinates={offer.coordinates || []}
               onChange={(coordinates) => setOffer({ ...(offer as OfferData), coordinates })}
