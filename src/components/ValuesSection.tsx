@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";
 
 const valeurs = [
@@ -8,31 +8,31 @@ const valeurs = [
     id: "01",
     title: "AUTHENTICITÉ",
     text: "Vivez des expériences authentiques en découvrant les cultures, les cuisines et les modes de vie locaux, partout dans le monde.",
-    img: "https://www.lechotouristique.com/wp-content/uploads/2019/01/adobestock_295259074.jpg",
+    img: "/images/authenticite.png",
   },
   {
     id: "02",
     title: "DURABILITÉ",
     text: "Engagés envers un tourisme responsable, nous intégrons des pratiques durables pour préserver les destinations que nous aimons.",
-    img: "https://www.deplacementspros.com/wp-content/uploads/2023/06/sustainable-business-travel-1.jpg",
+    img: "/images/durabilite.png",
   },
   {
     id: "03",
     title: "INNOVATION",
     text: "Nous repoussons sans cesse les limites pour vous offrir des voyages uniques et personnalisés, toujours à la pointe de l'innovation.",
-    img: "https://images.squarespace-cdn.com/content/v1/66db9bee2dbfb64a179e38ba/1725676293737-AW6MOZGSCMG59PIHKIKX/unsplash-image-SvdOOFYjs-Y.jpg",
+    img: "/images/inovation.png",
   },
   {
     id: "04",
     title: "FLEXIBILITÉ DE PAIEMENT",
     text: "Profitez de solutions de paiement flexibles, y compris des options de versements échelonnés pour faciliter votre projet de voyage.",
-    img: "https://ibp.info6tm.fr/api/v1/files/5f915bce8fe56f06330b87a6/methodes/article/image.jpg",
+    img: "/images/flexibilite.png",
   },
   {
     id: "05",
     title: "PASSION",
     text: "La passion pour le voyage est au cœur de notre société et nous voulons partager cette passion avec vous.",
-    img: "https://cdn.hometogo.net/assets/media/pics/1920_600/611bcb58aa398.jpg",
+    img: "/images/passion.png",
   },
 ];
 
@@ -43,7 +43,7 @@ export default function ValuesSection() {
   // Auto-advance images every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % 6);
+      setActiveIndex((prev) => (prev + 1) % 5);
     }, 4000);
 
     return () => clearInterval(interval);
@@ -79,7 +79,7 @@ export default function ValuesSection() {
                   isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
                 }`}
               >
-                <div className="min-w-[3rem] text-3xl font-bold text-[#f3c32c]">
+                <div className="min-w-12 text-3xl font-bold text-[#f3c32c]">
                   {valeur.id}
                 </div>
                 <div
@@ -104,7 +104,7 @@ export default function ValuesSection() {
           {/* Right side - Image Slider */}
           <div className="relative">
             <div className="relative h-96 lg:h-[600px] rounded-lg overflow-hidden shadow-lg">
-              <Image
+              <OptimizedImage
                 key={activeValeur.img}
                 src={activeValeur.img}
                 alt={activeValeur.title}
@@ -212,7 +212,7 @@ export default function ValuesSection() {
 
     //     {/* Colonne droite : image active */}
     //     <div className="relative w-full min-h-[320px] lg:min-h-[480px]">
-    //       <Image
+    //       <OptimizedImage
     //         key={activeValeur.img}
     //         src={activeValeur.img}
     //         alt={activeValeur.title}

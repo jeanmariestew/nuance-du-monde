@@ -1,7 +1,7 @@
 "use client";
 
 import { Quote } from "lucide-react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useRef, useEffect } from "react";
 
 interface Testimonial {
@@ -97,7 +97,7 @@ export default function TestimonialsSection({
         <div className="grid grid-cols-1 md:grid-cols-5 items-stretch">
           {/* Left: heading and description */}
           <div className="relative p-8 md:p-10 shadow-sm overflow-hidden col-span-2">
-            <Image
+            <OptimizedImage
               src="/images/fond2.jpg"
               alt="Background themes"
               fill
@@ -108,7 +108,7 @@ export default function TestimonialsSection({
               <div className=" top-0 left-8 w-16 h-16 rounded-full flex items-center justify-center ripple-container">
                 
               </div>
-              <Image
+              <OptimizedImage
                 src="/images/map2.svg"
                 alt="Background themes"
                 width={100}
@@ -188,7 +188,7 @@ export default function TestimonialsSection({
                   key={testimonial.id}
                   className="snap-start shrink-0 w-full relative overflow-hidden"
                 >
-                  <Image
+                  <OptimizedImage
                     src={
                       testimonial.image_url || `/images/${imagesslider[index]}`
                     }

@@ -2,7 +2,7 @@
 "use client";
 
 import ValuesSection from "@/components/ValuesSection";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 
 export default function QuiSommesNousPage() {
@@ -12,8 +12,8 @@ export default function QuiSommesNousPage() {
       {/* --- HERO (même image que la page) --- */}
       <section className="relative">
         <div className="relative h-[300px] w-full">
-          <Image
-            src="https://web.archive.org/web/20250614165813im_/https://blogs.nuancedumonde.com/wp-content/uploads/2024/08/view-hand-holding-magnifying-glass2.jpg"
+          <OptimizedImage
+            src="/images/qui-sommes-nous.png"
             alt="Qui sommes-nous ?"
             fill
             priority

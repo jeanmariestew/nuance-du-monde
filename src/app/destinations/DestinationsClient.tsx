@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import OffersGrid from "@/components/OffersGrid";
 import { useDestinationsByContinent } from "@/hooks/useDestinationsByContinent";
@@ -127,7 +127,7 @@ export default function DestinationsClient() {
                 >
                   {/* Image de fond */}
                   {continentStyle.image ? (
-                    <Image 
+                    <OptimizedImage 
                       src={continentStyle.image} 
                       alt={continent}
                       fill

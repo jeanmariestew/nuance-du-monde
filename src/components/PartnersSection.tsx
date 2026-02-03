@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 
 interface Partner {
@@ -53,7 +53,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
                 <div className="flex items-center justify-center mb-6 min-h-[100px]">
                   {partner.image_url ? (
                     <div className="relative w-full h-auto flex items-center justify-center">
-                      <Image
+                      <OptimizedImage
                         src={partner.image_url}
                         alt={partner.name}
                         width={180}

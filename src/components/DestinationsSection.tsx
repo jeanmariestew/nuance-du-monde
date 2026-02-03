@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { useRef } from "react";
 import { Destination } from "@/types";
@@ -36,7 +36,7 @@ export default function DestinationsSection({
             <div>
               {/* Colonne droite - Image pleine hauteur */}
               <div className="relative h-full">
-                <Image
+                <OptimizedImage
                   src="/images/a-la-une-1-1.png"
                   alt="Destinations - Personnes qui trinquent"
                   fill
@@ -45,7 +45,7 @@ export default function DestinationsSection({
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
-              <Image
+              <OptimizedImage
                 src={"/images/plane.png"}
                 className="absolute right-10 top-10 z-10 w-40"
                 alt=""
@@ -95,7 +95,7 @@ export default function DestinationsSection({
             {/* Colonne gauche - Texte avec fond texturé */}
             <div className="relative flex flex-col justify-center px-4">
               <div className="absolute inset-0 -z-10 overflow-hidden">
-                <Image
+                <OptimizedImage
                   src="/images/texture.png"
                   alt=""
                   fill

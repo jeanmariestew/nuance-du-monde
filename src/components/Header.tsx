@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { XIcon } from "lucide-react";
@@ -59,7 +59,7 @@ const Header = () => {
         <div className={clsx("flex items-center justify-between",isMenuOpen && "hidden")}>
           {/* Logo */}
           <Link href="/" className={clsx("flex items-center")}>
-            <Image
+            <OptimizedImage
               src="/images/logo.noire_blanc.png"
               alt="Nuance du Monde"
               width={150}

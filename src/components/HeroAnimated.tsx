@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { api } from '@/lib/axios';
-import OptimizedImage from "./OptimizedImage";
 
 export default function HeroAnimated() {
   const [avatars, setAvatars] = useState<string[]>([]);
@@ -41,7 +40,7 @@ export default function HeroAnimated() {
     <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-stretch overflow-hidden">
       {/* Background principal */}
       <div className="absolute inset-0">
-        <Image src="/images/homepage_banner.webp" alt="Nuance du Monde - Voyage sur mesure" fill className="object-cover" priority />
+        <OptimizedImage src="/images/homepage_banner.webp" alt="Nuance du Monde - Voyage sur mesure" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-black/45" />
       </div>
 
@@ -66,7 +65,7 @@ export default function HeroAnimated() {
         <div className="relative h-[380px] md:h-[460px]">
           <div className="absolute right-0 top-6 w-[520px] h-[520px] max-w-full pointer-events-none select-none">
             {/* Motif de cercles (image) */}
-            <Image src="/images/word-background.png" alt="ondas" fill className="object-contain opacity-90" priority />
+            <OptimizedImage src="/images/word-background.png" alt="ondas" fill className="object-contain opacity-90" priority />
           </div>
 
           {/* Lignes connectées SVG */}

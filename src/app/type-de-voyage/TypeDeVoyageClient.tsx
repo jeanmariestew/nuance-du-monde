@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useEffect, useState } from "react";
 import { TravelType } from "@/types";
 import TravelTypesSection from "@/components/TravelTypesSection";
@@ -43,7 +43,7 @@ export default function TypeDeVoyageClient() {
     <div className="flex flex-col gap-y-10">
       <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-start py-3 sm:py-4 md:py-5 flex-col justify-end">
         <div className="absolute inset-0">
-          <Image
+          <OptimizedImage
             src="/images/photo_type-de-voyage.png"
             alt="Type de voyage"
             fill

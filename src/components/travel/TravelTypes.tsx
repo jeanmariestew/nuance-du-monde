@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { TravelType } from "@/types";
 
 interface TravelTypesProps {
@@ -21,7 +21,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
           className="relative bg-cover bg-center h-[650px] rounded-lg overflow-hidden group cursor-pointer"
         >
           {travelType.image_url ? (
-            <Image
+            <OptimizedImage
               src={travelType.image_url}
               alt={travelType.title}
               fill

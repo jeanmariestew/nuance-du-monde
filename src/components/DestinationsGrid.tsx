@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { DestinationCardSkeleton } from "@/components/ui/SkeletonLoader";
 
@@ -67,7 +67,7 @@ export default function DestinationsGrid({
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                   <div className="relative h-48">
                     {destination.banner_image_url ? (
-                      <Image
+                      <OptimizedImage
                         src={destination.banner_image_url}
                         alt={destination.title}
                         fill

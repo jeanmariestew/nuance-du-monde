@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useEffect, useState } from "react";
 import { TravelTheme } from "@/types";
 import ThemeCard from "@/components/cards/ThemeCard";
@@ -42,7 +42,7 @@ export default function ThemesClient() {
     <div>
       <section className="relative h-[500px] sm:h-[600px] md:h-[650px] flex items-center justify-center">
         <div className="absolute inset-0">
-          <Image
+          <OptimizedImage
             src="/images/themes_banner.jpeg"
             alt="Nos thèmes"
             fill

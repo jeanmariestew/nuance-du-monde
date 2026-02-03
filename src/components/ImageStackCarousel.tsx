@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface OfferImage {
   id?: number;
@@ -157,7 +157,7 @@ export default function ImageStackCarousel({
               }}
               onClick={() => goToImage(index)}
             >
-              <Image
+              <OptimizedImage
                 src={img}
                 width={600}
                 height={400}

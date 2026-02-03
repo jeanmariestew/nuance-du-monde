@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { TravelTheme } from "@/types";
 
@@ -12,7 +12,7 @@ export default function ThemeCard({ theme }: ThemeCardProps) {
       <div className="bg-white p-2 rounded-2xl border-gray-100 border-2 shadow-lg overflow-hidden hover:shadow-xl transition-shadow w-full">
         <div className="relative h-48">
           {theme.image_url ? (
-            <Image
+            <OptimizedImage
               src={theme.image_url}
               alt={theme.title}
               fill

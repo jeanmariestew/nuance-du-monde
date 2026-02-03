@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { useRef } from "react";
 import { TravelTheme } from "@/types";
@@ -34,7 +34,7 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
         <div className="mx-auto">
           <div className="relative grid grid-cols-1 md:grid-cols-2 items-center">
             <div className="relative h-full overflow-hidden flex items-center justify-center">
-              <Image
+              <OptimizedImage
                 src="/images/fond_theme.png"
                 alt="Background themes"
                 fill
@@ -59,7 +59,7 @@ export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
               </div>
             </div>
             <div className="relative min-h-80 overflow-hidden">
-              <Image
+              <OptimizedImage
                 src="/images/a-la-une-2-1.jpg"
                 alt="Themes"
                 fill
