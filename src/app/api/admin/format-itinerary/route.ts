@@ -76,7 +76,7 @@ ${text}`;
           ],
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 2000,
+            // maxOutputTokens: 50000,
           },
         }),
       }
