@@ -13,6 +13,7 @@ export interface DayOption {
   price_supplement?: number;
   price_currency?: string;
   is_included?: boolean;
+  is_starting_price?: boolean;
   sort_order?: number;
 }
 
@@ -224,6 +225,7 @@ function OptionForm({
   const [priceSupplement, setPriceSupplement] = useState<number | ''>(initialData?.price_supplement || '');
   const [priceCurrency, setPriceCurrency] = useState(initialData?.price_currency || 'CAD');
   const [isIncluded, setIsIncluded] = useState(initialData?.is_included || false);
+  const [isStartingPrice, setIsStartingPrice] = useState(initialData?.is_starting_price || false);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -234,6 +236,7 @@ function OptionForm({
       price_supplement: priceSupplement === '' ? undefined : priceSupplement,
       price_currency: priceCurrency,
       is_included: isIncluded,
+      is_starting_price: isStartingPrice,
       sort_order: initialData?.sort_order || 0,
     });
   };
@@ -308,15 +311,26 @@ function OptionForm({
               </div>
             </div>
 
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isIncluded}
-                onChange={(e) => setIsIncluded(e.target.checked)}
-                className="h-4 w-4"
-              />
-              <span className="text-sm">Option incluse dans le prix de base</span>
-            </label>
+            <div className="flex flex-wrap gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={isIncluded}
+                  onChange={(e) => setIsIncluded(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">Option incluse dans le prix de base</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={isStartingPrice}
+                  onChange={(e) => setIsStartingPrice(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">Afficher "à partir de"</span>
+              </label>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">

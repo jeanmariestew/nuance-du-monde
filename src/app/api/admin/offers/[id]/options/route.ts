@@ -11,6 +11,7 @@ export interface DayOption {
   price_supplement?: number;
   price_currency?: string;
   is_included?: boolean;
+  is_starting_price?: boolean;
   sort_order?: number;
   is_active?: boolean;
 }
@@ -64,6 +65,7 @@ export async function POST(
       price_supplement,
       price_currency = 'CAD',
       is_included = false,
+      is_starting_price = false,
       sort_order = 0,
     } = body;
 
@@ -76,8 +78,8 @@ export async function POST(
 
     const result = await query(
       `INSERT INTO offer_day_options 
-       (offer_id, day_number, title, description, image_url, price_supplement, price_currency, is_included, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (offer_id, day_number, title, description, image_url, price_supplement, price_currency, is_included, is_starting_price, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         offerId,
         day_number,
@@ -87,6 +89,7 @@ export async function POST(
         price_supplement || null,
         price_currency,
         is_included ? 1 : 0,
+        is_starting_price ? 1 : 0,
         sort_order,
       ]
     );
@@ -132,8 +135,8 @@ export async function PUT(
     for (const opt of options) {
       await query(
         `INSERT INTO offer_day_options 
-         (offer_id, day_number, title, description, image_url, price_supplement, price_currency, is_included, sort_order)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (offer_id, day_number, title, description, image_url, price_supplement, price_currency, is_included, is_starting_price, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           offerId,
           opt.day_number,
@@ -143,6 +146,7 @@ export async function PUT(
           opt.price_supplement || null,
           opt.price_currency || 'CAD',
           opt.is_included ? 1 : 0,
+          opt.is_starting_price ? 1 : 0,
           opt.sort_order || 0,
         ]
       );

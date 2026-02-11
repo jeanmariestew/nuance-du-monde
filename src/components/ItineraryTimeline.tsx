@@ -22,6 +22,7 @@ export interface DayOption {
   price_supplement?: number;
   price_currency?: string;
   is_included?: boolean;
+  is_starting_price?: boolean;
 }
 
 interface ItineraryTimelineProps {
@@ -188,11 +189,11 @@ export default function ItineraryTimeline({
                                   Inclus
                                 </span>
                               )}
-                              {/* {option.price_supplement && option.price_supplement > 0 && (
+                              {option.price_supplement && option.price_supplement > 0 && (
                                 <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
-                                  +{option.price_supplement} {option.price_currency || 'CAD'}
+                                  {option.is_starting_price ? "À partir de ": '+'}{option.price_supplement} {option.price_currency || 'CAD'}
                                 </span>
-                              )} */}
+                              )}
                             </div>
                           <div className="flex gap-3 min-w-0">
                             
