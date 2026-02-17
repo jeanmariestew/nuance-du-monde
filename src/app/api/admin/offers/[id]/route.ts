@@ -61,7 +61,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const { id: idStr } = await params;
   const id = Number(idStr);
   if (!id) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
-  const body = await req.json().catch(() => ({} as any));
+  
+  let body: any;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return NextResponse.json({ success: false, error: 'JSON invalide dans le corps de la requête', details: 'parse_error' }, { status: 400 });
+  }
+
   const {
     title,
     slug,
@@ -91,10 +98,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     themeIds = [] as number[],
     destinationIds = [] as number[],
   } = body || {};
-  if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
 
+  if (!title || !slug) {
+    return NextResponse.json({ success: false, error: 'Le titre et le slug sont requis', details: 'validation_error' }, { status: 400 });
+  }
+
+  const errors: string[] = [];
+  console.log('[PUT /offers] Mise à jour offre ID:', id, 'title:', title);
+
+  // 1. Mise à jour des données principales de l'offre
   try {
-    // Serialize coordinates and map_center to JSON string
     const coordinatesJson = Array.isArray(coordinates) && coordinates.length > 0 
       ? JSON.stringify(coordinates) 
       : null;
@@ -106,109 +119,213 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
       [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
     );
-
-    await query('DELETE FROM offer_travel_types WHERE offer_id = ?', [id]);
-    await query('DELETE FROM offer_travel_themes WHERE offer_id = ?', [id]);
-    await query('DELETE FROM offer_destinations WHERE offer_id = ?', [id]);
-    await query('DELETE FROM offer_dates WHERE offer_id = ?', [id]);
-    await query('DELETE FROM offer_images WHERE offer_id = ?', [id]);
-
-    // Save date ranges (preferred). Fallback to available_dates.
-    if (Array.isArray(dates) && dates.length > 0) {
-      const valid = dates.filter(d => d && d.departure_date);
-      if (valid.length > 0) {
-        const placeholders = valid.map(() => '(?, ?, ?, ?, ?)').join(', ');
-        const values = valid.flatMap((d) => [
-          id,
-          d.departure_date,
-          d.return_date || null,
-          d.price ?? null,
-          (d.price_currency || 'EUR'),
-        ]);
-        await query(
-          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES ${placeholders}`,
-          values
-        );
-      }
-    } else if (Array.isArray(available_dates) && available_dates.length > 0) {
-      const validDates = available_dates.filter(date => date && date.trim());
-      if (validDates.length > 0) {
-        const placeholders = validDates.map(() => '(?, ?)').join(', ');
-        const values = validDates.flatMap((date: string) => [id, date]);
-        await query(
-          `INSERT INTO offer_dates (offer_id, departure_date) VALUES ${placeholders}`,
-          values
-        );
-      }
-    }
-
-    if (Array.isArray(typeIds) && typeIds.length) {
-      await query(
-        `INSERT IGNORE INTO offer_travel_types (offer_id, travel_type_id)
-         VALUES ${typeIds.map(() => '(?, ?)').join(', ')}`,
-        typeIds.flatMap((tid: number) => [id, tid])
-      );
-    }
-    if (Array.isArray(themeIds) && themeIds.length) {
-      await query(
-        `INSERT IGNORE INTO offer_travel_themes (offer_id, travel_theme_id)
-         VALUES ${themeIds.map(() => '(?, ?)').join(', ')}`,
-        themeIds.flatMap((tid: number) => [id, tid])
-      );
-    }
-    if (Array.isArray(destinationIds) && destinationIds.length) {
-      await query(
-        `INSERT IGNORE INTO offer_destinations (offer_id, destination_id)
-         VALUES ${destinationIds.map(() => '(?, ?)').join(', ')}`,
-        destinationIds.flatMap((did: number) => [id, did])
-      );
-    }
-
-    // Save images
-    if (Array.isArray(images) && images.length > 0) {
-      const validImages = images.filter(img => img && img.image_url);
-      if (validImages.length > 0) {
-        for (let index = 0; index < validImages.length; index++) {
-          const img = validImages[index];
-          
-          // 1. Créer ou récupérer l'image dans la table images
-          const existingImages = await query(
-            'SELECT id FROM images WHERE url = ? LIMIT 1',
-            [img.image_url]
-          );
-          
-          let imageId;
-          if (existingImages.length > 0) {
-            imageId = (existingImages[0] as any).id;
-          } else {
-            // Créer une nouvelle image
-            const filename = img.image_url.split('/').pop() || 'unknown';
-            const result = await execute(
-              `INSERT INTO images (url, filename, title, alt_text, uploaded_by) VALUES (?, ?, ?, ?, ?)`,
-              [img.image_url, filename, img.alt_text || filename, img.alt_text || '', 'admin']
-            );
-            imageId = result.insertId;
-          }
-          
-          // 2. Créer la relation dans offer_images
-          await execute(
-            `INSERT INTO offer_images (offer_id, image_id, image_type, alt_text, sort_order) VALUES (?, ?, ?, ?, ?)`,
-            [
-              id,
-              imageId,
-              img.image_type || 'gallery',
-              img.alt_text || '',
-              img.sort_order !== undefined ? img.sort_order : index
-            ]
-          );
-        }
-      }
-    }
-
-    return NextResponse.json({ success: true });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
-  } 
+    console.error('[PUT /offers] Erreur UPDATE offers:', e);
+    return NextResponse.json({ 
+      success: false, 
+      error: `Erreur lors de la mise à jour des données principales: ${e instanceof Error ? e.message : 'Erreur inconnue'}`,
+      details: 'update_offer_error'
+    }, { status: 500 });
+  }
+
+  // 2. Mise à jour des types de voyage (upsert)
+  try {
+    const existingTypes = await query('SELECT travel_type_id FROM offer_travel_types WHERE offer_id = ?', [id]) as any[];
+    const existingTypeIds = existingTypes.map(r => r.travel_type_id);
+    const newTypeIds = Array.isArray(typeIds) ? typeIds : [];
+    
+    // Supprimer les types qui ne sont plus sélectionnés
+    const typesToRemove = existingTypeIds.filter(tid => !newTypeIds.includes(tid));
+    if (typesToRemove.length > 0) {
+      await query(
+        `DELETE FROM offer_travel_types WHERE offer_id = ? AND travel_type_id IN (${typesToRemove.map(() => '?').join(',')})`,
+        [id, ...typesToRemove]
+      );
+    }
+    
+    // Ajouter les nouveaux types
+    const typesToAdd = newTypeIds.filter(tid => !existingTypeIds.includes(tid));
+    if (typesToAdd.length > 0) {
+      await query(
+        `INSERT IGNORE INTO offer_travel_types (offer_id, travel_type_id) VALUES ${typesToAdd.map(() => '(?, ?)').join(', ')}`,
+        typesToAdd.flatMap((tid: number) => [id, tid])
+      );
+    }
+  } catch (e) {
+    console.error('[PUT /offers] Erreur types de voyage:', e);
+    errors.push(`Types de voyage: ${e instanceof Error ? e.message : 'Erreur inconnue'}`);
+  }
+
+  // 3. Mise à jour des thèmes (upsert)
+  try {
+    const existingThemes = await query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]) as any[];
+    const existingThemeIds = existingThemes.map(r => r.travel_theme_id);
+    const newThemeIds = Array.isArray(themeIds) ? themeIds : [];
+    
+    const themesToRemove = existingThemeIds.filter(tid => !newThemeIds.includes(tid));
+    if (themesToRemove.length > 0) {
+      await query(
+        `DELETE FROM offer_travel_themes WHERE offer_id = ? AND travel_theme_id IN (${themesToRemove.map(() => '?').join(',')})`,
+        [id, ...themesToRemove]
+      );
+    }
+    
+    const themesToAdd = newThemeIds.filter(tid => !existingThemeIds.includes(tid));
+    if (themesToAdd.length > 0) {
+      await query(
+        `INSERT IGNORE INTO offer_travel_themes (offer_id, travel_theme_id) VALUES ${themesToAdd.map(() => '(?, ?)').join(', ')}`,
+        themesToAdd.flatMap((tid: number) => [id, tid])
+      );
+    }
+  } catch (e) {
+    console.error('[PUT /offers] Erreur thèmes:', e);
+    errors.push(`Thèmes: ${e instanceof Error ? e.message : 'Erreur inconnue'}`);
+  }
+
+  // 4. Mise à jour des destinations (upsert)
+  try {
+    const existingDests = await query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]) as any[];
+    const existingDestIds = existingDests.map(r => r.destination_id);
+    const newDestIds = Array.isArray(destinationIds) ? destinationIds : [];
+    
+    const destsToRemove = existingDestIds.filter(did => !newDestIds.includes(did));
+    if (destsToRemove.length > 0) {
+      await query(
+        `DELETE FROM offer_destinations WHERE offer_id = ? AND destination_id IN (${destsToRemove.map(() => '?').join(',')})`,
+        [id, ...destsToRemove]
+      );
+    }
+    
+    const destsToAdd = newDestIds.filter(did => !existingDestIds.includes(did));
+    if (destsToAdd.length > 0) {
+      await query(
+        `INSERT IGNORE INTO offer_destinations (offer_id, destination_id) VALUES ${destsToAdd.map(() => '(?, ?)').join(', ')}`,
+        destsToAdd.flatMap((did: number) => [id, did])
+      );
+    }
+  } catch (e) {
+    console.error('[PUT /offers] Erreur destinations:', e);
+    errors.push(`Destinations: ${e instanceof Error ? e.message : 'Erreur inconnue'}`);
+  }
+
+  // 5. Mise à jour des dates (upsert avec ID)
+  try {
+    const existingDates = await query('SELECT id FROM offer_dates WHERE offer_id = ?', [id]) as any[];
+    const existingDateIds = existingDates.map(r => r.id);
+    
+    // Dates à traiter
+    const datesToProcess = Array.isArray(dates) && dates.length > 0 
+      ? dates.filter(d => d && d.departure_date)
+      : (Array.isArray(available_dates) && available_dates.length > 0 
+        ? available_dates.filter(d => d && d.trim()).map(d => ({ departure_date: d }))
+        : []);
+    
+    const processedIds: number[] = [];
+    
+    for (const d of datesToProcess) {
+      const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null };
+      
+      if (dateData.id && existingDateIds.includes(dateData.id)) {
+        // Mise à jour d'une date existante
+        await query(
+          `UPDATE offer_dates SET departure_date=?, return_date=?, price=?, price_currency=? WHERE id=? AND offer_id=?`,
+          [dateData.departure_date, dateData.return_date || null, dateData.price ?? null, dateData.price_currency || 'EUR', dateData.id, id]
+        );
+        processedIds.push(dateData.id);
+      } else {
+        // Nouvelle date
+        const result = await execute(
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES (?, ?, ?, ?, ?)`,
+          [id, dateData.departure_date, dateData.return_date || null, dateData.price ?? null, dateData.price_currency || 'EUR']
+        );
+        processedIds.push(result.insertId);
+      }
+    }
+    
+    // Supprimer les dates qui ne sont plus présentes
+    const datesToRemove = existingDateIds.filter(did => !processedIds.includes(did));
+    if (datesToRemove.length > 0) {
+      await query(
+        `DELETE FROM offer_dates WHERE offer_id = ? AND id IN (${datesToRemove.map(() => '?').join(',')})`,
+        [id, ...datesToRemove]
+      );
+    }
+  } catch (e) {
+    console.error('[PUT /offers] Erreur dates:', e);
+    errors.push(`Dates: ${e instanceof Error ? e.message : 'Erreur inconnue'}`);
+  }
+
+  // 6. Mise à jour des images (upsert)
+  try {
+    const existingImages = await query('SELECT id, image_id FROM offer_images WHERE offer_id = ?', [id]) as any[];
+    const existingImageRelIds = existingImages.map(r => r.id);
+    
+    const validImages = Array.isArray(images) ? images.filter(img => img && img.image_url) : [];
+    const processedRelIds: number[] = [];
+    
+    for (let index = 0; index < validImages.length; index++) {
+      const img = validImages[index];
+      
+      // Récupérer ou créer l'image dans la table images
+      let imageId: number;
+      const existingImg = await query('SELECT id FROM images WHERE url = ? LIMIT 1', [img.image_url]) as any[];
+      
+      if (existingImg.length > 0) {
+        imageId = existingImg[0].id;
+      } else {
+        const filename = img.image_url.split('/').pop() || 'unknown';
+        const result = await execute(
+          `INSERT INTO images (url, filename, title, alt_text, uploaded_by) VALUES (?, ?, ?, ?, ?)`,
+          [img.image_url, filename, img.alt_text || filename, img.alt_text || '', 'admin']
+        );
+        imageId = result.insertId;
+      }
+      
+      // Vérifier si la relation existe déjà
+      const existingRel = existingImages.find(r => r.image_id === imageId);
+      
+      if (existingRel) {
+        // Mise à jour de la relation existante
+        await query(
+          `UPDATE offer_images SET image_type=?, alt_text=?, sort_order=? WHERE id=?`,
+          [img.image_type || 'gallery', img.alt_text || '', img.sort_order !== undefined ? img.sort_order : index, existingRel.id]
+        );
+        processedRelIds.push(existingRel.id);
+      } else {
+        // Nouvelle relation
+        const result = await execute(
+          `INSERT INTO offer_images (offer_id, image_id, image_type, alt_text, sort_order) VALUES (?, ?, ?, ?, ?)`,
+          [id, imageId, img.image_type || 'gallery', img.alt_text || '', img.sort_order !== undefined ? img.sort_order : index]
+        );
+        processedRelIds.push(result.insertId);
+      }
+    }
+    
+    // Supprimer les relations d'images qui ne sont plus présentes
+    const relsToRemove = existingImageRelIds.filter(rid => !processedRelIds.includes(rid));
+    if (relsToRemove.length > 0) {
+      await query(
+        `DELETE FROM offer_images WHERE offer_id = ? AND id IN (${relsToRemove.map(() => '?').join(',')})`,
+        [id, ...relsToRemove]
+      );
+    }
+  } catch (e) {
+    console.error('[PUT /offers] Erreur images:', e);
+    errors.push(`Images: ${e instanceof Error ? e.message : 'Erreur inconnue'}`);
+  }
+
+  // Retourner le résultat avec les erreurs partielles si présentes
+  if (errors.length > 0) {
+    return NextResponse.json({ 
+      success: false, 
+      partial: true,
+      error: `Certaines données n'ont pas pu être sauvegardées`,
+      details: errors,
+      message: 'Les données principales ont été sauvegardées mais certaines relations ont échoué'
+    }, { status: 207 }); // 207 Multi-Status
+  }
+
+  return NextResponse.json({ success: true, message: 'Offre mise à jour avec succès' });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {

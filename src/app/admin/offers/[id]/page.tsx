@@ -58,6 +58,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string[] | null>(null);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
   const [offer, setOffer] = useState<OfferData | null>(null);
@@ -153,23 +155,59 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       const response = await adminApi.put(`/offers/${id}`, dataToSave).then(res => res.data);
       console.log('Réponse API:', response);
       
+      // Vérifier si la réponse contient des erreurs partielles
+      if (response.partial) {
+        setError(response.error || 'Certaines données n\'ont pas pu être sauvegardées');
+        setErrorDetails(response.details || []);
+        setShowErrorPopup(true);
+        // Les données principales sont sauvegardées, on continue
+      }
+      
       // Sauvegarder les options d'activités
       if (JSON.stringify(dayOptions) !== JSON.stringify(originalDayOptions)) {
-        await adminApi.put(`/offers/${id}/options`, { options: dayOptions });
-        setOriginalDayOptions(JSON.parse(JSON.stringify(dayOptions)));
+        try {
+          await adminApi.put(`/offers/${id}/options`, { options: dayOptions });
+          setOriginalDayOptions(JSON.parse(JSON.stringify(dayOptions)));
+        } catch (optErr: any) {
+          console.error('Erreur sauvegarde options:', optErr);
+          const optErrMsg = optErr.response?.data?.error || optErr.message || 'Erreur options';
+          setError(prev => prev ? `${prev}\n${optErrMsg}` : optErrMsg);
+          setErrorDetails(prev => prev ? [...prev, `Options: ${optErrMsg}`] : [`Options: ${optErrMsg}`]);
+          setShowErrorPopup(true);
+        }
       }
       
       // Sauvegarder les extensions
       if (JSON.stringify(extensions) !== JSON.stringify(originalExtensions)) {
-        await adminApi.put(`/offers/${id}/extensions`, { extensions });
-        setOriginalExtensions(JSON.parse(JSON.stringify(extensions)));
+        try {
+          await adminApi.put(`/offers/${id}/extensions`, { extensions });
+          setOriginalExtensions(JSON.parse(JSON.stringify(extensions)));
+        } catch (extErr: any) {
+          console.error('Erreur sauvegarde extensions:', extErr);
+          const extErrMsg = extErr.response?.data?.error || extErr.message || 'Erreur extensions';
+          setError(prev => prev ? `${prev}\n${extErrMsg}` : extErrMsg);
+          setErrorDetails(prev => prev ? [...prev, `Extensions: ${extErrMsg}`] : [`Extensions: ${extErrMsg}`]);
+          setShowErrorPopup(true);
+        }
       }
       
-      setStatus('Offre enregistrée avec succès');
+      if (!response.partial) {
+        setStatus('Offre enregistrée avec succès');
+      } else {
+        setStatus('Offre partiellement enregistrée - voir les erreurs');
+      }
       setOriginalOffer(JSON.parse(JSON.stringify(offer)));
     } catch (e: any) {
       console.error('Erreur sauvegarde:', e);
-      setError(e.message || 'Erreur de sauvegarde');
+      const errorMsg = e.response?.data?.error || e.message || 'Erreur de sauvegarde';
+      const details = e.response?.data?.details;
+      setError(errorMsg);
+      if (Array.isArray(details)) {
+        setErrorDetails(details);
+      } else if (typeof details === 'string') {
+        setErrorDetails([details]);
+      }
+      setShowErrorPopup(true);
     } finally {
       setSaving(false);
     }
@@ -225,15 +263,64 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       <div className="flex items-center gap-2 text-sm text-neutral-600"><Spinner /> Chargement…</div>
     </div>
   );
-  if (error) return (
-    <div className="mx-auto max-w-6xl p-6">
-      <p className="text-sm text-red-600">{error}</p>
-    </div>
-  );
   if (!offer) return null;
 
   return (
     <div className="mx-auto max-w-6xl">
+      {/* Popup d'erreur détaillé */}
+      {showErrorPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 max-w-lg rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-red-800">Erreur de sauvegarde</h3>
+                <p className="mt-1 text-sm text-neutral-700">{error}</p>
+              </div>
+            </div>
+            
+            {errorDetails && errorDetails.length > 0 && (
+              <div className="mb-4 rounded-md bg-red-50 p-3">
+                <p className="mb-2 text-sm font-medium text-red-800">Détails des erreurs :</p>
+                <ul className="list-inside list-disc space-y-1 text-sm text-red-700">
+                  {errorDetails.map((detail, idx) => (
+                    <li key={idx}>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowErrorPopup(false);
+                  setError(null);
+                  setErrorDetails(null);
+                }}
+                className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200"
+              >
+                Fermer
+              </button>
+              <button
+                onClick={() => {
+                  setShowErrorPopup(false);
+                  setError(null);
+                  setErrorDetails(null);
+                  save();
+                }}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Réessayer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex items-center gap-3">
         <h1 className="text-2xl font-semibold">Modifier l&apos;offre</h1>
         <div className="ml-auto">

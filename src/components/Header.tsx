@@ -90,7 +90,7 @@ const Header = () => {
                 href="/type-de-voyage"
                 className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
               >
-                Type de voyage
+                Types de voyages
               </Link>
               {showTypesDropdown && (
                 <TravelTypesDropdown onClose={() => setShowTypesDropdown(false)} />
@@ -103,7 +103,7 @@ const Header = () => {
                 href="/type-de-voyage"
                 className="text-gray-700 hover:text-black transition-colors text-base font-medium"
               >
-                Type de voyage
+                Types de voyages
               </Link>
             </div>
             
@@ -146,7 +146,7 @@ const Header = () => {
                 href="/themes"
                 className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
               >
-                Thème de voyage
+                Thèmes de voyages
               </Link>
               {showThemesDropdown && (
                 <TravelThemesDropdown onClose={() => setShowThemesDropdown(false)} />
@@ -159,7 +159,7 @@ const Header = () => {
                 href="/themes"
                 className="text-gray-700 hover:text-black transition-colors text-base font-medium"
               >
-                Thème de voyage
+                Thèmes de voyages
               </Link>
             </div>
 
