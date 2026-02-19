@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi } from '@/lib/axios';
-import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle, XCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import OptimizedImage from '@/components/OptimizedImage';
 
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
 interface FileUploadState {
@@ -27,6 +28,7 @@ export default function GalleryPage() {
   const router = useRouter();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadQueue, setUploadQueue] = useState<FileUploadState[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -34,30 +36,58 @@ export default function GalleryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState("");
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalImages, setTotalImages] = useState(0);
+  const [imagesPerPage] = useState(20);
 
-  // Charger les images
-  const loadImages = async () => {
+  // Charger les images avec pagination
+  const loadImages = useCallback(async (page: number = currentPage) => {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
       if (searchTerm) params.append("search", searchTerm);
       if (selectedTags) params.append("tags", selectedTags);
+      params.append("limit", imagesPerPage.toString());
+      params.append("offset", ((page - 1) * imagesPerPage).toString());
 
       const res = await adminApi.get(`/gallery?${params}`);
       const data = res.data;
       
       if (data.success) {
         setImages(data.data);
+        // Calculer la pagination
+        const total = data.pagination?.total || data.data.length;
+        setTotalImages(total);
+        setTotalPages(Math.ceil(total / imagesPerPage));
       }
     } catch (error) {
       console.error("Erreur chargement galerie:", error);
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
-  };
+  }, [searchTerm, selectedTags, imagesPerPage, currentPage]);
 
   useEffect(() => {
-    loadImages();
+    setCurrentPage(1); // Reset à la page 1 quand les filtres changent
+    loadImages(1);
   }, [searchTerm, selectedTags]);
+
+  // Charger quand la page change
+  useEffect(() => {
+    loadImages(currentPage);
+  }, [currentPage]);
+
+  // Navigation de pagination
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Optimiser une image côté client (compression sans perte de qualité visible)
   const optimizeImage = async (file: File): Promise<File> => {
@@ -253,10 +283,52 @@ export default function GalleryPage() {
     }
   };
 
-  if (loading) {
+  // Composant Skeleton pour une carte d'image
+  const ImageSkeleton = () => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+      <div className="aspect-square bg-gray-200" />
+      <div className="p-4">
+        <div className="h-5 bg-gray-200 rounded mb-2 w-3/4" />
+        <div className="h-3 bg-gray-200 rounded mb-3 w-1/2" />
+        <div className="flex gap-1 mb-3">
+          <div className="h-5 bg-gray-200 rounded-full w-16" />
+          <div className="h-5 bg-gray-200 rounded-full w-12" />
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 h-8 bg-gray-200 rounded" />
+          <div className="flex-1 h-8 bg-gray-200 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+
+  // Afficher les skeletons pendant le chargement initial
+  if (initialLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Chargement...</div>
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header skeleton */}
+          <div className="flex justify-between items-center mb-8">
+            <div className="h-10 bg-gray-200 rounded w-64 animate-pulse" />
+            <div className="h-10 bg-gray-200 rounded w-24 animate-pulse" />
+          </div>
+          
+          {/* Upload zone skeleton */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8 animate-pulse">
+            <div className="h-32 bg-gray-100 rounded-xl border-2 border-dashed border-gray-200" />
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="h-10 bg-gray-200 rounded" />
+              <div className="h-10 bg-gray-200 rounded" />
+            </div>
+          </div>
+          
+          {/* Grid skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ImageSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -397,16 +469,24 @@ export default function GalleryPage() {
 
         {/* Grille d'images */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {images.map((image) => (
+          {loading && !initialLoading && (
+            // Skeletons pendant le changement de page
+            Array.from({ length: imagesPerPage }).map((_, i) => (
+              <ImageSkeleton key={`skeleton-${i}`} />
+            ))
+          )}
+          {!loading && images.map((image) => (
             <div
               key={image.id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
             >
               <div className="aspect-square relative bg-gray-100">
-                <img
+                <OptimizedImage
                   src={image.url}
-                  alt={image.alt_text}
-                  className="w-full h-full object-cover"
+                  alt={image.alt_text || image.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               </div>
               <div className="p-4">
@@ -447,9 +527,79 @@ export default function GalleryPage() {
           ))}
         </div>
 
-        {images.length === 0 && (
+        {images.length === 0 && !loading && (
           <div className="text-center py-12 text-gray-500">
             Aucune image dans la galerie
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {/* Première page */}
+              {currentPage > 3 && (
+                <>
+                  <button
+                    onClick={() => goToPage(1)}
+                    className="px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm"
+                  >
+                    1
+                  </button>
+                  {currentPage > 4 && <span className="px-2 text-gray-400">...</span>}
+                </>
+              )}
+              
+              {/* Pages autour de la page courante */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => page >= currentPage - 2 && page <= currentPage + 2)
+                .map(page => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                      page === currentPage
+                        ? 'bg-yellow-500 text-white border border-yellow-500'
+                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              
+              {/* Dernière page */}
+              {currentPage < totalPages - 2 && (
+                <>
+                  {currentPage < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}
+                  <button
+                    onClick={() => goToPage(totalPages)}
+                    className="px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+            </div>
+            
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            
+            <span className="ml-4 text-sm text-gray-500">
+              {totalImages} image{totalImages > 1 ? 's' : ''} au total
+            </span>
           </div>
         )}
       </div>
@@ -460,11 +610,13 @@ export default function GalleryPage() {
           <div className="bg-white rounded-lg max-w-2xl w-full p-6">
             <h2 className="text-2xl font-bold mb-4">Éditer l'image</h2>
             
-            <div className="mb-4">
-              <img
+            <div className="mb-4 relative h-64 bg-gray-100 rounded overflow-hidden">
+              <OptimizedImage
                 src={editingImage.url}
-                alt={editingImage.alt_text}
-                className="w-full h-64 object-contain bg-gray-100 rounded"
+                alt={editingImage.alt_text || editingImage.title}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 672px"
               />
             </div>
 
