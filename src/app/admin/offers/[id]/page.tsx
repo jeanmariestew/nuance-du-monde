@@ -463,6 +463,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
               description={offer.description}
               mapCenter={offer.map_center}
               onMapCenterChange={(map_center) => setOffer({ ...(offer as OfferData), map_center })}
+              destinations={destinations.filter(d => offer.destinationIds?.includes(d.id)).map(d => ({ id: d.id, name: d.title }))}
             />
           </CardContent>
         </Card>

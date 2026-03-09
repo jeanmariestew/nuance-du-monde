@@ -17,12 +17,19 @@ interface MapCenter {
   zoom: number;
 }
 
+interface Destination {
+  id?: number;
+  name?: string;
+  title?: string;
+}
+
 interface CoordinatesEditorProps {
   coordinates: Coordinate[];
   onChange: (coordinates: Coordinate[]) => void;
   description?: string;
   mapCenter?: MapCenter | null;
   onMapCenterChange?: (center: MapCenter | null) => void;
+  destinations?: Destination[];
 }
 
 export default function CoordinatesEditor({
@@ -31,6 +38,7 @@ export default function CoordinatesEditor({
   description,
   mapCenter,
   onMapCenterChange,
+  destinations,
 }: CoordinatesEditorProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -229,7 +237,10 @@ export default function CoordinatesEditor({
       const response = await fetch('/api/admin/extract-coordinates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itinerary: description }),
+        body: JSON.stringify({ 
+          itinerary: description,
+          destinations: destinations || [],
+        }),
       });
 
       if (response.ok) {

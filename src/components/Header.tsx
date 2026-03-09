@@ -70,16 +70,14 @@ const Header = () => {
           </Link>
 
           {/* Navigation Desktop */}
-          <nav className="flex justify-between items-center space-x-8">
-            {/* Menu Types Desktop */}
-
-              <Link
-                href="/qui-sommes-nous/"
-                className="text-black text-center transition-colors"
-                onClick={handleMobileMenuClose}
-              >
-                Qui sommes nous
-              </Link>
+          <nav className="hidden md:flex justify-between items-center space-x-8">
+            {/* Qui sommes nous - Desktop */}
+            <Link
+              href="/qui-sommes-nous"
+              className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+            >
+              Qui sommes nous
+            </Link>
             <div 
               ref={typesRef}
               className="relative hidden lg:block"
@@ -163,32 +161,36 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Menu Mobile */}
-            <button
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <svg
-                className="w-10 h-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </nav>
+            </nav>
+          
+          {/* Bouton Demander un devis - Desktop */}
           <Link
             href="/devis-personnalise"
-            className={clsx("px-4 py-4 border border-black rounded-md transition-colors inline-block text-base font-medium")}
+            className="hidden md:inline-block px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
           >
             Demander un devis
           </Link>
+          
+          {/* Bouton Menu Mobile */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Ouvrir le menu"
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
         </div>
 
         {/* Menu Mobile & Tablette Dropdown */}
@@ -221,7 +223,7 @@ const Header = () => {
                 Thème de voyage
               </Link>
               <Link
-                href="/themes"
+                href="/qui-sommes-nous"
                 className="text-black text-center transition-colors"
                 onClick={handleMobileMenuClose}
               >

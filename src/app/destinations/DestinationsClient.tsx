@@ -160,9 +160,9 @@ export default function DestinationsClient() {
 
                 {/* Menu déroulant des destinations au hover */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-12 transition-all duration-300 z-50 pointer-events-none group-hover:pointer-events-auto">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-3 px-4 min-w-[200px] max-h-[400px] overflow-y-auto">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-3 px-4 min-w-[200px] overflow-y-auto">
                     <div className="space-y-1">
-                      {continentDestinations.slice(0, 8).map((dest: Destination) => (
+                      {continentDestinations.map((dest: Destination) => (
                         <Link
                           key={dest.id}
                           href={`/destinations/${dest.slug}`}
@@ -171,19 +171,6 @@ export default function DestinationsClient() {
                           {dest.title}
                         </Link>
                       ))}
-                      {continentDestinations.length > 8 && (
-                        <Link
-                          href={`/destinations?continent=${encodeURIComponent(continent)}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedContinent(continent);
-                            window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
-                          }}
-                          className="block px-3 py-2 text-sm text-yellow-600 hover:bg-yellow-50 rounded-md transition-colors duration-200 font-semibold text-center border-t border-gray-200 mt-2 pt-3"
-                        >
-                          Voir toutes nos destinations →
-                        </Link>
-                      )}
                     </div>
                   </div>
                 </div>

@@ -208,12 +208,82 @@ export default async function OfferDetailPage({ params }: PageProps) {
               {offer.title}
             </h1>
             <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
-              <p className="text-sm sm:text-base">{offer.short_description}</p>
-              {offer.description && (
-                <p className="mt-3 sm:mt-4 text-sm sm:text-base ">
-                  {offer.description.split("\n")[0]}
-                </p>
-              )}
+              {offer.short_description && (() => {
+                const text = offer.short_description;
+                
+                // Cherche "NOS EXPÉRIENCES +" au début ou après du texte
+                const experiencesMatch = text.match(/NOS EXPÉRIENCES \+\s*:?\s*([\s\S]*)/i);
+                
+                // Vérifie quel séparateur est utilisé
+                const hasDotSeparator = text.includes('. ');
+                const hasBulletSeparator = text.includes('·');
+                
+                // Fonction pour splitter selon le séparateur détecté
+                const splitContent = (content: string) => {
+                  if (content.includes('·')) {
+                    // Séparateur · (point médian)
+                    return content.split('·').map(item => item.trim()).filter(item => item.length > 0);
+                  } else if (content.includes('. ')) {
+                    // Séparateur ". " (point + espace)
+                    return content.split('. ').map(item => item.trim()).filter(item => item.length > 0);
+                  }
+                  return [content.trim()].filter(item => item.length > 0);
+                };
+                
+                // Format 1 & 2: Commence par "NOS EXPÉRIENCES +"
+                if (experiencesMatch) {
+                  const beforeExperiences = text.substring(0, experiencesMatch.index).trim();
+                  const experiencesContent = experiencesMatch[1];
+                  const bulletPoints = splitContent(experiencesContent);
+                  
+                  return (
+                    <>
+                      {beforeExperiences && (
+                        <p className="text-sm sm:text-base mb-3">{beforeExperiences}</p>
+                      )}
+                      <p className="text-sm sm:text-base font-bold text-gray-900 mb-2">NOS EXPÉRIENCES +</p>
+                      <ul className="list-none space-y-1 text-sm sm:text-base pl-0 m-0">
+                        {bulletPoints.map((point, index) => (
+                          <li key={index} className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-yellow-500 shrink-0">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  );
+                }
+                
+                // Format 3: Intro + séparateurs (sans "NOS EXPÉRIENCES +")
+                if (hasBulletSeparator || hasDotSeparator) {
+                  const parts = splitContent(text);
+                  
+                  // Le premier élément est l'intro, les suivants sont les points
+                  const intro = parts[0];
+                  const points = parts.slice(1);
+                  
+                  return (
+                    <>
+                      {intro && (
+                        <p className="text-sm sm:text-base font-bold text-gray-900 mb-2">{intro}</p>
+                      )}
+                      {points.length > 0 && (
+                        <ul className="list-none space-y-1 text-sm sm:text-base pl-0 m-0">
+                          {points.map((point, index) => (
+                            <li key={index} className="flex items-start gap-2 leading-relaxed">
+                              <span className="text-yellow-500 shrink-0">•</span>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  );
+                }
+                
+                // Texte simple sans formatage spécial
+                return <p className="text-sm sm:text-base">{text}</p>;
+              })()}
             </div>
             <button className="w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
               Demander un devis

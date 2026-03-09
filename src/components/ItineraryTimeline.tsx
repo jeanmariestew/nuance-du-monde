@@ -9,6 +9,7 @@ interface DayItinerary {
   description: string;
   location?: string;
   activities?: string;
+  meals?: string;
   transports?: string;
   accommodation?: string;
 }
@@ -138,38 +139,56 @@ export default function ItineraryTimeline({
                   </p>
                 )}
 
-                {/* Activités */}
-                {day.activities && (
-                  <div className="flex items-start gap-2 mb-2">
-                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
-                      {day.activities}
-                    </span>
-                  </div>
-                )}
+                {/* Catégories avec couleurs distinctes */}
+                <div className="space-y-2 mt-3">
+                  {/* Activités - Orange */}
+                  {day.activities && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-orange-600 font-semibold text-sm sm:text-base shrink-0">
+                        Activités :
+                      </span>
+                      <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                        {day.activities}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Transports */}
-                {day.transports && (
-                  <div className="flex items-start gap-2 mb-2">
-                    <span className="text-blue-600 font-semibold text-sm sm:text-base shrink-0">
-                      Transports :
-                    </span>
-                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
-                      {day.transports}
-                    </span>
-                  </div>
-                )}
+                  {/* Repas - Rose/Fuchsia */}
+                  {day.meals && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-pink-600 font-semibold text-sm sm:text-base shrink-0">
+                        Repas :
+                      </span>
+                      <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                        {day.meals}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Hébergements */}
-                {day.accommodation && (
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-600 font-semibold text-sm sm:text-base shrink-0">
-                      Hébergement :
-                    </span>
-                    <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
-                      {day.accommodation}
-                    </span>
-                  </div>
-                )}
+                  {/* Hébergement - Vert */}
+                  {day.accommodation && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 font-semibold text-sm sm:text-base shrink-0">
+                        Hébergement :
+                      </span>
+                      <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                        {day.accommodation}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Transport - Bleu */}
+                  {day.transports && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-600 font-semibold text-sm sm:text-base shrink-0">
+                        Transport :
+                      </span>
+                      <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
+                        {day.transports}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Options d'activités */}
                 {optionsByDay[day.day] && optionsByDay[day.day].length > 0 && (

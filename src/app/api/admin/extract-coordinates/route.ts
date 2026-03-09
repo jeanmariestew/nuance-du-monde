@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { itinerary } = await request.json();
+    const { itinerary, destinations } = await request.json();
 
     if (!itinerary) {
       return NextResponse.json(
@@ -21,9 +21,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Construire le contexte géographique depuis les destinations
+    let countryContext = '';
+    if (destinations && Array.isArray(destinations) && destinations.length > 0) {
+      const destinationNames = destinations
+        .map((d: { name?: string; title?: string }) => d.name || d.title)
+        .filter(Boolean)
+        .join(', ');
+      if (destinationNames) {
+        countryContext = `
+CONTEXTE GÉOGRAPHIQUE IMPORTANT:
+Ce voyage se déroule dans les pays/régions suivants : ${destinationNames}.
+Toutes les villes et lieux mentionnés dans l'itinéraire DOIVENT être localisés dans ces pays/régions.
+Par exemple, si le voyage est en Égypte et que "Le Caire" est mentionné, utilise les coordonnées du Caire en Égypte (et non pas une autre ville du même nom ailleurs dans le monde).
+`;
+      }
+    }
+
     // Prompt pour Gemini
     const prompt = `Tu es un assistant expert en géographie et voyages.
-
+${countryContext}
 ITINÉRAIRE:
 ${itinerary}
 
@@ -36,6 +53,7 @@ RÈGLES:
 - Un jour = un lieu principal
 - Si le voyageur reste au même endroit plusieurs jours, répète le lieu pour chaque jour
 - Pour les coordonnées, utilise le centre-ville ou le point d'intérêt principal
+- IMPORTANT: Les coordonnées doivent correspondre aux lieux dans le contexte géographique indiqué (pays/région du voyage)
 
 RÉPONDS UNIQUEMENT en JSON valide, sans markdown, sans explication:
 [

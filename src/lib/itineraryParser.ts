@@ -4,6 +4,7 @@ interface DayItinerary {
   description: string;
   location?: string;
   activities?: string;
+  meals?: string;
   transports?: string;
   accommodation?: string;
 }
@@ -75,7 +76,7 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
   const lines = description.split("\n");
   const itinerary: DayItinerary[] = [];
   let currentDay: DayItinerary | null = null;
-  let currentSection: 'introduction' | 'description' | 'activities' | 'transports' | 'accommodation' = 'introduction';
+  let currentSection: 'introduction' | 'description' | 'activities' | 'meals' | 'transports' | 'accommodation' = 'introduction';
   const introduction: string[] = [];
   let inIntroduction = true;
 
@@ -111,6 +112,7 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
         description: "",
         location: extractLocation(title),
         activities: undefined,
+        meals: undefined,
         transports: undefined,
         accommodation: undefined,
       };
@@ -121,6 +123,7 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
     } else if (currentDay && trimmedLine) {
       // Détecte les sections spécifiques
       const activitiesMatch = trimmedLine.match(/^Activit[ée]s?\s*:\s*(.*)$/i);
+      const mealsMatch = trimmedLine.match(/^Repas\s*:\s*(.*)$/i);
       const transportsMatch = trimmedLine.match(/^Transports?\s*:\s*(.*)$/i);
       const accommodationMatch = trimmedLine.match(/^H[ée]bergements?\s*:\s*(.*)$/i);
       
@@ -128,6 +131,11 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
         currentSection = 'activities';
         if (activitiesMatch[1]) {
           currentDay.activities = activitiesMatch[1].trim();
+        }
+      } else if (mealsMatch) {
+        currentSection = 'meals';
+        if (mealsMatch[1]) {
+          currentDay.meals = mealsMatch[1].trim();
         }
       } else if (transportsMatch) {
         currentSection = 'transports';
@@ -144,6 +152,10 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
         if (currentSection === 'activities') {
           currentDay.activities = currentDay.activities 
             ? currentDay.activities + ' ' + trimmedLine 
+            : trimmedLine;
+        } else if (currentSection === 'meals') {
+          currentDay.meals = currentDay.meals 
+            ? currentDay.meals + ' ' + trimmedLine 
             : trimmedLine;
         } else if (currentSection === 'transports') {
           currentDay.transports = currentDay.transports 
