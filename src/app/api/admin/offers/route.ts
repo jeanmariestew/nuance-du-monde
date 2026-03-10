@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
+// Fonction pour formater une date ISO en format MySQL YYYY-MM-DD
+function formatDateForMySQL(dateStr: string | null | undefined): string | null {
+  if (!dateStr) return null;
+  try {
+    // Si c'est déjà au format YYYY-MM-DD, le retourner tel quel
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+    // Sinon, parser et reformater
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+  } catch {
+    return null;
+  }
+}
+
 // List offers (basic fields)
 export async function GET() {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -77,7 +94,15 @@ export async function POST(req: Request) {
 
     // Save date ranges (preferred)
     if (Array.isArray(dates) && dates.length > 0) {
-      const valid = dates.filter(d => d && d.departure_date);
+      const valid = dates
+        .filter(d => d && d.departure_date)
+        .map(d => ({
+          ...d,
+          departure_date: formatDateForMySQL(d.departure_date),
+          return_date: formatDateForMySQL(d.return_date),
+        }))
+        .filter(d => d.departure_date); // Filtrer les dates invalides
+      
       if (valid.length > 0) {
         const placeholders = valid.map(() => '(?, ?, ?, ?, ?)').join(', ');
         const values = valid.flatMap((d) => [
@@ -94,7 +119,9 @@ export async function POST(req: Request) {
       }
     } else if (Array.isArray(available_dates) && available_dates.length > 0) {
       // Backward compatibility: simple departure dates
-      const validDates = available_dates.filter(date => date && date.trim());
+      const validDates = available_dates
+        .map(date => formatDateForMySQL(date))
+        .filter((date): date is string => date !== null);
       if (validDates.length > 0) {
         const placeholders = validDates.map(() => '(?, ?)').join(', ');
         const values = validDates.flatMap((date: string) => [offerId, date]);

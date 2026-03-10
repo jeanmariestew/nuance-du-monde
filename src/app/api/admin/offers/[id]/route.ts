@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server';
 import {query, execute} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
+// Fonction pour formater une date ISO en format MySQL YYYY-MM-DD
+function formatDateForMySQL(dateStr: string | null | undefined): string | null {
+  if (!dateStr) return null;
+  try {
+    // Si c'est déjà au format YYYY-MM-DD, le retourner tel quel
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+    // Sinon, parser et reformater
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   const { id: idStr } = await params;
@@ -225,18 +242,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     for (const d of datesToProcess) {
       const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null };
       
+      // Formater les dates pour MySQL
+      const formattedDepartureDate = formatDateForMySQL(dateData.departure_date);
+      const formattedReturnDate = formatDateForMySQL(dateData.return_date);
+      
+      if (!formattedDepartureDate) {
+        console.warn('[PUT /offers] Date de départ invalide ignorée:', dateData.departure_date);
+        continue;
+      }
+      
       if (dateData.id && existingDateIds.includes(dateData.id)) {
         // Mise à jour d'une date existante
         await query(
           `UPDATE offer_dates SET departure_date=?, return_date=?, price=?, price_currency=? WHERE id=? AND offer_id=?`,
-          [dateData.departure_date, dateData.return_date || null, dateData.price ?? null, dateData.price_currency || 'EUR', dateData.id, id]
+          [formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR', dateData.id, id]
         );
         processedIds.push(dateData.id);
       } else {
         // Nouvelle date
         const result = await execute(
           `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES (?, ?, ?, ?, ?)`,
-          [id, dateData.departure_date, dateData.return_date || null, dateData.price ?? null, dateData.price_currency || 'EUR']
+          [id, formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR']
         );
         processedIds.push(result.insertId);
       }
