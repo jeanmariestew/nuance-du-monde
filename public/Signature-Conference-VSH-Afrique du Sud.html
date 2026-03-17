@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Signature-Conférence-Vivez votre rêve entre
+Safari et Culture en Afrique du sud</title>
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+        }
+        #copyButton {
+            margin: 15px auto;
+            display: block;
+            padding: 10px 15px;
+            background-color: #0A369D;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+        #copyButton:hover {
+            background-color: #131312;
+        }
+        #signatureContent img {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            border: 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Bouton Copier -->
+<button id="copyButton">Copier la signature</button>
+
+<!-- Contenu de la signature -->
+<div id="signatureContent">
+    <a href="https://app.gohighlevel.com/v2/preview/fK8xNlfeYMgwasvPDyVt">
+        <img src="/images/Signature-Conference-VSH.gif" alt="Conférence Afrique du Sud - 08 Avril 2026">
+    </a>
+</div>
+
+<script>
+    document.getElementById("copyButton").addEventListener("click", async function () {
+        try {
+            const signature = document.getElementById("signatureContent");
+            const range = document.createRange();
+            range.selectNode(signature);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Copie avec format HTML visuel
+            document.execCommand('copy');
+            selection.removeAllRanges();
+
+            alert("La signature visuelle a été copiée !");
+        } catch (err) {
+            alert("Échec de la copie. Veuillez copier manuellement.");
+            console.error(err);
+        }
+    });
+</script>
+
+</body>
+</html>
