@@ -201,10 +201,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
-            <span className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">
-              DÉTAILS
-            </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-medium text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-serif font-medium text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-6 leading-tight">
               {offer.title}
             </h1>
             <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
