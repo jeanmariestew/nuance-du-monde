@@ -1,3 +1,5 @@
+"use client";
+
 import OptimizedImage from "@/components/OptimizedImage";
 
 export default function TravelTypesHero() {
@@ -15,9 +17,6 @@ export default function TravelTypesHero() {
                 className="object-cover mix-blend-overlay"
                 priority
               />
-            </div>
-            {/* Icône circulaire exacte comme la capture */}
-            <div className="absolute top-8 left-48 w-16 h-16  rounded-full flex items-center justify-center ripple-container">
             </div>
 
             <div className="my-20">

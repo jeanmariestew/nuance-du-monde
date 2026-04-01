@@ -9,6 +9,7 @@ export interface TravelType {
   image_url?: string;
   sort_order: number;
   is_active: boolean;
+  is_pro?: boolean;
   created_at: string;
   updated_at: string;
   // SEO Metadata

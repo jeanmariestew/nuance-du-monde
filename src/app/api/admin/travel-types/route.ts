@@ -36,13 +36,7 @@ export async function POST(req: Request) {
       image_url = '', 
       sort_order = 0,
       is_active = 1,
-      meta_title = '',
-      meta_description = '',
-      meta_keywords = '',
-      og_title = '',
-      og_description = '',
-      og_image = '',
-      canonical_url = ''
+      is_pro = 0
     } = body || {};
     
     if (!title || !slug) {
@@ -50,11 +44,8 @@ export async function POST(req: Request) {
     }
     
     const result = await execute(
-      'INSERT INTO travel_types (title, slug, description, short_description, image_url, sort_order, is_active, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        title, slug, description, short_description, image_url, sort_order, is_active ? 1 : 0,
-        meta_title, meta_description, meta_keywords, og_title, og_description, og_image, canonical_url
-      ]
+      'INSERT INTO travel_types (title, slug, description, short_description, image_url, sort_order, is_active, is_pro) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [title, slug, description, short_description, image_url, sort_order, is_active ? 1 : 0, is_pro ? 1 : 0]
     );
     
     return NextResponse.json({ success: true, data: { id: result.insertId } });

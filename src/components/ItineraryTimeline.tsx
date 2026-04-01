@@ -203,12 +203,12 @@ export default function ItineraryTimeline({
                               <span className="font-semibold text-sm sm:text-base text-gray-900">
                                 {option.title}
                               </span>
-                              {option.is_included && (
+                              {!!option.is_included && (
                                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                                   Inclus
                                 </span>
                               )}
-                              {option.price_supplement && option.price_supplement > 0 && (
+                              {option.price_supplement && Number(option.price_supplement) > 0 && (
                                 <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
                                   {option.is_starting_price ? "À partir de ": '+'}{option.price_supplement} {option.price_currency || 'CAD'}
                                 </span>

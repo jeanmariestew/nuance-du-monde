@@ -20,6 +20,7 @@ export default function EditTravelTypePage({
     image_url: "",
     sort_order: 0,
     is_active: true,
+    is_pro: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -50,6 +51,7 @@ export default function EditTravelTypePage({
             image_url: json.data.image_url || "",
             sort_order: json.data.sort_order || 0,
             is_active: !!json.data.is_active,
+            is_pro: !!json.data.is_pro,
           });
         } else if (mounted) {
           setError(json.error || "Erreur de chargement");
@@ -94,6 +96,7 @@ export default function EditTravelTypePage({
       const res = await adminApi.put(`/travel-types/${id}`, {
         ...formData,
         is_active: formData.is_active ? 1 : 0,
+        is_pro: formData.is_pro ? 1 : 0,
       });
       const json = res.data;
 
@@ -240,21 +243,39 @@ export default function EditTravelTypePage({
                 </p>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  id="is_active"
-                  name="is_active"
-                  type="checkbox"
-                  checked={formData.is_active}
-                  onChange={handleCheckboxChange}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="is_active"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Actif
-                </label>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center">
+                  <input
+                    id="is_active"
+                    name="is_active"
+                    type="checkbox"
+                    checked={formData.is_active}
+                    onChange={handleCheckboxChange}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="is_active"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
+                    Actif
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="is_pro"
+                    name="is_pro"
+                    type="checkbox"
+                    checked={formData.is_pro}
+                    onChange={handleCheckboxChange}
+                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="is_pro"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
+                    Réservé aux Professionnels
+                  </label>
+                </div>
               </div>
 
               {error && (
