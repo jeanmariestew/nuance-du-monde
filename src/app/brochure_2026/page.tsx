@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 // URL externe vers laquelle rediriger
-const EXTERNAL_URL = "https://heyzine.com/flip-book/ba8c69ea9d.html";
+const EXTERNAL_URL = "https://heyzine.com/flip-book/5151157645.html";
 
 export default function BrochurePage() {
   useEffect(() => {
