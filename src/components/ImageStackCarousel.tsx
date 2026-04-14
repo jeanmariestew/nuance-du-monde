@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
 
 interface OfferImage {
@@ -23,177 +23,289 @@ export default function ImageStackCarousel({
   title,
 }: ImageStackCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [mouseStart, setMouseStart] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalIndex, setModalIndex] = useState(0);
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Préparer la liste des images
-  const imageList = images.length > 0 
-    ? images.map(img => img.image_url)
-    : fallbackImage 
-    ? [fallbackImage]
-    : [];
+  const imageList =
+    images.length > 0
+      ? images.map((img) => img.image_url)
+      : fallbackImage
+      ? [fallbackImage]
+      : [];
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % imageList.length);
+  }, [imageList.length]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + imageList.length) % imageList.length);
+  }, [imageList.length]);
+
+  // Auto-play pour le carousel mobile (5s)
+  useEffect(() => {
+    if (imageList.length <= 1 || modalOpen) return;
+    autoPlayRef.current = setInterval(goToNext, 5000);
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [goToNext, imageList.length, modalOpen]);
+
+  // Fermer la modal avec Escape
+  useEffect(() => {
+    if (!modalOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setModalOpen(false);
+      if (e.key === "ArrowRight")
+        setModalIndex((prev) => (prev + 1) % imageList.length);
+      if (e.key === "ArrowLeft")
+        setModalIndex(
+          (prev) => (prev - 1 + imageList.length) % imageList.length
+        );
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [modalOpen, imageList.length]);
+
+  const openModal = (index: number) => {
+    setModalIndex(index);
+    setModalOpen(true);
+  };
 
   if (imageList.length === 0) {
     return (
-      <div className="relative">
-        <div className="w-full h-[500px] bg-linear-to-r from-yellow-600/50 to-yellow-900/50 rounded-3xl shadow-2xl" />
+      <div className="relative ">
+        <div className="w-full h-[400px] bg-linear-to-r from-yellow-600/50 to-yellow-900/50 rounded-3xl shadow-2xl" />
       </div>
     );
   }
 
-  const goToImage = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % imageList.length);
-  };
-
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + imageList.length) % imageList.length);
-  };
-
-  // Minimum distance de swipe (en pixels)
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe) {
-      nextImage();
-    } else if (isRightSwipe) {
-      prevImage();
-    }
-  };
-
-  // Gestion du swipe à la souris
-  const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setMouseStart(e.clientX);
-  };
-
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || !mouseStart) return;
-    
-    const distance = mouseStart - e.clientX;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe) {
-      nextImage();
-    } else if (isRightSwipe) {
-      prevImage();
-    }
-    
-    setIsDragging(false);
-    setMouseStart(null);
-  };
-
-  const onMouseLeave = () => {
-    setIsDragging(false);
-    setMouseStart(null);
-  };
-
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      {/* Stack d'images en éventail - Style référence */}
-      <div 
-        className="relative h-[300px] sm:h-[400px] lg:h-[450px] xl:h-[500px] flex items-center justify-center select-none overflow-visible"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseLeave}
-      >
-        {/* Afficher toutes les images en éventail */}
-        {imageList.map((img, index) => {
-          const totalImages = imageList.length;
-          const middleIndex = Math.floor(totalImages / 2);
-          const isActive = index === currentIndex;
-          
-          // Position relative au centre
-          const positionFromCenter = index - middleIndex;
-          
-          // Calculs pour l'éventail - responsive
-          const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-          const isTablet = typeof window !== 'undefined' && window.innerWidth >= 640 && window.innerWidth < 1024;
-          const isLarge = typeof window !== 'undefined' && window.innerWidth >= 1280;
-          
-          const rotation = positionFromCenter * (isMobile ? 5 : isLarge ? 6 : 8); // Rotation adaptée
-          const translateX = positionFromCenter * (isMobile ? 40 : isTablet ? 55 : isLarge ? 65 : 75); // Espacement adaptatif
-          const translateY = Math.abs(positionFromCenter) * (isMobile ? 10 : isLarge ? 12 : 15); // Légère courbe
-          const scale = isActive ? 1 : (isMobile ? 0.75 : isLarge ? 0.88 : 0.85); // Image active plus grande
-          const zIndex = isActive ? 100 : 50 - Math.abs(positionFromCenter);
-          
-          return (
-            <div
-              key={index}
-              className="absolute transition-all duration-500 ease-out cursor-pointer"
-              style={{
-                transform: `
-                  translateX(${translateX}px) 
-                  translateY(${translateY}px) 
-                  rotate(${rotation}deg) 
-                  scale(${scale})
-                `,
-                zIndex: zIndex,
-                opacity: isActive ? 1 : 0.8,
-              }}
-              onClick={() => goToImage(index)}
-            >
-              <OptimizedImage
-                src={img}
-                width={600}
-                height={400}
-                className="w-[280px] h-[200px] sm:w-[360px] sm:h-[250px] lg:w-[420px] lg:h-[300px] xl:w-[480px] xl:h-[340px] rounded-xl sm:rounded-2xl object-cover shadow-2xl"
-                alt={`${title} - Image ${index + 1}`}
-                priority={index === 0}
-              />
-            </div>
-          );
-        })}
+    <>
+      {/* ===================== MOBILE : carousel auto ===================== */}
+      <div className="block lg:hidden relative w-full pt-5">
+        <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+          {/* Slides */}
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {imageList.map((img, index) => (
+              <button
+                key={index}
+                type="button"
+                className="min-w-full focus:outline-none"
+                onClick={() => openModal(index)}
+              >
+                <OptimizedImage
+                  src={img}
+                  width={800}
+                  height={520}
+                  className="w-full h-[300px] sm:h-[420px] object-cover"
+                  alt={`${title} - Image ${index + 1}`}
+                  priority={index === 0}
+                />
+              </button>
+            ))}
+          </div>
 
-        {/* Counter */}
+          {/* Flèches */}
+          {imageList.length > 1 && (
+            <>
+              <button
+                onClick={() => {
+                  goToPrev();
+                  if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+                  autoPlayRef.current = setInterval(goToNext, 5000);
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors z-10"
+                aria-label="Image précédente"
+              >
+                ‹
+              </button>
+              <button
+                onClick={() => {
+                  goToNext();
+                  if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+                  autoPlayRef.current = setInterval(goToNext, 5000);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors z-10"
+                aria-label="Image suivante"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {/* Compteur */}
+          {imageList.length > 1 && (
+            <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-3 py-1 rounded-full z-10">
+              {currentIndex + 1} / {imageList.length}
+            </div>
+          )}
+        </div>
+
+        {/* Dots */}
         {imageList.length > 1 && (
-          <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold z-110">
-            {currentIndex + 1} / {imageList.length}
+          <div className="flex justify-center gap-1.5 mt-3">
+            {imageList.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`transition-all rounded-full ${
+                  index === currentIndex
+                    ? "w-8 h-2.5 bg-yellow-500"
+                    : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400"
+                }`}
+                aria-label={`Aller à l'image ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      {/* Dots Navigation */}
-      {imageList.length > 1 && (
-        <div className="flex justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 lg:mt-8">
-          {imageList.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToImage(index)}
-              className={`transition-all ${
-                index === currentIndex
-                  ? "w-8 sm:w-10 h-2.5 sm:h-3 bg-yellow-600"
-                  : "w-2.5 sm:w-3 h-2.5 sm:h-3 bg-gray-300 hover:bg-gray-400"
-              } rounded-full`}
-              aria-label={`Aller à l'image ${index + 1}`}
+      {/* ===================== DESKTOP : stack éventail ===================== */}
+      <div className="hidden lg:block relative w-full max-w-4xl mx-auto">
+        <div className="relative h-[450px] xl:h-[500px] flex items-center justify-center select-none overflow-visible">
+          {imageList.map((img, index) => {
+            const totalImages = imageList.length;
+            const middleIndex = Math.floor(totalImages / 2);
+            const isActive = index === currentIndex;
+
+            // Position relative au milieu (pour la disposition en éventail)
+            const positionFromCenter = index - middleIndex;
+
+            // Distance à l'image active (pour le zIndex)
+            const distanceFromActive = Math.abs(index - currentIndex);
+
+            const rotation = positionFromCenter * 6;
+            const translateX = positionFromCenter * 65;
+            const translateY = Math.abs(positionFromCenter) * 12;
+            const scale = isActive ? 1 : 0.86;
+            // zIndex : l'image active est devant, puis celles adjacentes, etc.
+            const zIndex = isActive ? 100 : Math.max(1, 80 - distanceFromActive * 15);
+
+            return (
+              <div
+                key={index}
+                className="absolute transition-all duration-500 ease-out cursor-pointer"
+                style={{
+                  transform: `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotation}deg) scale(${scale})`,
+                  zIndex,
+                  opacity: isActive ? 1 : 0.82,
+                }}
+                onClick={() => {
+                  if (isActive) {
+                    openModal(index);
+                  } else {
+                    setCurrentIndex(index);
+                  }
+                }}
+              >
+                <OptimizedImage
+                  src={img}
+                  width={600}
+                  height={400}
+                  className="w-[380px] h-[260px] xl:w-[460px] xl:h-[320px] rounded-2xl object-cover shadow-2xl"
+                  alt={`${title} - Image ${index + 1}`}
+                  priority={index === 0}
+                />
+              </div>
+            );
+          })}
+
+          {/* Compteur */}
+          {imageList.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-5 py-1.5 rounded-full text-sm font-semibold z-[110]">
+              {currentIndex + 1} / {imageList.length}
+            </div>
+          )}
+        </div>
+
+        {/* Dots */}
+        {imageList.length > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            {imageList.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`transition-all rounded-full ${
+                  index === currentIndex
+                    ? "w-10 h-3 bg-yellow-500"
+                    : "w-3 h-3 bg-gray-300 hover:bg-gray-400"
+                }`}
+                aria-label={`Aller à l'image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ===================== MODAL plein écran ===================== */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center"
+          onClick={() => setModalOpen(false)}
+        >
+          {/* Bouton fermer */}
+          <button
+            onClick={() => setModalOpen(false)}
+            className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center text-2xl transition-colors z-10"
+            aria-label="Fermer"
+          >
+            ×
+          </button>
+
+          {/* Image */}
+          <div
+            className="relative max-w-[90vw] max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <OptimizedImage
+              src={imageList[modalIndex]}
+              width={1400}
+              height={900}
+              className="max-w-[90vw] max-h-[90vh] object-contain rounded-xl shadow-2xl"
+              alt={`${title} - Image ${modalIndex + 1}`}
+              priority
             />
-          ))}
+          </div>
+
+          {/* Flèches modal */}
+          {imageList.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModalIndex(
+                    (prev) => (prev - 1 + imageList.length) % imageList.length
+                  );
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/25 rounded-full w-12 h-12 flex items-center justify-center text-3xl transition-colors"
+                aria-label="Image précédente"
+              >
+                ‹
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModalIndex((prev) => (prev + 1) % imageList.length);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-white/10 hover:bg-white/25 rounded-full w-12 h-12 flex items-center justify-center text-3xl transition-colors"
+                aria-label="Image suivante"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {/* Compteur modal */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+            {modalIndex + 1} / {imageList.length}
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
