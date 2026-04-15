@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Clock } from "lucide-react";
 import OptimizedImage from "@/components/OptimizedImage";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
@@ -174,7 +175,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 {offer.destinations?.[0]?.title || "Voyage"}
               </span>
               <h1
-                className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 ${
+                className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-[Alro] uppercase mb-4 ${
                   coverImage ? "text-white drop-shadow-2xl" : "text-gray-800"
                 }`}
               >
@@ -201,9 +202,16 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
-            <h1 className="text-3xl sm:text-4xl font-serif font-medium text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-6 leading-tight">
-              {offer.title}
-            </h1>
+            {(offer.duration_days || offer.duration_nights) && (
+              <div className="flex items-center gap-3 mt-3 sm:mt-4 mb-4 sm:mb-6">
+                <Clock className="w-6 h-6 text-yellow-500 shrink-0" />
+                <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
+                  {offer.duration_days ? `${offer.duration_days} jour${offer.duration_days > 1 ? 's' : ''}` : ''}
+                  {offer.duration_days && offer.duration_nights ? ' / ' : ''}
+                  {offer.duration_nights ? `${offer.duration_nights} nuit${offer.duration_nights > 1 ? 's' : ''}` : ''}
+                </h1>
+              </div>
+            )}
             <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
               {offer.short_description && (() => {
                 const text = offer.short_description;
