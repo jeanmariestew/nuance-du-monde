@@ -9,6 +9,8 @@ export async function GET(req: Request) {
     const type = url.searchParams.get('type'); // slug
     const theme = url.searchParams.get('theme'); // slug
     const hasActiveTheme = url.searchParams.get('hasActiveTheme'); // filter offers with active themes
+    const includePro = url.searchParams.get('includePro'); // include pro offers
+    const proOnly = url.searchParams.get('proOnly'); // only pro offers
 
     const parts: string[] = [];
     const params: (string | number)[] = [];
@@ -47,6 +49,24 @@ export async function GET(req: Request) {
     }
 
     sql += `\nWHERE o.is_active = 1`;
+    
+    // Filter Pro offers based on travel_types.is_pro
+    if (proOnly === 'true') {
+      // Only offers that have at least one Pro travel type
+      sql += ` AND EXISTS (
+        SELECT 1 FROM offer_travel_types ott_pro 
+        JOIN travel_types tt_pro ON tt_pro.id = ott_pro.travel_type_id 
+        WHERE ott_pro.offer_id = o.id AND tt_pro.is_pro = 1
+      )`;
+    } else if (includePro !== 'true') {
+      // Exclude offers that have ONLY Pro travel types (keep offers with at least one non-Pro type)
+      sql += ` AND EXISTS (
+        SELECT 1 FROM offer_travel_types ott_non_pro 
+        JOIN travel_types tt_non_pro ON tt_non_pro.id = ott_non_pro.travel_type_id 
+        WHERE ott_non_pro.offer_id = o.id AND (tt_non_pro.is_pro = 0 OR tt_non_pro.is_pro IS NULL)
+      )`;
+    }
+    
     if (parts.length) {
       sql += ` AND ` + parts.join(' AND ');
     }
@@ -84,6 +104,7 @@ export async function GET(req: Request) {
     let minPriceMap: Record<number, number | null> = {};
     let imagesMap: Record<number, any[]> = {};
     let themesMap: Record<number, any[]> = {};
+    let destinationsMap: Record<number, any[]> = {};
     
     if (offerIds.length > 0) {
       const datesRows = await query(
@@ -138,6 +159,25 @@ export async function GET(req: Request) {
         });
         return acc;
       }, {} as Record<number, any[]>);
+
+      // Fetch destinations for offers
+      const destinationsRows = await query(
+        `SELECT od.offer_id, d.id, d.title, d.slug, d.continent
+         FROM offer_destinations od
+         JOIN destinations d ON d.id = od.destination_id
+         WHERE od.offer_id IN (${offerIds.map(() => '?').join(',')})`,
+        offerIds
+      );
+      destinationsMap = (destinationsRows as any[]).reduce((acc, row) => {
+        if (!acc[row.offer_id]) acc[row.offer_id] = [];
+        acc[row.offer_id].push({
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          continent: row.continent
+        });
+        return acc;
+      }, {} as Record<number, any[]>);
     }
     
     const data = (rows as OfferRow[]).map((o) => {
@@ -154,6 +194,7 @@ export async function GET(req: Request) {
         available_dates: availableDatesMap[o.id] || [],
         images: offerImages,
         themes: themesMap[o.id] || [],
+        destinations: destinationsMap[o.id] || [],
       };
     });
     return NextResponse.json({ success: true, data });
