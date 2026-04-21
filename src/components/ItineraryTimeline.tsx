@@ -89,7 +89,7 @@ export default function ItineraryTimeline({
           >
             {/* Timeline connector */}
             {index < itinerary.length - 1 && (
-              <div className="absolute left-[19px] sm:left-[23px] top-12 sm:top-14 bottom-0 w-0.5 sm:w-1 bg-linear-to-b from-yellow-500 via-yellow-400 to-yellow-300" />
+              <div className="absolute  sm:left-[23px] top-12 sm:top-14 bottom-0 w-0.5 sm:w-1 bg-linear-to-b from-yellow-500 via-yellow-400 to-yellow-300" />
             )}
 
             {/* Day content */}
@@ -106,7 +106,7 @@ export default function ItineraryTimeline({
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight">
                   {day.title}
                 </h3>
-                {day.location && (
+                {/* {day.location && (
                   <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                     <svg
                       className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 shrink-0"
@@ -131,32 +131,41 @@ export default function ItineraryTimeline({
                       {day.location}
                     </span>
                   </div>
-                )}
+                )} */}
                 {/* Description générale */}
                 {day.description && (
-                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 first-letter:uppercase">
-                    {day.description}
-                  </p>
+                  <div className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3">
+                    {day.description.split(/\.\s+/).filter(Boolean).map((sentence, idx) => (
+                      <p key={idx} className="first-letter:uppercase">
+                        {sentence.trim()}{idx < day.description.split(/\.\s+/).filter(Boolean).length - 1 ? '.' : ''}
+                      </p>
+                    ))}
+                  </div>
                 )}
 
                 {/* Catégories avec couleurs distinctes */}
                 <div className="space-y-2 mt-3">
                   {/* Activités - Orange */}
                   {day.activities && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600 font-semibold text-sm sm:text-base shrink-0">
+                    <div className="gap-2">
+                      <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Activités :
                       </span>
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
-                        {day.activities}
+                        {day.activities.split(/\.\s+/).filter(Boolean).map((sentence, idx, arr) => (
+                          <span key={idx}>
+                            {sentence.trim()}{idx < arr.length - 1 ? '.' : ''}
+                            {idx < arr.length - 1 && <br />}
+                          </span>
+                        ))}
                       </span>
                     </div>
                   )}
 
                   {/* Repas - Rose/Fuchsia */}
                   {day.meals && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600 font-semibold text-sm sm:text-base shrink-0">
+                    <div className=" gap-2">
+                      <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Repas :
                       </span>
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
@@ -167,9 +176,9 @@ export default function ItineraryTimeline({
 
                   {/* Hébergement - Vert */}
                   {day.accommodation && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600 font-semibold text-sm sm:text-base shrink-0">
-                        Hébergement :
+                    <div className=" gap-2">
+                      <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
+                        Hébergement: 
                       </span>
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
                         {day.accommodation}
@@ -179,8 +188,8 @@ export default function ItineraryTimeline({
 
                   {/* Transport - Bleu */}
                   {day.transports && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-blue-600 font-semibold text-sm sm:text-base shrink-0">
+                    <div className="gap-2">
+                      <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Transport :
                       </span>
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">

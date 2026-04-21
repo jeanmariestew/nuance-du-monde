@@ -57,7 +57,7 @@ export default async function TravelTypePage({ params }: PageProps) {
           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{type.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-[Alro] uppercase md:text-4xl lg:text-5xl font-bold">{type.title}</h1>
           {type.short_description && (
             <p className="text-sm sm:text-base md:text-lg lg:text-xl mt-2 max-w-3xl mx-auto leading-relaxed">{type.short_description}</p>
           )}

@@ -12,6 +12,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import PartnersSection from "@/components/PartnersSection";
 import { api } from "@/lib/axios";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
+import { useProfessional } from "@/contexts/ProfessionalContext";
 
 interface Testimonial {
   id: number;
@@ -34,15 +35,21 @@ export default function Home() {
   const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const { session } = useProfessional();
 
   useEffect(() => {
     // Charger les données depuis l'API
     const fetchData = async () => {
       try {
+        // Inclure les types Pro si session professionnelle active
+        const typesUrl = session?.isAuthenticated 
+          ? "/travel-types?active=true&includePro=true"
+          : "/travel-types?active=true";
+
         const [destRes, typesRes, themesRes, testimonialsRes, partnersRes] =
           await Promise.all([
             api.get("/destinations?active=true&limit=5"),
-            api.get("/travel-types?active=true"),
+            api.get(typesUrl),
             api.get("/travel-themes?active=true&limit=20"),
             api.get(
               "/testimonials?featured=true&active=true&published=true&limit=6",
@@ -67,7 +74,7 @@ export default function Home() {
     };
 
     fetchData();
-  }, []);
+  }, [session?.isAuthenticated]);
 
   return (
     <div className="flex flex-col gap-y-10">

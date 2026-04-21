@@ -7,15 +7,20 @@ import TravelTypesSection from "@/components/TravelTypesSection";
 import ValuesSection from "@/components/ValuesSection";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
 import { api } from "@/lib/axios";
+import { useProfessional } from "@/contexts/ProfessionalContext";
 
 export default function TypeDeVoyageClient() {
   const [types, setTypes] = useState<TravelType[]>([]);
   const [loading, setLoading] = useState(true);
+  const { session } = useProfessional();
 
   useEffect(() => {
     const fetchTypes = async () => {
       try {
-        const response = await api.get("/travel-types?active=true");
+        const url = session?.isAuthenticated 
+          ? "/travel-types?active=true&includePro=true"
+          : "/travel-types?active=true";
+        const response = await api.get(url);
         const data = response.data;
         if (data.success) setTypes(data.data);
       } catch (error) {
@@ -25,7 +30,7 @@ export default function TypeDeVoyageClient() {
       }
     };
     fetchTypes();
-  }, []);
+  }, [session?.isAuthenticated]);
 
   if (loading) {
     return (
@@ -53,9 +58,7 @@ export default function TypeDeVoyageClient() {
         </div>
         <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40"></div>
         <div className="relative z-10 text-left text-white px-4 sm:px-6 md:px-8 max-w-2xl">
-          <div className="inline-block bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
-            Catégorie
-          </div>
+
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 font-[Alro] uppercase">
             NOS TYPES DE VOYAGES
           </h1>

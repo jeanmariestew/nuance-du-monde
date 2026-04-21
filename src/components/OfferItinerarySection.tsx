@@ -121,7 +121,7 @@ export default function OfferItinerarySection({
               Programme du voyage
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-gray-900 mb-4 sm:mb-6 px-4">
+          <h2 className="text-xl font-[Alro] sm:text-2xl lg:text-5xl uppercase font-medium text-gray-900 mb-4 sm:mb-6 px-4">
             {title}
           </h2>
           {programmeLink && (
