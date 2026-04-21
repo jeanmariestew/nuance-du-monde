@@ -89,12 +89,12 @@ export default function DestinationsClient() {
       {/* Hero Section avec rectangles de continents */}
       <section className="relative h-screen w-full overflow-hidden">
         {/* Titre et texte flottants en haut au centre */}
-        <div className="absolute top-0 left-0 right-0 flex items-start justify-center z-20 pointer-events-none pt-16 sm:pt-20 md:pt-24">
+        <div className="absolute top-0 left-0 right-0 flex items-start justify-center z-20 pointer-events-none pt-8 sm:pt-20 md:pt-24">
           <div className="text-center px-4">
-            <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl font-[Alro] uppercase">
+            <h1 className="text-2xl md:text-5xl font-bold md:mb-6 md:text-white text-black drop-shadow-2xl font-[Alro] uppercase">
               NOS DESTINATIONS
             </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
+            <p className="text-lg  md:text-3xl text-black md:text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
               Voyagez au cœur des plus belles destinations du monde à travers des
               itinéraires captivants et soigneusement conçus pour vous.
             </p>
@@ -102,7 +102,7 @@ export default function DestinationsClient() {
         </div>
 
         {/* Rectangles de continents en une seule ligne */}
-        <div className="absolute inset-0 flex gap-0">
+        <div className="absolute inset-0 hidden md:flex gap-0">
           {continents.map((continent) => {
             const destinationCount = destinationsByContinent?.[continent]?.length || 0;
             const isSelected = selectedContinent === continent;
@@ -177,6 +177,59 @@ export default function DestinationsClient() {
               </div>
             );
           })}
+        </div>
+
+        {/* Mobile: Grille de cartes */}
+        <div className="absolute inset-0 md:hidden overflow-y-auto px-4 pt-48 pb-8">
+          <div className="grid grid-cols-2 gap-3">
+            {continents.map((continent) => {
+              const destinationCount = destinationsByContinent?.[continent]?.length || 0;
+              const isSelected = selectedContinent === continent;
+              const continentStyle = getContinentStyle(continent);
+
+              return (
+                <Link
+                  key={continent}
+                  href={`/destinations?continent=${encodeURIComponent(continent)}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedContinent(continent);
+                    window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
+                  }}
+                  className={`group relative h-40 rounded-xl overflow-hidden ${
+                    isSelected ? 'ring-4 ring-yellow-400' : ''
+                  }`}
+                >
+                  {/* Image de fond */}
+                  {continentStyle.image ? (
+                    <OptimizedImage
+                      src={continentStyle.image}
+                      alt={continent}
+                      fill
+                      className="object-cover"
+                      sizes="50vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-600"></div>
+                  )}
+
+                  {/* Overlay */}
+                  <div className={`absolute inset-0 ${continentStyle.overlay}`}></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                  {/* Contenu */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-end p-3">
+                    <h3 className="text-sm font-bold text-white text-center drop-shadow-lg font-[Alro] leading-tight">
+                      {continent}
+                    </h3>
+                    <p className="text-white/80 text-xs mt-1">
+                      {destinationCount} {destinationCount > 1 ? 'dest.' : 'dest.'}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 

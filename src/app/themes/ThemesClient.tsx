@@ -7,10 +7,13 @@ import ThemeCard from "@/components/cards/ThemeCard";
 import { ThemeCardSkeleton } from "@/components/ui/SkeletonLoader";
 import OffersGrid from "@/components/OffersGrid";
 import { api } from "@/lib/axios";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ThemesClient() {
   const [themes, setThemes] = useState<TravelTheme[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const itemsPerPage = 3;
 
   useEffect(() => {
     const fetchThemes = async () => {
@@ -26,6 +29,21 @@ export default function ThemesClient() {
     };
     fetchThemes();
   }, []);
+
+  // Défilement automatique toutes les 5 secondes
+  useEffect(() => {
+    if (themes.length <= itemsPerPage) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const maxIndex = themes.length - itemsPerPage;
+        // Boucle infinie: si on atteint la fin, on revient au début
+        return prev >= maxIndex ? 0 : prev + 1;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [themes.length]);
 
   if (loading) {
     return (
@@ -51,7 +69,7 @@ export default function ThemesClient() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">NOS THÈMES</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-[Alro]">NOS THÈMES</h1>
         </div>
       </section>
 
@@ -69,11 +87,68 @@ export default function ThemesClient() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 justify-center gap-8">
-              {themes.map((theme) => (
-                <ThemeCard theme={theme}  key={theme.id}/>
-              ))}
-            </div>
+            <>
+              {/* Mobile: Grille 1 colonne */}
+              <div className="grid grid-cols-1 lg:hidden gap-8">
+                {themes.map((theme) => (
+                  <ThemeCard theme={theme} key={theme.id} />
+                ))}
+              </div>
+
+              {/* Desktop: Carousel */}
+              <div className="hidden lg:block relative">
+                {/* Boutons de navigation */}
+                <button
+                  onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+                  disabled={currentIndex === 0}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 p-3 rounded-full bg-white shadow-lg border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <button
+                  onClick={() => setCurrentIndex((prev) => Math.min(themes.length - itemsPerPage, prev + 1))}
+                  disabled={currentIndex >= themes.length - itemsPerPage}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 p-3 rounded-full bg-white shadow-lg border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Container du carousel */}
+                <div className="overflow-hidden">
+                  <div
+                    className="flex gap-8 transition-transform duration-500 ease-in-out"
+                    style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage + 2)}%)` }}
+                  >
+                    {themes.map((theme) => (
+                      <div
+                        key={theme.id}
+                        className="min-w-[calc(33.333%-1.33rem)] shrink-0"
+                      >
+                        <ThemeCard theme={theme} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Indicateurs (dots) */}
+                {themes.length > itemsPerPage && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    {Array.from({ length: Math.ceil(themes.length - itemsPerPage + 1) }, (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentIndex(i)}
+                        className={`w-3 h-3 rounded-full transition-all ${
+                          currentIndex === i
+                            ? "bg-yellow-500 scale-110"
+                            : "bg-gray-300 hover:bg-gray-400"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </section>

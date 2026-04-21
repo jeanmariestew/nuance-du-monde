@@ -72,7 +72,7 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
             key={travelType.id}
             className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[46%] lg:w-[32%]"
           >
-            <div className="relative bg-cover bg-center h-[650px] rounded-lg overflow-hidden group cursor-pointer">
+            <div className="relative bg-cover bg-center h-[420px] rounded-lg overflow-hidden group cursor-pointer">
               {/* Badge Pro incliné */}
               {travelType.is_pro && (
                 <div className="absolute top-4 right-[-35px] z-10 bg-black text-white text-xs font-bold py-1 px-10 rotate-45 shadow-lg">

@@ -103,7 +103,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
                 <div className="flex-1 min-w-0">
                   <h5 className="text-sm font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors mb-1 flex items-center gap-2">
                     {type.title}
-                    {type.is_pro && (
+                    {!!type.is_pro && (
                       <span className="bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                         PRO
                       </span>
