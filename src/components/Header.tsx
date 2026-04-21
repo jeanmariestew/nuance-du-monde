@@ -165,12 +165,12 @@ const Header = () => {
           
           {/* Boutons Espace Pro + Demander un devis - Desktop */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
+            {/* <Link
               href="/espace-pro"
               className="inline-flex items-center gap-1.5 px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
             >
               Agent de voyage
-            </Link>
+            </Link> */}
             <Link
               href="/devis-personnalise"
               className="px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
