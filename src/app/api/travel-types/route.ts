@@ -9,14 +9,30 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const offset = searchParams.get('offset');
     const active = searchParams.get('active');
+    const includePro = searchParams.get('includePro');
+    const proOnly = searchParams.get('proOnly');
 
     let squery = 'SELECT * FROM travel_types';
     const params: (string | number)[] = [];
+    const conditions: string[] = [];
 
     // Filtrer par statut actif si spécifié
     if (active !== null) {
-      squery += ' WHERE is_active = ?';
+      conditions.push('is_active = ?');
       params.push(active === 'true' ? 1 : 0);
+    }
+
+    // Filtrer les types Pro
+    if (proOnly === 'true') {
+      // Uniquement les types Pro
+      conditions.push('is_pro = 1');
+    } else if (includePro !== 'true') {
+      // Par défaut, exclure les Pro sauf si includePro=true
+      conditions.push('(is_pro = 0 OR is_pro IS NULL)');
+    }
+
+    if (conditions.length > 0) {
+      squery += ' WHERE ' + conditions.join(' AND ');
     }
 
     // Ajouter l'ordre

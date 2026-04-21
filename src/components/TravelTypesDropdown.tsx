@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
 import { api } from '@/lib/axios';
+import { useProfessional } from '@/contexts/ProfessionalContext';
 
 interface TravelType {
   id: number;
@@ -12,6 +13,7 @@ interface TravelType {
   slug: string;
   short_description?: string;
   image_url?: string;
+  is_pro?: boolean;
 }
 
 interface TravelTypesDropdownProps {
@@ -22,11 +24,15 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
   const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { session } = useProfessional();
 
   useEffect(() => {
     const fetchTravelTypes = async () => {
       try {
-        const response = await api.get('/travel-types?active=true');
+        const url = session?.isAuthenticated 
+          ? '/travel-types?active=true&includePro=true'
+          : '/travel-types?active=true';
+        const response = await api.get(url);
         const data = response.data;
         setTravelTypes(data.data || []);
       } catch (err) {
@@ -37,7 +43,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
     };
 
     fetchTravelTypes();
-  }, []);
+  }, [session?.isAuthenticated]);
 
   const handleClick = () => {
     onClose?.();
@@ -95,8 +101,13 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h5 className="text-sm font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors mb-1">
+                  <h5 className="text-sm font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors mb-1 flex items-center gap-2">
                     {type.title}
+                    {type.is_pro && (
+                      <span className="bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                        PRO
+                      </span>
+                    )}
                   </h5>
                   {type.short_description && (
                     <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">

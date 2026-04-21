@@ -163,13 +163,21 @@ const Header = () => {
 
             </nav>
           
-          {/* Bouton Demander un devis - Desktop */}
-          <Link
-            href="/devis-personnalise"
-            className="hidden md:inline-block px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
-          >
-            Demander un devis
-          </Link>
+          {/* Boutons Espace Pro + Demander un devis - Desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/espace-pro"
+              className="inline-flex items-center gap-1.5 px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
+            >
+              Agent de voyage
+            </Link>
+            <Link
+              href="/devis-personnalise"
+              className="px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
+            >
+              Demander un devis
+            </Link>
+          </div>
           
           {/* Bouton Menu Mobile */}
           <button
