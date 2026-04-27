@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, MapPin, Settings, Tag, Layers, Users, FileText, Briefcase } from "lucide-react";
+import { LayoutDashboard, Package, MapPin, Settings, Tag, Layers, Users, FileText, Briefcase, FileCode } from "lucide-react";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +16,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/admin/partners", label: "Partenaires", icon: <Users size={18} /> },
     { href: "/admin/professionals", label: "Professionnels", icon: <Briefcase size={18} /> },
     { href: "/admin/metadata", label: "Métadonnées SEO", icon: <FileText size={18} /> },
+    { href: "/admin/html-files", label: "Signatures", icon: <FileCode size={18} /> },
     { href: "/admin/settings", label: "Paramètres", icon: <Settings size={18} /> },
   ];
 
