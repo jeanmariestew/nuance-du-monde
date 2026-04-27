@@ -3,38 +3,46 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { hasValidAdminToken } from '@/lib/auth';
 
-const HTML_PAGES_DIR = path.join(process.cwd(), 'public', 'html-pages');
+const HTML_DIR = path.join(process.cwd(), 'public', 'html-pages');
+const IMAGES_DIR = path.join(process.cwd(), 'public', 'images');
 
-const ALLOWED_EXTENSIONS = new Set(['.html', '.htm', '.gif', '.png', '.jpg', '.jpeg', '.webp', '.svg']);
+const HTML_EXTENSIONS = new Set(['.html', '.htm']);
+const MEDIA_EXTENSIONS = new Set(['.gif', '.png', '.jpg', '.jpeg', '.webp', '.svg']);
 
-async function ensureDir() {
-  await fs.mkdir(HTML_PAGES_DIR, { recursive: true });
+function dirAndUrlForExt(ext: string): { dir: string; urlBase: string } | null {
+  if (HTML_EXTENSIONS.has(ext)) return { dir: HTML_DIR, urlBase: '/html-pages' };
+  if (MEDIA_EXTENSIONS.has(ext)) return { dir: IMAGES_DIR, urlBase: '/images' };
+  return null;
+}
+
+async function ensureDirs() {
+  await fs.mkdir(HTML_DIR, { recursive: true });
+  await fs.mkdir(IMAGES_DIR, { recursive: true });
+}
+
+async function listDir(dir: string, urlBase: string) {
+  const files = await fs.readdir(dir).catch(() => [] as string[]);
+  return Promise.all(
+    files
+      .filter((f) => !f.startsWith('.'))
+      .map(async (name) => {
+        const stat = await fs.stat(path.join(dir, name)).catch(() => null);
+        return { name, url: `${urlBase}/${name}`, size: stat?.size ?? 0, updatedAt: stat?.mtime?.toISOString() ?? null };
+      })
+  );
 }
 
 export async function GET() {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  await ensureDir();
-  const files = await fs.readdir(HTML_PAGES_DIR).catch(() => [] as string[]);
-  const items = await Promise.all(
-    files
-      .filter((f) => !f.startsWith('.'))
-      .map(async (name) => {
-        const filePath = path.join(HTML_PAGES_DIR, name);
-        const stat = await fs.stat(filePath).catch(() => null);
-        return {
-          name,
-          url: `/html-pages/${name}`,
-          size: stat?.size ?? 0,
-          updatedAt: stat?.mtime?.toISOString() ?? null,
-        };
-      })
-  );
-  return NextResponse.json({ success: true, data: items });
+  await ensureDirs();
+  const htmlFiles = (await listDir(HTML_DIR, '/html-pages')).filter((f) => HTML_EXTENSIONS.has(path.extname(f.name).toLowerCase()));
+  const mediaFiles = (await listDir(IMAGES_DIR, '/images')).filter((f) => path.extname(f.name).toLowerCase() === '.gif');
+  return NextResponse.json({ success: true, data: [...htmlFiles, ...mediaFiles] });
 }
 
 export async function POST(req: Request) {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  await ensureDir();
+  await ensureDirs();
   try {
     const form = await req.formData();
     const uploaded: { name: string; url: string }[] = [];
@@ -43,14 +51,12 @@ export async function POST(req: Request) {
       if (!value || typeof value === 'string') continue;
       const file = value as File;
       const ext = path.extname(file.name).toLowerCase();
-      if (!ALLOWED_EXTENSIONS.has(ext)) {
-        return NextResponse.json({ success: false, error: `Extension non autorisée : ${ext}` }, { status: 400 });
-      }
+      const dest = dirAndUrlForExt(ext);
+      if (!dest) return NextResponse.json({ success: false, error: `Extension non autorisée : ${ext}` }, { status: 400 });
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-      const destPath = path.join(HTML_PAGES_DIR, safeName);
       const bytes = Buffer.from(await file.arrayBuffer());
-      await fs.writeFile(destPath, bytes);
-      uploaded.push({ name: safeName, url: `/html-pages/${safeName}` });
+      await fs.writeFile(path.join(dest.dir, safeName), bytes);
+      uploaded.push({ name: safeName, url: `${dest.urlBase}/${safeName}` });
     }
 
     if (!uploaded.length) return NextResponse.json({ success: false, error: 'Aucun fichier valide reçu' }, { status: 400 });
@@ -62,13 +68,18 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-  const { name } = await req.json().catch(() => ({}));
+  const { name, url } = await req.json().catch(() => ({}));
   if (!name || typeof name !== 'string') return NextResponse.json({ success: false, error: 'Nom manquant' }, { status: 400 });
 
   const safeName = path.basename(name);
-  const filePath = path.join(HTML_PAGES_DIR, safeName);
-  const base = path.resolve(HTML_PAGES_DIR);
-  if (!path.resolve(filePath).startsWith(base + path.sep)) {
+  const ext = path.extname(safeName).toLowerCase();
+  const dest = dirAndUrlForExt(ext);
+  if (!dest) return NextResponse.json({ success: false, error: 'Extension inconnue' }, { status: 400 });
+
+  // Use url hint if provided to pick the right dir
+  const targetDir = url?.startsWith('/images') ? IMAGES_DIR : dest.dir;
+  const filePath = path.join(targetDir, safeName);
+  if (!path.resolve(filePath).startsWith(path.resolve(targetDir) + path.sep)) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 

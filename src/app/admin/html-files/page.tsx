@@ -146,7 +146,7 @@ export default function HtmlFilesPage() {
   async function handleDelete(file: HtmlFile) {
     if (!confirm(`Supprimer "${file.name}" ?`)) return;
     try {
-      await adminApi.delete("/html-files", { data: { name: file.name } });
+      await adminApi.delete("/html-files", { data: { name: file.name, url: file.url } });
       setFiles((prev) => prev.filter((f) => f.name !== file.name));
     } catch {}
   }
