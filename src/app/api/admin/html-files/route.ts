@@ -11,7 +11,7 @@ const MEDIA_EXTENSIONS = new Set(['.gif', '.png', '.jpg', '.jpeg', '.webp', '.sv
 
 function dirAndUrlForExt(ext: string): { dir: string; urlBase: string } | null {
   if (HTML_EXTENSIONS.has(ext)) return { dir: HTML_DIR, urlBase: '/html-pages' };
-  if (MEDIA_EXTENSIONS.has(ext)) return { dir: IMAGES_DIR, urlBase: '/images' };
+  if (MEDIA_EXTENSIONS.has(ext)) return { dir: IMAGES_DIR, urlBase: '/uploads' };
   return null;
 }
 
@@ -36,7 +36,7 @@ export async function GET() {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   await ensureDirs();
   const htmlFiles = (await listDir(HTML_DIR, '/html-pages')).filter((f) => HTML_EXTENSIONS.has(path.extname(f.name).toLowerCase()));
-  const mediaFiles = (await listDir(IMAGES_DIR, '/images')).filter((f) => path.extname(f.name).toLowerCase() === '.gif');
+  const mediaFiles = (await listDir(IMAGES_DIR, '/uploads')).filter((f) => path.extname(f.name).toLowerCase() === '.gif');
   return NextResponse.json({ success: true, data: [...htmlFiles, ...mediaFiles] });
 }
 
@@ -77,7 +77,7 @@ export async function DELETE(req: Request) {
   if (!dest) return NextResponse.json({ success: false, error: 'Extension inconnue' }, { status: 400 });
 
   // Use url hint if provided to pick the right dir
-  const targetDir = url?.startsWith('/images') ? IMAGES_DIR : dest.dir;
+  const targetDir = url?.startsWith('/uploads') ? IMAGES_DIR : dest.dir;
   const filePath = path.join(targetDir, safeName);
   if (!path.resolve(filePath).startsWith(path.resolve(targetDir) + path.sep)) {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
