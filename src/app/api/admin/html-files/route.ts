@@ -4,7 +4,7 @@ import path from 'path';
 import { hasValidAdminToken } from '@/lib/auth';
 
 const HTML_DIR = path.join(process.cwd(), 'public', 'html-pages');
-const IMAGES_DIR = path.join(process.cwd(), 'public', 'images');
+const IMAGES_DIR = path.join(process.cwd(), 'public', 'uploads');
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
 const MEDIA_EXTENSIONS = new Set(['.gif', '.png', '.jpg', '.jpeg', '.webp', '.svg']);
