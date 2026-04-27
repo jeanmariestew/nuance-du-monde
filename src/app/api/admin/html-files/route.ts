@@ -3,14 +3,14 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { hasValidAdminToken } from '@/lib/auth';
 
-const HTML_DIR = path.join(process.cwd(), 'public', 'html-pages');
+const HTML_DIR = path.join(process.cwd(), 'public');
 const IMAGES_DIR = path.join(process.cwd(), 'public', 'uploads');
 
 const HTML_EXTENSIONS = new Set(['.html', '.htm']);
 const MEDIA_EXTENSIONS = new Set(['.gif', '.png', '.jpg', '.jpeg', '.webp', '.svg']);
 
 function dirAndUrlForExt(ext: string): { dir: string; urlBase: string } | null {
-  if (HTML_EXTENSIONS.has(ext)) return { dir: HTML_DIR, urlBase: '/html-pages' };
+  if (HTML_EXTENSIONS.has(ext)) return { dir: HTML_DIR, urlBase: '' };
   if (MEDIA_EXTENSIONS.has(ext)) return { dir: IMAGES_DIR, urlBase: '/uploads' };
   return null;
 }
@@ -35,7 +35,7 @@ async function listDir(dir: string, urlBase: string) {
 export async function GET() {
   if (!(await hasValidAdminToken())) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   await ensureDirs();
-  const htmlFiles = (await listDir(HTML_DIR, '/html-pages')).filter((f) => HTML_EXTENSIONS.has(path.extname(f.name).toLowerCase()));
+  const htmlFiles = (await listDir(HTML_DIR, '')).filter((f) => HTML_EXTENSIONS.has(path.extname(f.name).toLowerCase()));
   const mediaFiles = (await listDir(IMAGES_DIR, '/uploads')).filter((f) => path.extname(f.name).toLowerCase() === '.gif');
   return NextResponse.json({ success: true, data: [...htmlFiles, ...mediaFiles] });
 }
