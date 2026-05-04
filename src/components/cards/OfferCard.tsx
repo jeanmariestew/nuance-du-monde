@@ -10,6 +10,7 @@ type Props = { offer: Offer };
 export default function OfferCard({ offer }: Props) {
   // Extract data from offer
   const destination = offer.destinations?.[0]?.title || offer.title;
+  const destinations = offer.destinations?.map(d => d.title) || [];
   const title = offer.title;
   const duration = offer.duration_days
     ? `${offer.duration_days} jours et ${offer.duration_nights} nuits`
@@ -63,10 +64,12 @@ export default function OfferCard({ offer }: Props) {
             {/* Overlay text */}
             <div className="absolute bottom-4 left-4 text-white z-10">
               {/* <h3 className="text-xl sm:text-2xl font-bold drop-shadow-lg">{destination}</h3> */}
-              <p className="flex items-center gap-1 text-sm sm:text-base font-medium opacity-90">
-                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                {destination}
-              </p>
+              {destinations.map((e, i) => 
+                <p key={i} className="flex items-center gap-1 text-sm sm:text-base font-medium opacity-90">
+                  <MapPin className="w-3.5 h-3.5 shrink-0" />
+                  {e}
+                </p>
+              )}
             </div>
             {/* Label badge */}
             {offer.label && (
