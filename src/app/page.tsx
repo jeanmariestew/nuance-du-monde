@@ -92,10 +92,10 @@ export default function Home() {
       <ThemesSection travelThemes={travelThemes} />
 
       {/* Section B2B / B2C */}
-      <BtoBtoCSection
+      {/* <BtoBtoCSection
         proVideoUrl={proVideoUrl}
         particulierVideoUrl={particulierVideoUrl}
-      />
+      /> */}
 
       {/* Bannière Partenariat Multisoleil */}
       <div
