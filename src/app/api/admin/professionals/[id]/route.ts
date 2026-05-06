@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
+import { sendProValidationEmail, sendProRejectionEmail } from '@/lib/email';
 
 // GET: Récupérer un professionnel par ID
 export async function GET(
@@ -28,7 +29,7 @@ export async function GET(
   }
 }
 
-// PUT: Mettre à jour un professionnel (validation, rejet, etc.)
+// PUT: Mettre à jour un professionnel (validation, rejet, opc_verified…)
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -41,19 +42,62 @@ export async function PUT(
 
   try {
     const body = await req.json();
-    const { status } = body;
+    const { status, opc_verified } = body;
 
-    // Vérifier que le professionnel existe
     const existing = await query('SELECT * FROM professionals WHERE id = ?', [id]);
     if ((existing as any[]).length === 0) {
       return NextResponse.json({ success: false, error: 'Non trouvé' }, { status: 404 });
     }
 
-    if (!status || !['pending', 'validated', 'rejected'].includes(status)) {
-      return NextResponse.json({ success: false, error: 'Statut invalide' }, { status: 400 });
+    const professional = (existing as any[])[0];
+    const oldStatus = professional.status;
+
+    const updates: string[] = [];
+    const vals: unknown[] = [];
+
+    if (status && ['pending', 'validated', 'rejected'].includes(status)) {
+      updates.push('status = ?');
+      vals.push(status);
     }
 
-    await execute('UPDATE professionals SET status = ? WHERE id = ?', [status, id]);
+    if (typeof opc_verified === 'boolean') {
+      updates.push('opc_verified = ?');
+      vals.push(opc_verified ? 1 : 0);
+      if (opc_verified) {
+        updates.push('opc_checked_at = NOW()');
+      }
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ success: false, error: 'Aucun champ à mettre à jour' }, { status: 400 });
+    }
+
+    vals.push(id);
+    await execute(`UPDATE professionals SET ${updates.join(', ')} WHERE id = ?`, vals);
+
+    // Envoi d'email si changement de statut vers validated ou rejected
+    if (status && status !== oldStatus) {
+      try {
+        if (status === 'validated') {
+          await sendProValidationEmail({
+            email:       professional.email,
+            first_name:  professional.first_name,
+            last_name:   professional.last_name,
+            agency_name: professional.agency_name,
+          });
+        } else if (status === 'rejected') {
+          await sendProRejectionEmail({
+            email:       professional.email,
+            first_name:  professional.first_name,
+            last_name:   professional.last_name,
+            agency_name: professional.agency_name,
+          });
+        }
+      } catch (emailErr) {
+        console.error('[PUT /api/admin/professionals/[id]] Email error:', emailErr);
+        // On ne bloque pas la réponse si l'email échoue
+      }
+    }
 
     return NextResponse.json({ success: true, message: 'Professionnel mis à jour' });
   } catch (error) {

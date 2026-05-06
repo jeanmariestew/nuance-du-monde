@@ -18,9 +18,10 @@ interface TravelType {
 
 interface TravelTypesDropdownProps {
   onClose?: () => void;
+  onProTypeClick?: (slug: string) => void;
 }
 
-const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) => {
+const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose, onProTypeClick }) => {
   const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +30,11 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
   useEffect(() => {
     const fetchTravelTypes = async () => {
       try {
-        const url = session?.isAuthenticated 
+        const url = session?.isAuthenticated
           ? '/travel-types?active=true&includePro=true'
-          : '/travel-types?active=true';
+          : '/travel-types?active=true&includePro=true';
         const response = await api.get(url);
-        const data = response.data;
-        setTravelTypes(data.data || []);
+        setTravelTypes(response.data.data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
@@ -44,10 +44,6 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
 
     fetchTravelTypes();
   }, [session?.isAuthenticated]);
-
-  const handleClick = () => {
-    onClose?.();
-  };
 
   if (isLoading) {
     return (
@@ -69,7 +65,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
   }
 
   return (
-    <div 
+    <div
       className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 w-[600px] max-w-[95vw]"
       style={{ zIndex: 1000 }}
     >
@@ -78,13 +74,11 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
           Types de voyage
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          {travelTypes.map((type) => (
-            <Link
-              key={type.id}
-              href={`/type-de-voyage/${type.slug}`}
-              onClick={handleClick}
-              className="block px-4 py-4 rounded-lg hover:bg-yellow-50 transition-all duration-200 border border-transparent hover:border-yellow-100 hover:shadow-sm group"
-            >
+          {travelTypes.map((type) => {
+            const isPro = !!type.is_pro;
+            const needsAuth = isPro && !session?.isAuthenticated;
+
+            const inner = (
               <div className="flex items-start gap-3">
                 {type.image_url ? (
                   <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm">
@@ -103,9 +97,9 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
                 <div className="flex-1 min-w-0">
                   <h5 className="text-sm font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors mb-1 flex items-center gap-2">
                     {type.title}
-                    {!!type.is_pro && (
-                      <span className="bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
-                        PRO
+                    {isPro && (
+                      <span className="bg-black text-[#FFFF00] text-[10px] font-bold px-1.5 py-0.5 rounded">
+                        AGENTS
                       </span>
                     )}
                   </h5>
@@ -114,10 +108,45 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose }) =>
                       {type.short_description}
                     </p>
                   )}
+                  {needsAuth && (
+                    <p className="text-xs text-yellow-600 font-medium mt-1">
+                      Connexion requise
+                    </p>
+                  )}
                 </div>
               </div>
-            </Link>
-          ))}
+            );
+
+            const className =
+              "block px-4 py-4 rounded-lg hover:bg-yellow-50 transition-all duration-200 border border-transparent hover:border-yellow-100 hover:shadow-sm group cursor-pointer";
+
+            if (needsAuth) {
+              return (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => {
+                    onClose?.();
+                    onProTypeClick?.(type.slug);
+                  }}
+                  className={className}
+                >
+                  {inner}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={type.id}
+                href={`/type-de-voyage/${type.slug}`}
+                onClick={onClose}
+                className={className}
+              >
+                {inner}
+              </Link>
+            );
+          })}
         </div>
         {travelTypes.length === 0 && (
           <div className="px-3 py-8 text-center">

@@ -1,22 +1,24 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
-// POST: Vérifier l'authentification d'un professionnel
+// POST: Authentification agent par prénom + nom + numéro de permis
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, certificate_number } = body;
+    const { first_name, last_name, certificate_number } = body;
 
-    if (!email || !certificate_number) {
+    if (!first_name || !last_name || !certificate_number) {
       return NextResponse.json(
-        { success: false, error: 'Email et numéro de permis requis' },
+        { success: false, error: 'Prénom, nom et numéro de permis requis' },
         { status: 400 }
       );
     }
 
     const rows = await query(
-      'SELECT id, email, agency_name, certificate_number, status FROM professionals WHERE email = ? AND certificate_number = ?',
-      [email, certificate_number]
+      `SELECT id, email, agency_name, first_name, last_name, certificate_number, status, opc_verified
+       FROM professionals
+       WHERE LOWER(first_name) = LOWER(?) AND LOWER(last_name) = LOWER(?) AND certificate_number = ?`,
+      [first_name.trim(), last_name.trim(), certificate_number.trim()]
     );
 
     if ((rows as any[]).length === 0) {
@@ -44,14 +46,16 @@ export async function POST(req: Request) {
       }, { status: 403 });
     }
 
-    // Professionnel validé
     return NextResponse.json({
       success: true,
       data: {
         id: professional.id,
         email: professional.email,
         agencyName: professional.agency_name,
+        firstName: professional.first_name,
+        lastName: professional.last_name,
         certificateNumber: professional.certificate_number,
+        opcVerified: professional.opc_verified === 1,
         isAuthenticated: true
       }
     });

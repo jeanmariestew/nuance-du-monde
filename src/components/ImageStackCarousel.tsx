@@ -217,7 +217,7 @@ export default function ImageStackCarousel({
 
           {/* Compteur */}
           {imageList.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-5 py-1.5 rounded-full text-sm font-semibold z-[110]">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-5 py-1.5 rounded-full text-sm font-semibold z-110">
               {currentIndex + 1} / {imageList.length}
             </div>
           )}
@@ -245,7 +245,7 @@ export default function ImageStackCarousel({
       {/* ===================== MODAL plein écran ===================== */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center"
+          className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center"
           onClick={() => setModalOpen(false)}
         >
           {/* Bouton fermer */}

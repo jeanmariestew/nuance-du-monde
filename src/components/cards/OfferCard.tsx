@@ -11,6 +11,7 @@ export default function OfferCard({ offer }: Props) {
   // Extract data from offer
   const destination = offer.destinations?.[0]?.title || offer.title;
   const destinations = offer.destinations?.map(d => d.title) || [];
+  const type = offer.travel_types?.[0]
   const title = offer.title;
   const duration = offer.duration_days
     ? `${offer.duration_days} jours et ${offer.duration_nights} nuits`
@@ -71,6 +72,7 @@ export default function OfferCard({ offer }: Props) {
                 </p>
               )}
             </div>
+            <div>{JSON.stringify(type)}</div>
             {/* Label badge */}
             {offer.label && (
               <div className="absolute top-4 left-4 z-10">

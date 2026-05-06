@@ -5,13 +5,15 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 interface ProfessionalSession {
   email: string;
   agencyName: string;
+  firstName: string;
+  lastName: string;
   certificateNumber: string;
   isAuthenticated: boolean;
 }
 
 interface ProfessionalContextType {
   session: ProfessionalSession | null;
-  login: (email: string, agencyName: string, certificateNumber: string) => void;
+  login: (email: string, agencyName: string, firstName: string, lastName: string, certificateNumber: string) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -24,7 +26,6 @@ export function ProfessionalProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<ProfessionalSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Charger la session depuis localStorage au montage
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -39,10 +40,12 @@ export function ProfessionalProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (email: string, agencyName: string, certificateNumber: string) => {
+  const login = (email: string, agencyName: string, firstName: string, lastName: string, certificateNumber: string) => {
     const newSession: ProfessionalSession = {
       email,
       agencyName,
+      firstName,
+      lastName,
       certificateNumber,
       isAuthenticated: true,
     };

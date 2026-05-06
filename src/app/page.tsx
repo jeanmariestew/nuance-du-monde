@@ -10,6 +10,7 @@ import DestinationsSection from "@/components/DestinationsSection";
 import ThemesSection from "@/components/ThemesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import PartnersSection from "@/components/PartnersSection";
+import BtoBtoCSection from "@/components/BtoBtoCSection";
 import { api } from "@/lib/axios";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
 import { useProfessional } from "@/contexts/ProfessionalContext";
@@ -35,39 +36,36 @@ export default function Home() {
   const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [proVideoUrl, setProVideoUrl] = useState('');
+  const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
   const { session } = useProfessional();
 
   useEffect(() => {
-    // Charger les données depuis l'API
     const fetchData = async () => {
       try {
-        // Inclure les types Pro si session professionnelle active
-        const typesUrl = session?.isAuthenticated 
+        const typesUrl = session?.isAuthenticated
           ? "/travel-types?active=true&includePro=true"
           : "/travel-types?active=true";
 
-        const [destRes, typesRes, themesRes, testimonialsRes, partnersRes] =
+        const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
           await Promise.all([
             api.get("/destinations?active=true&limit=5"),
             api.get(typesUrl),
             api.get("/travel-themes?active=true&limit=20"),
-            api.get(
-              "/testimonials?featured=true&active=true&published=true&limit=6",
-            ),
+            api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
             api.get("/partners"),
+            fetch("/api/settings").then(r => r.json()).catch(() => ({ success: false })),
           ]);
 
-        const destData = destRes.data;
-        const typesData = typesRes.data;
-        const themesData = themesRes.data;
-        const testimonialsData = testimonialsRes.data;
-        const partnersData = partnersRes.data;
-
-        if (destData.success) setDestinations(destData.data);
-        if (typesData.success) setTravelTypes(typesData.data);
-        if (themesData.success) setTravelThemes(themesData.data);
-        if (testimonialsData.success) setTestimonials(testimonialsData.data);
-        if (partnersData.success) setPartners(partnersData.data);
+        if (destRes.data.success) setDestinations(destRes.data.data);
+        if (typesRes.data.success) setTravelTypes(typesRes.data.data);
+        if (themesRes.data.success) setTravelThemes(themesRes.data.data);
+        if (testimonialsRes.data.success) setTestimonials(testimonialsRes.data.data);
+        if (partnersRes.data.success) setPartners(partnersRes.data.data);
+        if (settingsRes.success) {
+          setProVideoUrl(settingsRes.data?.pro_video_url || '');
+          setParticulierVideoUrl(settingsRes.data?.particulier_video_url || '');
+        }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
       }
@@ -81,7 +79,7 @@ export default function Home() {
       {/* Hero animé */}
       <HeroAnimated />
 
-      {/* Type de voyage Section - Intégration parfaite */}
+      {/* Type de voyage Section */}
       <TravelTypesHero />
 
       {/* Section Types de voyage */}
@@ -93,25 +91,28 @@ export default function Home() {
       {/* Thèmes Section */}
       <ThemesSection travelThemes={travelThemes} />
 
-      {/* Section avec image background */}
+      {/* Section B2B / B2C */}
+      <BtoBtoCSection
+        proVideoUrl={proVideoUrl}
+        particulierVideoUrl={particulierVideoUrl}
+      />
+
+      {/* Bannière Partenariat Multisoleil */}
       <div
         className="w-full h-auto p-3 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url('/images/fond_Banniere.svg')",
-        }}
+        style={{ backgroundImage: "url('/images/fond_Banniere.svg')" }}
       >
         <a href="https://www.espacemultisoleil.org">
-        <div className="max-w-[1500px] mx-auto items-center py-5 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          <OptimizedImage
-            src="/images/gauche.svg"
-            alt="Partenariat Nuance du Monde x Espace Multisoleil"
-            width={500}
-            height={400}
-            className="w-full h-auto object-contain"
-          />
-          <AnimatedBentoGrid />
-        </div>
+          <div className="max-w-[1500px] mx-auto items-center py-5 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            <OptimizedImage
+              src="/images/gauche.svg"
+              alt="Partenariat Nuance du Monde x Espace Multisoleil"
+              width={500}
+              height={400}
+              className="w-full h-auto object-contain"
+            />
+            <AnimatedBentoGrid />
+          </div>
         </a>
       </div>
 
@@ -120,8 +121,6 @@ export default function Home() {
 
       {/* Partenaires Section */}
       <PartnersSection partners={partners} />
-      {/* Newsletter Section */}
-      {/* <NewsletterForm /> */}
     </div>
   );
 }

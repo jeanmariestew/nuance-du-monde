@@ -4,267 +4,308 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import OptimizedImage from "@/components/OptimizedImage";
-import { TravelType, Offer } from "@/types";
 import { api } from "@/lib/axios";
 import { useProfessional } from "@/contexts/ProfessionalContext";
 import ProfessionalAuthModal from "@/components/ProfessionalAuthModal";
-import { Briefcase, Lock, LogOut, ArrowRight, BadgeDollarSign, Sparkles, Handshake, ChevronLeft, ChevronRight } from "lucide-react";
+import AnimatedBentoGrid from "@/components/banner/partenariat";
+import {
+  Briefcase, Lock, LogOut, ArrowRight, Users, Globe, Anchor, BookOpen,
+  Facebook, Star, ChevronLeft, ChevronRight
+} from "lucide-react";
 
-export default function EspaceProPage() {
-  const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const offersPerPage = 6;
-  const { session, logout } = useProfessional();
-  const router = useRouter();
+interface Offer {
+  id: number;
+  title: string;
+  slug: string;
+  short_description?: string;
+  price?: number;
+  price_currency?: string;
+  image_main?: string;
+  image_url?: string;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!session?.isAuthenticated) {
-        setLoading(false);
-        return;
-      }
+function VideoEmbed({ url, className }: { url: string; className?: string }) {
+  const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+  const isVimeo   = url.includes('vimeo.com');
 
-      try {
-        const [typesRes, offersRes] = await Promise.all([
-          api.get("/travel-types?active=true&proOnly=true"),
-          api.get("/offers?active=true&proOnly=true"),
-        ]);
-
-        if (typesRes.data.success) {
-          setTravelTypes(typesRes.data.data);
-        }
-        if (offersRes.data.success) {
-          setOffers(offersRes.data.data);
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données Pro:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [session?.isAuthenticated]);
-
-  // Page non authentifiée
-  if (!session?.isAuthenticated) {
+  if (isYoutube) {
+    const id = url.includes('youtu.be/')
+      ? url.split('youtu.be/')[1]?.split('?')[0]
+      : new URL(url).searchParams.get('v');
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black">
-        {/* Hero Section */}
-        <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            <OptimizedImage
-              src="/images/photo_type-de-voyage.png"
-              alt="Espace Professionnel"
-              fill
-              className="object-cover opacity-30"
-            />
-            <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-gray-900" />
-          </div>
-          
-          <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-4 py-2 mb-6">
-              <Briefcase className="w-5 h-5 text-yellow-500" />
-              <span className="text-yellow-500 font-semibold">Espace Réservé</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-[Alro] uppercase">
-              Espace Professionnel
-            </h1>
-            
-            <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
-              Accédez à nos offres exclusives réservées aux professionnels du voyage. 
-              Des tarifs préférentiels et des produits sur-mesure pour vos clients.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl"
-              >
-                <Lock className="w-5 h-5" />
-                Se connecter
-              </button>
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white/30 hover:border-white/50 text-white font-semibold py-4 px-8 rounded-lg transition-all"
-              >
-                Créer un compte Pro
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Avantages Section */}
-        <div className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12 font-[Alro] uppercase">
-              Pourquoi rejoindre l&apos;espace Pro ?
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BadgeDollarSign className="w-8 h-8 text-yellow-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Tarifs Préférentiels</h3>
-                <p className="text-gray-400">
-                  Bénéficiez de remises exclusives sur l&apos;ensemble de notre catalogue de voyages.
-                </p>
-              </div>
-              
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Sparkles className="w-8 h-8 text-yellow-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Offres Exclusives</h3>
-                <p className="text-gray-400">
-                  Accédez à des voyages et expériences réservés uniquement aux professionnels.
-                </p>
-              </div>
-              
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Handshake className="w-8 h-8 text-yellow-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Support Dédié</h3>
-                <p className="text-gray-400">
-                  Un conseiller dédié pour vous accompagner dans tous vos projets.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <ProfessionalAuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-        />
-      </div>
+      <iframe
+        src={`https://www.youtube.com/embed/${id}?autoplay=0&rel=0`}
+        className={className}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     );
   }
 
-  // Page authentifiée
+  if (isVimeo) {
+    const id = url.split('vimeo.com/')[1]?.split('?')[0];
+    return (
+      <iframe
+        src={`https://player.vimeo.com/video/${id}`}
+        className={className}
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+
+  return (
+    <video src={url} controls className={className} />
+  );
+}
+
+// ---------- Page non authentifiée ----------
+function UnauthenticatedView({ onOpenModal }: { onOpenModal: () => void }) {
+  return (
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black">
+      <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <OptimizedImage
+            src="/images/photo_type-de-voyage.png"
+            alt="Espace Agents de voyage"
+            fill
+            className="object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-gray-900" />
+        </div>
+
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-[#FFFF00]/20 border border-[#FFFF00]/30 rounded-full px-4 py-2 mb-6">
+            <Briefcase className="w-5 h-5 text-[#FFFF00]" />
+            <span className="text-[#FFFF00] font-semibold">Espace réservé aux agents</span>
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-[Alro] uppercase">
+            Espace Agents de voyage
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+            Accédez à nos offres exclusives, outils et ressources réservés aux professionnels du voyage.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={onOpenModal}
+              className="inline-flex items-center justify-center gap-2 bg-[#FFFF00] hover:bg-yellow-300 text-black font-bold py-4 px-8 rounded-lg transition-all shadow-lg"
+            >
+              <Lock className="w-5 h-5" />
+              Se connecter
+            </button>
+            <Link
+              href="/inscription-agents"
+              className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white/30 hover:border-white/60 text-white font-semibold py-4 px-8 rounded-lg transition-all"
+            >
+              Créer mon accès
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Avantages */}
+      <div className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-white text-center mb-12 font-[Alro] uppercase">
+            Pourquoi rejoindre l&apos;espace agents ?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Star, title: "Offres exclusives", text: "Accédez à des voyages réservés aux professionnels : groupes, FIT, croisières." },
+              { icon: BookOpen, title: "Outils & Ressources", text: "Brochures, groupes Facebook agents, supports de vente disponibles en un clic." },
+              { icon: Globe, title: "Support dédié", text: "Un partenariat solide avec l'Espace Multisoleil pour vous accompagner." },
+            ].map(({ icon: Icon, title, text }) => (
+              <div key={title} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+                <div className="w-16 h-16 bg-[#FFFF00]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Icon className="w-8 h-8 text-[#FFFF00]" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
+                <p className="text-gray-400">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Page authentifiée ----------
+function AuthenticatedView({
+  session,
+  onLogout,
+  proVideoUrl,
+  facebookGroupUrl,
+}: {
+  session: { firstName: string; lastName: string; agencyName: string };
+  onLogout: () => void;
+  proVideoUrl: string;
+  facebookGroupUrl: string;
+}) {
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [brochureOpen, setBrochureOpen] = useState(false);
+  const offersPerPage = 6;
+
+  // Brochure form state
+  const [brForm, setBrForm] = useState({ first_name: '', last_name: '', email: '', agency_name: '', phone: '', address: '', quantity: '1' });
+  const [brSubmitting, setBrSubmitting] = useState(false);
+  const [brSuccess, setBrSuccess] = useState('');
+  const [brError, setBrError] = useState('');
+
+  useEffect(() => {
+    api.get("/offers?active=true&proOnly=true").then((res) => {
+      if (res.data.success) setOffers(res.data.data);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const handleBrochureSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBrError('');
+    if (!brForm.first_name || !brForm.last_name || !brForm.email) {
+      setBrError('Prénom, nom et email requis');
+      return;
+    }
+    setBrSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/brochure-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...brForm, quantity: parseInt(brForm.quantity) || 1 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBrSuccess(data.message);
+        setBrForm({ first_name: '', last_name: '', email: '', agency_name: '', phone: '', address: '', quantity: '1' });
+        setTimeout(() => { setBrochureOpen(false); setBrSuccess(''); }, 3000);
+      } else {
+        setBrError(data.error || 'Erreur');
+      }
+    } catch {
+      setBrError('Une erreur est survenue');
+    } finally {
+      setBrSubmitting(false);
+    }
+  };
+
+  const offerTypes = [
+    {
+      icon: Users,
+      title: "Voyages en groupe",
+      subtitle: "À dates fixes",
+      description: "Départs garantis en groupe avec tarifs avantageux pour vos clients.",
+    },
+    {
+      icon: Globe,
+      title: "FIT",
+      subtitle: "À la carte",
+      description: "Voyages entièrement personnalisés selon les envies et budgets.",
+    },
+    {
+      icon: Anchor,
+      title: "Croisières",
+      subtitle: "Pré/Post/Escales",
+      description: "Extensions avant, après ou durant les croisières de vos clients.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Pro */}
-      <div className="bg-linear-to-r from-gray-900 to-black text-white py-8 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-black" />
+      <div className="bg-black text-white py-4 md:py-6 px-4">
+        <div className="max-w-7xl mx-auto space-y-3 md:space-y-0 md:flex md:items-center md:justify-between md:gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-[#FFFF00] rounded-full flex items-center justify-center shrink-0">
+              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-black" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold font-[Alro] uppercase">Espace Professionnel</h1>
-              <p className="text-gray-400">
-                Bienvenue, <span className="text-yellow-500">{session.agencyName}</span>
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold font-[Alro] uppercase text-[#FFFF00]">Espace Agents</h1>
+              <p className="text-gray-400 text-xs md:text-sm truncate">
+                Bienvenue, <span className="text-white font-semibold">{session.firstName}</span>
+                {session.agencyName && <span className="text-gray-400"> • {session.agencyName}</span>}
               </p>
             </div>
           </div>
           <button
-            onClick={() => {
-              logout();
-              router.push("/");
-            }}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            onClick={onLogout}
+            className="flex items-center gap-2 text-gray-400 hover:text-[#FFFF00] transition-colors text-sm md:text-base"
           >
-            <LogOut className="w-5 h-5" />
-            Déconnexion
+            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+            <span>Déconnexion</span>
           </button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+      {/* Section 1: Vidéo / Texte d'accueil */}
+      <section className="bg-white py-12 md:py-16 px-4 border-b border-gray-100">
+        <div className="max-w-5xl mx-auto">
+          {proVideoUrl ? (
+            <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl aspect-video">
+              <VideoEmbed url={proVideoUrl} className="w-full h-full border-none" />
+            </div>
+          ) : (
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+              <span className="inline-block bg-[#FFFF00] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                Espace agents
+              </span>
+              <h2 className="text-2xl md:text-4xl font-bold text-black font-[Alro] uppercase">
+                Vos offres exclusives
+              </h2>
+              <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                Retrouvez toutes nos offres professionnelles, brochures et ressources pour développer votre activité avec Nuance du Monde.
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          {/* Types de voyage Pro */}
-          <section className="mb-16">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 font-[Alro] uppercase">
-                Types de Voyage Exclusifs
-              </h2>
-              <span className="bg-black text-white text-xs font-bold px-3 py-1 rounded">
-                PRO
-              </span>
-            </div>
+      </section>
 
-            {travelTypes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {travelTypes.map((type) => (
-                  <Link
-                    key={type.id}
-                    href={`/type-de-voyage/${type.slug}`}
-                    className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-                  >
-                    <div className="relative h-64">
-                      {type.image_url ? (
-                        <OptimizedImage
-                          src={type.image_url}
-                          alt={type.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-                          <Briefcase className="w-16 h-16 text-white/50" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent" />
-                      
-                      {/* Badge Pro */}
-                      <div className="absolute top-4 right-4 bg-black text-white text-xs font-bold px-2 py-1 rounded">
-                        PRO
-                      </div>
-                    </div>
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                      <h3 className="text-xl font-bold mb-2 font-[Alro] uppercase">{type.title}</h3>
-                      {type.short_description && (
-                        <p className="text-sm text-gray-200 line-clamp-2">{type.short_description}</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
+      {/* Section 2: Types d'offres */}
+      <section className="py-12 md:py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 md:mb-12 space-y-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-black font-[Alro] uppercase">
+              Nos types d&apos;offres
+            </h2>
+            <p className="text-sm md:text-base text-gray-500 max-w-xl mx-auto">
+              Trois solutions pour répondre à tous les voyageurs
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {offerTypes.map(({ icon: Icon, title, subtitle, description }) => (
+              <div key={title} className="bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 p-6 md:p-8 hover:border-[#FFFF00] hover:shadow-md transition-all">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-black rounded-lg md:rounded-xl flex items-center justify-center mb-4 md:mb-6">
+                  <Icon className="w-6 h-6 md:w-7 md:h-7 text-[#FFFF00]" />
+                </div>
+                <h3 className="text-lg md:text-xl font-bold text-black mb-1">{title}</h3>
+                <p className="text-xs md:text-sm font-medium text-gray-500 mb-3">{subtitle}</p>
+                <p className="text-sm md:text-base text-gray-700 leading-relaxed">{description}</p>
               </div>
-            ) : (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-lg">
-                <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">
-                  Aucun type de voyage exclusif disponible pour le moment.
-                </p>
-              </div>
-            )}
-          </section>
+            ))}
+          </div>
 
-          {/* Offres Pro */}
-          <section>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 font-[Alro] uppercase">
-                Offres Exclusives Pro
-              </h2>
-              <span className="bg-black text-white text-xs font-bold px-3 py-1 rounded">
-                PRO
-              </span>
+          {/* Offres du catalogue */}
+          {loading ? (
+            <div className="flex justify-center mt-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black"></div>
             </div>
-
-            {offers.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {offers
-                    .slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage)
-                    .map((offer) => (
+          ) : offers.length > 0 && (
+            <div className="mt-10 md:mt-12">
+              <h3 className="text-xl md:text-2xl font-bold text-black mb-6">Offres disponibles</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {offers
+                  .slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage)
+                  .map((offer) => (
                     <Link
                       key={offer.id}
                       href={`/offers/${offer.slug}`}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-yellow-300"
+                      className="group bg-white rounded-lg md:rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 hover:border-[#FFFF00]"
                     >
-                      <div className="relative h-56">
+                      <div className="relative h-40 md:h-48">
                         {offer.image_main || offer.image_url ? (
                           <OptimizedImage
                             src={offer.image_main || offer.image_url || ""}
@@ -273,89 +314,237 @@ export default function EspaceProPage() {
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         ) : (
-                          <div className="w-full h-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-                            <Briefcase className="w-12 h-12 text-white/50" />
+                          <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <Briefcase className="w-8 h-8 md:w-10 md:h-10 text-gray-400" />
                           </div>
                         )}
-                        
-                        {/* Badge Pro */}
-                        <div className="absolute top-4 right-4 bg-black text-white text-xs font-bold px-2 py-1 rounded">
-                          PRO
+                        <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-black text-[#FFFF00] text-[8px] md:text-[10px] font-bold px-2 py-0.5 rounded">
+                          AGENT
                         </div>
                       </div>
-                      
-                      <div className="p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-yellow-600 transition-colors">{offer.title}</h3>
+                      <div className="p-4 md:p-5">
+                        <h4 className="font-bold text-gray-900 text-sm md:text-base mb-2 line-clamp-2">{offer.title}</h4>
                         {offer.short_description && (
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-3">{offer.short_description}</p>
+                          <p className="text-xs md:text-sm text-gray-500 line-clamp-2 mb-3">{offer.short_description}</p>
                         )}
-                        
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                           {offer.price ? (
-                            <div>
-                              <span className="text-xs text-gray-500">À partir de</span>
-                              <p className="text-xl font-bold text-yellow-600">
-                                {offer.price.toLocaleString()} {offer.price_currency || "CAD"}
-                              </p>
-                            </div>
-                          ) : (
-                            <div />
-                          )}
-                          <span className="flex items-center gap-1 text-yellow-600 font-semibold text-sm group-hover:gap-2 transition-all">
-                            Voir <ArrowRight className="w-4 h-4" />
+                            <span className="text-base md:text-lg font-bold text-black">
+                              {offer.price.toLocaleString()} {offer.price_currency || "CAD"}
+                            </span>
+                          ) : <span />}
+                          <span className="flex items-center gap-1 text-xs md:text-sm font-semibold text-black group-hover:gap-2 transition-all">
+                            Voir <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                           </span>
                         </div>
                       </div>
                     </Link>
                   ))}
-                </div>
+              </div>
 
-                {/* Pagination */}
-                {offers.length > offersPerPage && (
-                  <div className="flex items-center justify-center gap-2 mt-10">
-                    <button
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    
+              {offers.length > offersPerPage && (
+                <div className="flex items-center justify-center gap-1 md:gap-2 mt-8">
+                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                    className="p-1.5 md:p-2 rounded-lg border border-gray-200 hover:border-black disabled:opacity-40 transition-all">
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                  <div className="hidden sm:flex gap-1 md:gap-2">
                     {Array.from({ length: Math.ceil(offers.length / offersPerPage) }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                          currentPage === page
-                            ? "bg-yellow-500 text-white"
-                            : "border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50"
-                        }`}
-                      >
+                      <button key={page} onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-lg font-semibold text-sm transition-all ${currentPage === page ? 'bg-black text-[#FFFF00]' : 'border border-gray-200 hover:border-black'}`}>
                         {page}
                       </button>
                     ))}
-                    
-                    <button
-                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(offers.length / offersPerPage), p + 1))}
-                      disabled={currentPage === Math.ceil(offers.length / offersPerPage)}
-                      className="p-2 rounded-lg border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
                   </div>
-                )}
-              </>
-            ) : (
-              <div className="bg-white rounded-2xl p-12 text-center shadow-lg">
-                <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">
-                  Aucune offre exclusive disponible pour le moment.
-                </p>
+                  <div className="sm:hidden text-xs font-medium text-gray-600">
+                    {currentPage} / {Math.ceil(offers.length / offersPerPage)}
+                  </div>
+                  <button onClick={() => setCurrentPage(p => Math.min(Math.ceil(offers.length / offersPerPage), p + 1))} disabled={currentPage === Math.ceil(offers.length / offersPerPage)}
+                    className="p-1.5 md:p-2 rounded-lg border border-gray-200 hover:border-black disabled:opacity-40 transition-all">
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+
+      {/* Section 4: Groupes Facebook */}
+      <section className="py-12 md:py-16 px-4 bg-black text-white">
+        <div className="max-w-5xl mx-auto text-center space-y-6">
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-[#FFFF00] rounded-full flex items-center justify-center mx-auto">
+            <Facebook className="w-7 h-7 md:w-8 md:h-8 text-black" />
+          </div>
+          <div className="space-y-3">
+            <h2 className="text-2xl md:text-3xl font-bold font-[Alro] uppercase">
+              Nos groupes agents
+            </h2>
+            <p className="text-gray-300 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
+              Rejoignez notre communauté d'agents partenaires. Accédez à nos actualités en avant-première et bénéficiez d'alertes promotionnelles exclusives.
+            </p>
+          </div>
+          <ul className="text-gray-400 text-xs md:text-sm space-y-2 md:flex md:flex-row md:gap-4 md:justify-center md:space-y-0">
+            {["Promotions exclusives", "Actualités en avant-première", "Échanges avec l'équipe", "Ressources de vente"].map((b) => (
+              <li key={b} className="flex items-center justify-center md:justify-start gap-2">
+                <Star className="w-3 h-3 md:w-4 md:h-4 text-[#FFFF00] shrink-0" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+          {facebookGroupUrl && (
+            <div className="pt-2">
+              <a
+                href={facebookGroupUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#FFFF00] text-black font-bold py-2.5 md:py-3 px-6 rounded-lg hover:bg-yellow-300 transition-all shadow-lg text-sm md:text-base"
+              >
+                <Facebook className="w-4 h-4 md:w-5 md:h-5" />
+                Rejoindre
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section 5: Partenariat Multisoleil */}
+      <section
+        className="w-full h-auto p-3 md:p-5 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/images/fond_Banniere.svg')" }}
+      >
+        <a href="https://www.espacemultisoleil.org" target="_blank" rel="noopener noreferrer">
+          <div className="max-w-[1500px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-12 items-center py-6 md:py-8">
+            <OptimizedImage
+              src="/images/gauche.svg"
+              alt="Partenariat Nuance du Monde x Espace Multisoleil"
+              width={500}
+              height={400}
+              className="w-full h-auto object-contain"
+            />
+            <div className="hidden md:block">
+              <AnimatedBentoGrid />
+            </div>
+          </div>
+        </a>
+      </section>
+
+      {/* Modal commande brochure */}
+      {brochureOpen && (
+        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-0 md:p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setBrochureOpen(false)} />
+          <div className="relative bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:max-w-lg overflow-hidden max-h-[90vh] md:max-h-none overflow-y-auto">
+            <div className="bg-black px-4 md:px-6 py-3 md:py-4 sticky top-0">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base md:text-lg font-bold text-[#FFFF00] font-[Alro] uppercase">Commander la brochure</h3>
+                <button onClick={() => setBrochureOpen(false)} className="text-white/60 hover:text-white p-1">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-            )}
-          </section>
+            </div>
+            <div className="h-1 bg-[#FFFF00]" />
+            <form onSubmit={handleBrochureSubmit} className="p-4 md:p-6 space-y-3">
+              {brError && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">{brError}</div>}
+              {brSuccess && <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">{brSuccess}</div>}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                  <input type="text" value={brForm.first_name} onChange={e => setBrForm(f => ({ ...f, first_name: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" placeholder="Prénom" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                  <input type="text" value={brForm.last_name} onChange={e => setBrForm(f => ({ ...f, last_name: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" placeholder="Nom" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input type="email" value={brForm.email} onChange={e => setBrForm(f => ({ ...f, email: e.target.value }))}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" placeholder="votre@email.com" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Agence</label>
+                  <input type="text" value={brForm.agency_name} onChange={e => setBrForm(f => ({ ...f, agency_name: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" placeholder="Nom agence" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                  <input type="tel" value={brForm.phone} onChange={e => setBrForm(f => ({ ...f, phone: e.target.value }))}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" placeholder="+1 514..." />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adresse de livraison</label>
+                <textarea rows={2} value={brForm.address} onChange={e => setBrForm(f => ({ ...f, address: e.target.value }))}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm resize-none" placeholder="Adresse complète" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
+                <input type="number" min="1" max="50" value={brForm.quantity} onChange={e => setBrForm(f => ({ ...f, quantity: e.target.value }))}
+                  className="w-24 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black text-sm" />
+              </div>
+              <button type="submit" disabled={brSubmitting}
+                className="w-full bg-black text-[#FFFF00] font-bold py-3 rounded-lg hover:bg-gray-900 transition-all disabled:opacity-50">
+                {brSubmitting ? 'Envoi...' : 'Envoyer la demande'}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>
+  );
+}
+
+// ---------- Page principale ----------
+export default function EspaceProPage() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [proVideoUrl, setProVideoUrl] = useState('');
+  const [facebookGroupUrl, setFacebookGroupUrl] = useState('');
+  const { session, logout, isLoading } = useProfessional();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Charger l'URL de la vidéo pro et lien FB depuis les settings
+    fetch('/api/settings').then(r => r.json()).then(data => {
+      if (data.success) {
+        setProVideoUrl(data.data?.pro_video_url || '');
+        setFacebookGroupUrl(data.data?.facebook_group_url || '');
+      }
+    }).catch(() => {});
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
+
+  if (!session?.isAuthenticated) {
+    return (
+      <>
+        <UnauthenticatedView onOpenModal={() => setIsAuthModalOpen(true)} />
+        <ProfessionalAuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          redirectAfterAuth="/espace-pro"
+        />
+      </>
+    );
+  }
+
+  return (
+    <AuthenticatedView
+      session={{ firstName: session.firstName, lastName: session.lastName, agencyName: session.agencyName }}
+      proVideoUrl={proVideoUrl}
+      facebookGroupUrl={facebookGroupUrl}
+      onLogout={() => { logout(); router.push('/'); }}
+    />
   );
 }
