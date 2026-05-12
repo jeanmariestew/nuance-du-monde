@@ -1,10 +1,10 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import Button from '@/components/ui/Button';
-import Spinner from '@/components/ui/Spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { adminApi } from '@/lib/axios';
+import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
 
 async function post(url: string) {
   const res = await adminApi.post(url);
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Tableau de bord</h1>
-        <p className="text-sm text-neutral-500">Actions d'administration rapides</p>
+        <p className="text-sm text-neutral-500">Actions d&apos;administration rapides</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -47,11 +47,11 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="flex flex-wrap gap-3">
               <Button onClick={() => run('Migration', '/api/admin/migrate')} disabled={!!loading}>
-                {loading === 'Migration' && <Spinner className="mr-2" size={16} />}
+                {loading === 'Migration' && <Spinner className="mr-2"  />}
                 Exécuter Migration
               </Button>
               <Button variant="secondary" onClick={() => run('Seed', '/api/admin/seed')} disabled={!!loading}>
-                {loading === 'Seed' && <Spinner className="mr-2" size={16} />}
+                {loading === 'Seed' && <Spinner className="mr-2"  />}
                 Exécuter Seed
               </Button>
             </div>

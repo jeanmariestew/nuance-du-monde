@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import {Button} from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import axios from 'axios';
 
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
             <CardFooter className="px-0">
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? (
-                  <span className="inline-flex items-center justify-center gap-2"><Spinner size={16} /> Connexion…</span>
+                  <span className="inline-flex items-center justify-center gap-2"><Spinner /> Connexion…</span>
                 ) : (
                   'Se connecter'
                 )}

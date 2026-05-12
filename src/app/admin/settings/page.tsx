@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Spinner from '@/components/ui/Spinner';
+import {Button} from '@/components/ui/Button';
 import { adminApi } from '@/lib/axios';
+import Spinner from '@/components/ui/Spinner';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -158,7 +158,7 @@ export default function AdminSettingsPage() {
               )}
               <Button onClick={save} disabled={saving}>
                 {saving ? (
-                  <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
+                  <span className="inline-flex items-center gap-2"><Spinner /> Enregistrement…</span>
                 ) : (
                   'Enregistrer les paramètres'
                 )}

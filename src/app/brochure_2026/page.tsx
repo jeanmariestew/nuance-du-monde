@@ -1,22 +1,35 @@
-"use client";
-
-import { useEffect } from "react";
-
-// URL externe vers laquelle rediriger
-const EXTERNAL_URL = "https://heyzine.com/flip-book/5151157645.html";
+import { Header } from "@/components/landing/header"
+import { Hero } from "@/components/landing/hero"
+import { Stats } from "@/components/landing/stats"
+import { CommercialTool } from "@/components/landing/commercial-tool"
+import { TravelTypes } from "@/components/landing/travel-types"
+import { BrochureBenefits } from "@/components/landing/brochure-benefits"
+import { Features } from "@/components/landing/features"
+import { Destinations } from "@/components/landing/destinations"
+import { HowToReceive } from "@/components/landing/how-to-receive"
+import { Testimonials } from "@/components/landing/testimonials"
+import { OrderForm } from "@/components/landing/order-form"
+import { FAQ } from "@/components/landing/faq"
+import { CTA } from "@/components/landing/cta"
+import { Footer } from "@/components/landing/footer"
 
 export default function BrochurePage() {
-  useEffect(() => {
-    // Redirection vers le lien externe
-    window.location.href = EXTERNAL_URL;
-  }, []);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-        <p className="text-gray-600">Redirection vers la brochure 2026...</p>
-      </div>
-    </div>
-  );
+    <main className="min-h-screen">
+      <Header />
+      <Hero />
+      <Stats />
+      <CommercialTool />
+      <TravelTypes />
+      <BrochureBenefits />
+      <Features />
+      <Destinations />
+      <HowToReceive />
+      <Testimonials />
+      <OrderForm />
+      <FAQ />
+      <CTA />
+      <Footer />
+    </main>
+  )
 }

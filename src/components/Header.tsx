@@ -186,13 +186,11 @@ const Header = () => {
             {/* Boutons Espace Pro + Devis */}
             <div className="hidden md:flex items-center gap-3">
               <Link
-                href="brochure_2026"
-                // href="/espace-pro"
+                href="/espace-pro"
                 onClick={handleEspaceProClick}
                 className="inline-flex items-center gap-1.5 px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
               >
-                Voir la brochure
-                {/* Espace Agent de voyage */}
+                Espace Agent de voyage
               </Link>
               <Link
                 href="/devis-personnalise"

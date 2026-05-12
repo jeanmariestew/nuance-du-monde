@@ -9,8 +9,9 @@ import { ProfessionalProvider } from "@/contexts/ProfessionalContext";
 export default function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isBrochure = pathname?.startsWith("/brochure_2026");
 
-  if (isAdmin) {
+  if (isAdmin || isBrochure) {
     return <>{children}</>;
   }
   return (
