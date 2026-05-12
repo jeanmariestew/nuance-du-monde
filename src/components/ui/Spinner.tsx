@@ -6,7 +6,7 @@ export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   stroke?: number; // px
 }
 
-export default function Spinner({ size = 20, stroke = 2, className, ...rest }: SpinnerProps) {
+export function Spinner({ size = 20, stroke = 2, className, ...rest }: SpinnerProps) {
   const style: React.CSSProperties = { width: size, height: size };
   const border = `${stroke}px`;
   return (
@@ -42,3 +42,4 @@ export default function Spinner({ size = 20, stroke = 2, className, ...rest }: S
     </div>
   );
 }
+export default Spinner;
