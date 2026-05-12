@@ -265,7 +265,7 @@ function AuthenticatedView({
         <div className="max-w-5xl mx-auto">
           {proVideoUrl ? (
             <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl aspect-video">
-              <video controls className="w-full h-full border-none" autoPlay muted playsInline src="/Présentation_espace_Agents_de_voyages_v2.mp4" />
+              <video controls className="w-full h-full border-none" autoPlay muted playsInline src="/uploads/Présentation_espace_Agents_de_voyages_v2.mp4" />
             </div>
           ) : (
             <div className="text-center max-w-3xl mx-auto space-y-4">w
