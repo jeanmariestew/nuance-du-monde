@@ -57,18 +57,18 @@ export default async function TravelTypePage({ params }: PageProps) {
           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
-          {type.is_pro && (
+          {/* {type.is_pro && (
             <div className="inline-flex items-center gap-2 bg-[#FFFF00]/90 text-black text-xs font-bold px-4 py-1.5 rounded-full mb-4 uppercase tracking-widest">
               Réservé aux agents de voyage
             </div>
-          )}
+          )} */}
           <h1 className="text-2xl sm:text-3xl font-[Alro] uppercase md:text-4xl lg:text-5xl font-bold">
             {type.title}
-            {type.is_pro && (
+            {/* {type.is_pro && (
               <span className="block text-base font-normal text-white/70 mt-1 normal-case tracking-normal font-sans">
                 Réservé aux agents
               </span>
-            )}
+            )} */}
           </h1>
           {type.short_description && (
             <p className="text-sm sm:text-base md:text-lg lg:text-xl mt-2 max-w-3xl mx-auto leading-relaxed">{type.short_description}</p>
