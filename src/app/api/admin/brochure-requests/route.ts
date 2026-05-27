@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
+import { sendBrochureRequestNotification } from '@/lib/email';
 
 export async function GET(req: Request) {
   if (!(await hasValidAdminToken())) {
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { first_name, last_name, email, agency_name, phone, address, quantity } = body;
+    const { first_name, last_name, email, agency_name, phone, address, quantity, certificate_number } = body;
 
     if (!first_name || !last_name || !email) {
       return NextResponse.json(
@@ -41,10 +42,27 @@ export async function POST(req: Request) {
     }
 
     const result = await execute(
-      `INSERT INTO brochure_requests (first_name, last_name, email, agency_name, phone, address, quantity)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [first_name, last_name, email, agency_name || null, phone || null, address || null, quantity || 1]
+      `INSERT INTO brochure_requests (first_name, last_name, email, agency_name, phone, address, quantity, certificate_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [first_name, last_name, email, agency_name || null, phone || null, address || null, quantity || 1, certificate_number || null]
     );
+
+    // Envoyer l'email de notification aux administrateurs
+    try {
+      await sendBrochureRequestNotification({
+        full_name: `${first_name} ${last_name}`.trim(),
+        agency_name: agency_name || '',
+        email: email,
+        phone: phone,
+        certificate_number: certificate_number || '',
+        quantity: quantity ? `${quantity} exemplaires` : '1 exemplaire',
+        message: address,
+      });
+    } catch (emailErr) {
+      console.error('[POST /api/admin/brochure-requests] Email notification error:', emailErr);
+      // Log l'erreur mais ne bloque pas la réponse
+      console.error('Details:', emailErr instanceof Error ? emailErr.message : String(emailErr));
+    }
 
     return NextResponse.json({
       success: true,

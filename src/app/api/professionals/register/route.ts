@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { verifyOPCCertificate } from '@/lib/opc-verify';
+import { sendPendingConfirmationEmail } from '@/lib/email';
 
 interface RegisterRequest {
   first_name: string;
@@ -61,17 +61,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifier le permis auprès de l'OPC
-    console.log('[REGISTER] Vérification OPC pour:', first_name, last_name);
-    const opcResult = await verifyOPCCertificate(
-      first_name.trim(),
-      last_name.trim(),
-      certificate_number.trim()
-    );
-
-    // Déterminer le status basé sur la vérification OPC
-    const status = opcResult.isValid ? 'validated' : 'pending';
-    const opcVerified = opcResult.isValid ? 1 : 0;
+    // OPC check désactivé - toujours 'pending' à l'inscription
+    const status = 'pending';
+    const opcVerified = 0;
 
     // Créer l'agent en BD
     await query(
@@ -112,13 +104,24 @@ export async function POST(req: Request) {
 
     await sendToGHL(ghlData);
 
+    // Envoyer l'email de confirmation
+    try {
+      await sendPendingConfirmationEmail({
+        email: email.trim(),
+        first_name: first_name.trim(),
+        last_name: last_name.trim(),
+        agency_name: agency_name?.trim() || '',
+      });
+    } catch (emailErr) {
+      console.error('[REGISTER] Email error:', emailErr);
+      // Ne pas bloquer si l'email échoue
+    }
+
     // Retourner le résultat
     return NextResponse.json({
       success: true,
       data: {
-        message: opcResult.isValid
-          ? 'Votre permis OPC a été vérifié avec succès! Vous pouvez maintenant vous connecter.'
-          : 'Votre inscription a été reçue. Votre permis est en cours de vérification. Vous serez notifié par email.',
+        message: 'Votre inscription a été reçue. Vous allez recevoir un email de confirmation.',
         status,
         opc_verified: opcVerified === 1,
         email: email.trim(),

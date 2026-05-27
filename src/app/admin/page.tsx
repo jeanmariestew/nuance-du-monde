@@ -65,6 +65,8 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <nav className="grid grid-cols-2 gap-2 text-sm">
+              <Link className="px-3 py-2 rounded-md bg-blue-100 hover:bg-blue-200 font-semibold" href="/admin/professionals">👥 Agents de voyage</Link>
+              <Link className="px-3 py-2 rounded-md bg-blue-100 hover:bg-blue-200 font-semibold" href="/admin/brochure-requests">📋 Demandes de brochures</Link>
               <Link className="px-3 py-2 rounded-md bg-neutral-100 hover:bg-neutral-200" href="/admin/offers">Gérer les offres</Link>
               <Link className="px-3 py-2 rounded-md bg-yellow-100 hover:bg-yellow-200 font-semibold" href="/admin/gallery">📸 Galerie d&apos;images</Link>
               <Link className="px-3 py-2 rounded-md bg-neutral-100 hover:bg-neutral-200" href="/admin/travel-types">Types de voyage</Link>

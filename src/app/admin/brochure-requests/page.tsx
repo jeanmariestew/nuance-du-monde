@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { adminApi } from "@/lib/axios";
-import AdminShell from "@/components/admin/AdminShell";
 
 interface BrochureRequest {
   id: number;
@@ -31,7 +30,7 @@ export default function BrochureRequestsPage() {
   const [filter, setFilter] = useState("all");
   const [updating, setUpdating] = useState<number | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const url = filter === "all" ? "/brochure-requests" : `/brochure-requests?status=${filter}`;
@@ -39,9 +38,9 @@ export default function BrochureRequestsPage() {
       if (res.data.success) setRequests(res.data.data);
     } catch {}
     setLoading(false);
-  };
+  }, [filter]);
 
-  useEffect(() => { load(); }, [filter]);
+  useEffect(() => { load(); }, [filter, load]);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(id);
@@ -53,7 +52,7 @@ export default function BrochureRequestsPage() {
   };
 
   return (
-    <AdminShell>
+    <>
       <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-semibold">Demandes de brochures</h1>
         <div className="flex items-center gap-2">
@@ -138,6 +137,6 @@ export default function BrochureRequestsPage() {
           </table>
         </div>
       )}
-    </AdminShell>
+    </>
   );
 }

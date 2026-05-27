@@ -1,24 +1,28 @@
 "use client"
 
 import Link from "next/link"
+import OptimizedImage from "../OptimizedImage"
 
 export function Header() {
   return (
     <header className="w-full bg-white py-4 px-6 lg:px-12">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex flex-col">
-          <span className="text-[#1e293b] font-bold text-xl tracking-wider" style={{ fontFamily: 'sans-serif' }}>
-            NUANCE
-          </span>
-          <span className="text-[#1e293b] font-medium text-xs tracking-widest -mt-1">
-            DU MONDE
-          </span>
-        </Link>
+        
+          <Link href="/" className="flex items-center shrink-0">
+            <OptimizedImage
+              src="/images/logo.noire_blanc.png"
+              alt="Nuance du Monde"
+              width={100}
+              height={28}
+              className="h-3 sm:h-4 md:h-5 lg:h-6 xl:h-7 w-auto"
+              priority
+            />
+          </Link>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="#destinations" className="text-[#1e293b] text-sm hover:text-[#c4a74a] transition-colors">
+          <Link href="destinations" className="text-[#1e293b] text-sm hover:text-[#c4a74a] transition-colors">
             Destinations
           </Link>
           <Link href="#pourquoi" className="text-[#1e293b] text-sm hover:text-[#c4a74a] transition-colors">

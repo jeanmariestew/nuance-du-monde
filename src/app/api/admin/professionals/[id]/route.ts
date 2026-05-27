@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
-import { sendProValidationEmail, sendProRejectionEmail } from '@/lib/email';
+import { sendProRejectionEmail, sendPasswordSetupEmail } from '@/lib/email';
+import { randomUUID } from 'crypto';
 
 // GET: Récupérer un professionnel par ID
 export async function GET(
@@ -79,12 +80,22 @@ export async function PUT(
     if (status && status !== oldStatus) {
       try {
         if (status === 'validated') {
-          await sendProValidationEmail({
+          // Générer un token pour la configuration du mot de passe
+          const token = randomUUID();
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
+          await execute(
+            'UPDATE professionals SET password_set_token = ?, password_token_expires = ? WHERE id = ?',
+            [token, expiresAt, id]
+          );
+
+          // Envoyer le lien de configuration du mot de passe
+          await sendPasswordSetupEmail({
             email:       professional.email,
             first_name:  professional.first_name,
             last_name:   professional.last_name,
             agency_name: professional.agency_name,
-          });
+          }, token);
         } else if (status === 'rejected') {
           await sendProRejectionEmail({
             email:       professional.email,

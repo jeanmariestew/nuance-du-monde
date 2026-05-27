@@ -68,7 +68,7 @@ export function Destinations() {
 
         <div className="text-center">
           <Link
-            href="#destinations"
+            href="destinations"
             className="inline-block bg-[#c4a74a] text-white font-medium px-8 py-4 rounded-full hover:bg-[#b39740] transition-colors text-sm uppercase tracking-wide"
           >
             Voir toutes les destinations

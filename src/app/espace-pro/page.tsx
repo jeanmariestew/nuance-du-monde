@@ -6,10 +6,9 @@ import Link from "next/link";
 import OptimizedImage from "@/components/OptimizedImage";
 import { api } from "@/lib/axios";
 import { useProfessional } from "@/contexts/ProfessionalContext";
-import ProfessionalAuthModal from "@/components/ProfessionalAuthModal";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
 import {
-  Briefcase, Lock, LogOut, ArrowRight, Users, Globe, Anchor, BookOpen,
+  Briefcase, LogOut, Users, Globe, Anchor,
   Facebook, Star, ChevronLeft, ChevronRight
 } from "lucide-react";
 import TravelTypesSection from "@/components/TravelTypesSection";
@@ -61,79 +60,6 @@ function VideoEmbed({ url, className }: { url: string; className?: string }) {
   );
 }
 
-// ---------- Page non authentifiée ----------
-function UnauthenticatedView({ onOpenModal }: { onOpenModal: () => void }) {
-  return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black">
-      <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <OptimizedImage
-            src="/images/photo_type-de-voyage.png"
-            alt="Espace Agents de voyage"
-            fill
-            className="object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-900/50 to-gray-900" />
-        </div>
-
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[#c4a74a]/20 border border-[#c4a74a]/30 rounded-full px-4 py-2 mb-6">
-            <Briefcase className="w-5 h-5 text-[#c4a74a]" />
-            <span className="text-[#c4a74a] font-semibold">Espace réservé aux agents</span>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-[Alro] uppercase">
-            Espace Agents de voyage
-          </h1>
-
-          <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
-            Accédez à nos offres exclusives, outils et ressources réservés aux professionnels du voyage.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={onOpenModal}
-              className="inline-flex items-center justify-center gap-2 bg-[#c4a74a] hover:bg-yellow-300 text-black font-bold py-4 px-8 rounded-lg transition-all shadow-lg"
-            >
-              <Lock className="w-5 h-5" />
-              Se connecter
-            </button>
-            <Link
-              href="/inscription-agents"
-              className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white/30 hover:border-white/60 text-white font-semibold py-4 px-8 rounded-lg transition-all"
-            >
-              Créer mon accès
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Avantages */}
-      <div className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12 font-[Alro] uppercase">
-            Pourquoi rejoindre l&apos;espace agents ?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Star, title: "Offres exclusives", text: "Accédez à des voyages réservés aux professionnels : groupes, FIT, croisières." },
-              { icon: BookOpen, title: "Outils & Ressources", text: "Brochures, groupes Facebook agents, supports de vente disponibles en un clic." },
-              { icon: Globe, title: "Support dédié", text: "Un partenariat solide avec l'Espace Multisoleil pour vous accompagner." },
-            ].map(({ icon: Icon, title, text }) => (
-              <div key={title} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-[#c4a74a]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Icon className="w-8 h-8 text-[#c4a74a]" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
-                <p className="text-gray-400">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ---------- Page authentifiée ----------
 function AuthenticatedView({
@@ -547,14 +473,13 @@ function AuthenticatedView({
 
 // ---------- Page principale ----------
 export default function EspaceProPage() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [proVideoUrl, setProVideoUrl] = useState('');
   const [facebookGroupUrl, setFacebookGroupUrl] = useState('');
   const { session, logout, isLoading } = useProfessional();
   const router = useRouter();
 
+  // Charger l'URL de la vidéo pro et lien FB depuis les settings
   useEffect(() => {
-    // Charger l'URL de la vidéo pro et lien FB depuis les settings
     fetch('/api/settings').then(r => r.json()).then(data => {
       if (data.success) {
         setProVideoUrl(data.data?.pro_video_url || '');
@@ -562,6 +487,13 @@ export default function EspaceProPage() {
       }
     }).catch(() => {});
   }, []);
+
+  // Si pas connecté, rediriger vers la page d'accueil
+  useEffect(() => {
+    if (!isLoading && !session?.isAuthenticated) {
+      router.push('/?auth=1');
+    }
+  }, [isLoading, session?.isAuthenticated, router]);
 
   if (isLoading) {
     return (
@@ -571,16 +503,12 @@ export default function EspaceProPage() {
     );
   }
 
+  // Double vérification au cas où la redirection n'a pas eu lieu
   if (!session?.isAuthenticated) {
     return (
-      <>
-        <UnauthenticatedView onOpenModal={() => setIsAuthModalOpen(true)} />
-        <ProfessionalAuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          redirectAfterAuth="/espace-pro"
-        />
-      </>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
     );
   }
 

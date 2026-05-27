@@ -15,11 +15,83 @@ export function OrderForm() {
     autoriseStockage: false,
     autorisePromo: false,
   })
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log(formData)
+    setError("")
+    setSuccess(false)
+
+    // Validation
+    if (!formData.nomComplet || !formData.agence || !formData.courrielPro || !formData.numeroPermis) {
+      setError("Veuillez remplir tous les champs obligatoires")
+      return
+    }
+
+    if (!formData.autoriseStockage) {
+      setError("Vous devez autoriser le stockage de vos informations personnelles")
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      // Parser la quantité en extrayant le nombre
+      const quantityMatch = formData.nombreExemplaires.match(/\d+/);
+      const quantity = quantityMatch ? parseInt(quantityMatch[0], 10) : 5;
+
+      if (isNaN(quantity)) {
+        setError('Erreur: nombre d\'exemplaires invalide');
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch('/api/admin/brochure-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: formData.nomComplet.split(' ')[0] || formData.nomComplet,
+          last_name: formData.nomComplet.split(' ').slice(1).join(' ') || '',
+          email: formData.courrielPro,
+          phone: formData.telephone,
+          agency_name: formData.agence,
+          certificate_number: formData.numeroPermis,
+          quantity: quantity,
+          address: formData.message,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!data.success) {
+        setError(data.error || 'Erreur lors de l\'envoi')
+        return
+      }
+
+      setSuccess(true)
+      // Reset form
+      setFormData({
+        nomComplet: "",
+        agence: "",
+        courrielPro: "",
+        telephone: "",
+        numeroPermis: "",
+        nombreExemplaires: "5 exemplaires",
+        message: "",
+        autoriseStockage: false,
+        autorisePromo: false,
+      })
+
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccess(false), 5000)
+    } catch (err) {
+      console.error('Erreur:', err)
+      setError('Une erreur est survenue lors de l\'envoi')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -37,6 +109,18 @@ export function OrderForm() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+                ✅ Votre demande a été reçue avec succès! Nous vous contacterons bientôt.
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white text-xs uppercase tracking-wider mb-2">
@@ -164,9 +248,10 @@ export function OrderForm() {
 
             <button
               type="submit"
-              className="w-full bg-[#c4a74a] text-white font-medium py-4 rounded-lg hover:bg-[#b39740] transition-colors text-sm uppercase tracking-wide"
+              disabled={loading || success}
+              className="w-full bg-[#c4a74a] text-white font-medium py-4 rounded-lg hover:bg-[#b39740] transition-colors text-sm uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Recevoir mes brochures
+              {loading ? "Envoi en cours..." : success ? "✅ Demande envoyée!" : "Recevoir mes brochures"}
             </button>
           </form>
         </div>

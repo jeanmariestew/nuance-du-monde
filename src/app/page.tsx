@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import OptimizedImage from "@/components/OptimizedImage";
 import { Destination, TravelType, TravelTheme } from "@/types";
 import HeroAnimated from "@/components/HeroAnimated";
@@ -14,6 +15,7 @@ import BtoBtoCSection from "@/components/BtoBtoCSection";
 import { api } from "@/lib/axios";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
 import { useProfessional } from "@/contexts/ProfessionalContext";
+import ProfessionalAuthModal from "@/components/ProfessionalAuthModal";
 
 interface Testimonial {
   id: number;
@@ -31,6 +33,7 @@ interface Partner {
 }
 
 export default function Home() {
+  const searchParams = useSearchParams();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
   const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
@@ -38,6 +41,7 @@ export default function Home() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [proVideoUrl, setProVideoUrl] = useState('');
   const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1');
   const { session } = useProfessional();
 
   useEffect(() => {
@@ -121,6 +125,13 @@ export default function Home() {
 
       {/* Partenaires Section */}
       <PartnersSection partners={partners} />
+
+      {/* Modal d'authentification professionnels */}
+      <ProfessionalAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectAfterAuth="/espace-pro"
+      />
     </div>
   );
 }

@@ -50,7 +50,7 @@ export function Footer() {
             <h4 className="text-[#c4a74a] text-xs uppercase tracking-wider mb-4">Navigation</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="#destinations" className="text-[#94a3b8] text-sm hover:text-white transition-colors">
+                <Link href="destinations" className="text-[#94a3b8] text-sm hover:text-white transition-colors">
                   Destinations
                 </Link>
               </li>

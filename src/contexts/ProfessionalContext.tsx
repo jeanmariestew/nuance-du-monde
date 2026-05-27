@@ -3,59 +3,77 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface ProfessionalSession {
+  id: number;
   email: string;
   agencyName: string;
   firstName: string;
   lastName: string;
   certificateNumber: string;
+  opcVerified: boolean;
   isAuthenticated: boolean;
 }
 
 interface ProfessionalContextType {
   session: ProfessionalSession | null;
-  login: (email: string, agencyName: string, firstName: string, lastName: string, certificateNumber: string) => void;
-  logout: () => void;
+  login: (data: Omit<ProfessionalSession, 'isAuthenticated'>) => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
 const ProfessionalContext = createContext<ProfessionalContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'nuance_professional_session';
-
 export function ProfessionalProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<ProfessionalSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Au montage, vérifier la session via le cookie côté serveur
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setSession(parsed);
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/professionals/me');
+
+        if (res.ok) {
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            setSession({
+              ...data.data,
+              isAuthenticated: true,
+            });
+          }
+        } else {
+          // Pas de session valide
+          setSession(null);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification de la session:', error);
+        setSession(null);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement de la session professionnelle:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    checkSession();
   }, []);
 
-  const login = (email: string, agencyName: string, firstName: string, lastName: string, certificateNumber: string) => {
+  const login = (data: Omit<ProfessionalSession, 'isAuthenticated'>) => {
     const newSession: ProfessionalSession = {
-      email,
-      agencyName,
-      firstName,
-      lastName,
-      certificateNumber,
+      ...data,
       isAuthenticated: true,
     };
     setSession(newSession);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSession));
   };
 
-  const logout = () => {
-    setSession(null);
-    localStorage.removeItem(STORAGE_KEY);
+  const logout = async () => {
+    try {
+      await fetch('/api/professionals/logout', {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Erreur lors du logout:', error);
+    } finally {
+      setSession(null);
+    }
   };
 
   return (
