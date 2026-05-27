@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
         lastName: professional.last_name,
         agencyName: professional.agency_name,
         certificateNumber: professional.certificate_number,
+        opcVerified: professional.opc_verified === 1,
       },
       JWT_SECRET,
       { expiresIn: '7d' }

@@ -8,6 +8,7 @@ interface JWTPayload {
   lastName: string;
   agencyName: string;
   certificateNumber: string;
+  opcVerified?: boolean;
 }
 
 export async function GET(request: NextRequest) {
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
         lastName: decoded.lastName,
         agencyName: decoded.agencyName,
         certificateNumber: decoded.certificateNumber,
+        opcVerified: decoded.opcVerified || false,
       }
     });
 

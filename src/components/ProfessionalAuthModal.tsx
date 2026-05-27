@@ -129,13 +129,15 @@ export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAu
       }
 
       // Mettre à jour le contexte
-      login(
-        data.data.email,
-        data.data.agencyName,
-        data.data.firstName,
-        data.data.lastName,
-        data.data.certificateNumber
-      );
+      login({
+        id: data.data.id,
+        email: data.data.email,
+        agencyName: data.data.agencyName,
+        firstName: data.data.firstName,
+        lastName: data.data.lastName,
+        certificateNumber: data.data.certificateNumber,
+        opcVerified: data.data.opcVerified || false,
+      });
 
       resetForm();
       handleClose();

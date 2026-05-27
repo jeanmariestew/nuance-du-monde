@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import OptimizedImage from "@/components/OptimizedImage";
 import { Destination, TravelType, TravelTheme } from "@/types";
@@ -32,52 +32,29 @@ interface Partner {
   website_url?: string;
 }
 
-export default function Home() {
-  const searchParams = useSearchParams();
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
-  const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [proVideoUrl, setProVideoUrl] = useState('');
-  const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1');
-  const { session } = useProfessional();
+interface HomeContentProps {
+  destinations: Destination[];
+  travelTypes: TravelType[];
+  travelThemes: TravelTheme[];
+  testimonials: Testimonial[];
+  partners: Partner[];
+  proVideoUrl: string;
+  particulierVideoUrl: string;
+  isAuthModalOpen: boolean;
+  onAuthModalClose: () => void;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const typesUrl = session?.isAuthenticated
-          ? "/travel-types?active=true&includePro=true"
-          : "/travel-types?active=true";
-
-        const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
-          await Promise.all([
-            api.get("/destinations?active=true&limit=5"),
-            api.get(typesUrl),
-            api.get("/travel-themes?active=true&limit=20"),
-            api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
-            api.get("/partners"),
-            fetch("/api/settings").then(r => r.json()).catch(() => ({ success: false })),
-          ]);
-
-        if (destRes.data.success) setDestinations(destRes.data.data);
-        if (typesRes.data.success) setTravelTypes(typesRes.data.data);
-        if (themesRes.data.success) setTravelThemes(themesRes.data.data);
-        if (testimonialsRes.data.success) setTestimonials(testimonialsRes.data.data);
-        if (partnersRes.data.success) setPartners(partnersRes.data.data);
-        if (settingsRes.success) {
-          setProVideoUrl(settingsRes.data?.pro_video_url || '');
-          setParticulierVideoUrl(settingsRes.data?.particulier_video_url || '');
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
-      }
-    };
-
-    fetchData();
-  }, [session?.isAuthenticated]);
-
+function HomeContent({
+  destinations,
+  travelTypes,
+  travelThemes,
+  testimonials,
+  partners,
+  proVideoUrl,
+  particulierVideoUrl,
+  isAuthModalOpen,
+  onAuthModalClose,
+}: HomeContentProps) {
   return (
     <div className="flex flex-col gap-y-10">
       {/* Hero animé */}
@@ -129,9 +106,95 @@ export default function Home() {
       {/* Modal d'authentification professionnels */}
       <ProfessionalAuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={onAuthModalClose}
         redirectAfterAuth="/espace-pro"
       />
     </div>
+  );
+}
+
+function HomeSearchParamsWrapper({
+  destinations,
+  travelTypes,
+  travelThemes,
+  testimonials,
+  partners,
+  proVideoUrl,
+  particulierVideoUrl,
+}: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose'>) {
+  const searchParams = useSearchParams();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1');
+
+  return (
+    <HomeContent
+      destinations={destinations}
+      travelTypes={travelTypes}
+      travelThemes={travelThemes}
+      testimonials={testimonials}
+      partners={partners}
+      proVideoUrl={proVideoUrl}
+      particulierVideoUrl={particulierVideoUrl}
+      isAuthModalOpen={isAuthModalOpen}
+      onAuthModalClose={() => setIsAuthModalOpen(false)}
+    />
+  );
+}
+
+export default function Home() {
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
+  const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [proVideoUrl, setProVideoUrl] = useState('');
+  const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
+  const { session } = useProfessional();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const typesUrl = session?.isAuthenticated
+          ? "/travel-types?active=true&includePro=true"
+          : "/travel-types?active=true";
+
+        const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
+          await Promise.all([
+            api.get("/destinations?active=true&limit=5"),
+            api.get(typesUrl),
+            api.get("/travel-themes?active=true&limit=20"),
+            api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
+            api.get("/partners"),
+            fetch("/api/settings").then(r => r.json()).catch(() => ({ success: false })),
+          ]);
+
+        if (destRes.data.success) setDestinations(destRes.data.data);
+        if (typesRes.data.success) setTravelTypes(typesRes.data.data);
+        if (themesRes.data.success) setTravelThemes(themesRes.data.data);
+        if (testimonialsRes.data.success) setTestimonials(testimonialsRes.data.data);
+        if (partnersRes.data.success) setPartners(partnersRes.data.data);
+        if (settingsRes.success) {
+          setProVideoUrl(settingsRes.data?.pro_video_url || '');
+          setParticulierVideoUrl(settingsRes.data?.particulier_video_url || '');
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+      }
+    };
+
+    fetchData();
+  }, [session?.isAuthenticated]);
+
+  return (
+    <Suspense fallback={<div className="flex flex-col gap-y-10"><div className="h-96 bg-gray-200 animate-pulse" /></div>}>
+      <HomeSearchParamsWrapper
+        destinations={destinations}
+        travelTypes={travelTypes}
+        travelThemes={travelThemes}
+        testimonials={testimonials}
+        partners={partners}
+        proVideoUrl={proVideoUrl}
+        particulierVideoUrl={particulierVideoUrl}
+      />
+    </Suspense>
   );
 }

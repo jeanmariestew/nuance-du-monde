@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 interface VerifyResponse {
@@ -21,11 +21,13 @@ interface SetPasswordResponse {
   redirect?: string;
 }
 
-export default function ConfigurerMotDePassePage() {
-  const searchParams = useSearchParams();
+interface ConfigurerFormProps {
+  token: string;
+  isReset: boolean;
+}
+
+function ConfigurerMotDePasseForm({ token, isReset }: ConfigurerFormProps) {
   const router = useRouter();
-  const token = searchParams.get('token');
-  const isReset = searchParams.get('reset') === 'true';
 
   const [step, setStep] = useState<'loading' | 'form' | 'error' | 'success'>('loading');
   const [professional, setProfessional] = useState<{ email: string; firstName: string; lastName: string } | null>(null);
@@ -237,5 +239,42 @@ export default function ConfigurerMotDePassePage() {
         )}
       </div>
     </div>
+  );
+}
+
+function ConfigurerMotDePasseWrapper() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+  const isReset = searchParams.get('reset') === 'true';
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h1>
+          <p className="text-gray-600 mb-6">Token manquant</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <ConfigurerMotDePasseForm token={token} isReset={isReset} />;
+}
+
+export default function ConfigurerMotDePassePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            <p className="mt-4 text-gray-600">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <ConfigurerMotDePasseWrapper />
+    </Suspense>
   );
 }
