@@ -63,7 +63,7 @@ export async function POST(req: Request) {
 
     // OPC check désactivé - toujours 'pending' à l'inscription
     const status = 'pending';
-    const opcVerified = 0;
+    const opcVerified = false;
 
     // Créer l'agent en BD
     await query(
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         agency_name?.trim() || null,
         phone?.trim() || null,
         status,
-        opcVerified,
+        opcVerified ? 1 : 0,
       ]
     );
 
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       email: email.trim(),
       agency_name: agency_name?.trim(),
       phone: phone?.trim(),
-      opc_verified: opcVerified === 1,
+      opc_verified: opcVerified,
     };
 
     await sendToGHL(ghlData);
