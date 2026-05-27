@@ -123,7 +123,7 @@ export async function POST(req: Request) {
       data: {
         message: 'Votre inscription a été reçue. Vous allez recevoir un email de confirmation.',
         status,
-        opc_verified: opcVerified === 1,
+        opc_verified: opcVerified,
         email: email.trim(),
       },
     });
