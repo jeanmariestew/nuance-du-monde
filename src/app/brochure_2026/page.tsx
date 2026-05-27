@@ -40,7 +40,7 @@ export default function BrochurePage() {
 
   return (
     <main className="min-h-screen">
-      <Header sticky={true} />
+      <Header />
       <Hero />
       <Stats />
       <CommercialTool />

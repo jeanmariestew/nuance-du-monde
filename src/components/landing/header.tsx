@@ -5,7 +5,7 @@ import OptimizedImage from "../OptimizedImage"
 
 export function Header() {
   return (
-    <header className="w-full bg-white py-4 px-6 lg:px-12">
+    <header className="w-full fixed bg-white py-4 px-6 lg:px-12">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         
