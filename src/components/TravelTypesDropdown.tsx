@@ -30,9 +30,7 @@ const TravelTypesDropdown: React.FC<TravelTypesDropdownProps> = ({ onClose, onPr
   useEffect(() => {
     const fetchTravelTypes = async () => {
       try {
-        const url = session?.isAuthenticated
-          ? '/travel-types?active=true&includePro=true'
-          : '/travel-types?active=true&includePro=true';
+        const url = '/travel-types?active=true&includePro=true';
         const response = await api.get(url);
         setTravelTypes(response.data.data || []);
       } catch (err) {

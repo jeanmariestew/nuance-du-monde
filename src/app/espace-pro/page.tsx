@@ -88,9 +88,7 @@ function AuthenticatedView({
     useEffect(() => {
     const fetchTypes = async () => {
       try {
-        const url = Session?.isAuthenticated 
-          ? "/travel-types?active=true&includePro=true"
-          : "/travel-types?active=true";
+        const url = "/travel-types?active=true&includePro=true";
         const response = await api.get(url);
         const data = response.data;
         if (data.success) setTypes(data.data);

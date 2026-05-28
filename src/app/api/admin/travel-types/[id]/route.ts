@@ -54,6 +54,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       image_url = '',
       sort_order = 0,
       is_active = 1,
+      is_pro = 0,
     } = body || {};
     
     if (!title || !slug) {
@@ -61,10 +62,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
     
     await query(
-      `UPDATE travel_types 
-       SET title=?, slug=?, description=?, short_description=?, image_url=?, sort_order=?, is_active=?, updated_at=NOW() 
+      `UPDATE travel_types
+       SET title=?, slug=?, description=?, short_description=?, image_url=?, sort_order=?, is_active=?, is_pro=?, updated_at=NOW()
        WHERE id=?`,
-      [title, slug, description, short_description, image_url, sort_order, is_active ? 1 : 0, id]
+      [title, slug, description, short_description, image_url, sort_order, is_active ? 1 : 0, is_pro ? 1 : 0, id]
     );
     
     return NextResponse.json({ success: true });

@@ -42,6 +42,7 @@ interface HomeContentProps {
   particulierVideoUrl: string;
   isAuthModalOpen: boolean;
   onAuthModalClose: () => void;
+  onShowAuthModal: () => void;
 }
 
 function HomeContent({
@@ -54,6 +55,7 @@ function HomeContent({
   particulierVideoUrl,
   isAuthModalOpen,
   onAuthModalClose,
+  onShowAuthModal,
 }: HomeContentProps) {
   return (
     <div className="flex flex-col gap-y-10">
@@ -64,7 +66,10 @@ function HomeContent({
       <TravelTypesHero />
 
       {/* Section Types de voyage */}
-      <TravelTypesSection travelTypes={travelTypes} />
+      <TravelTypesSection
+        travelTypes={travelTypes}
+        onShowAuthModal={onShowAuthModal}
+      />
 
       {/* Destinations Section */}
       <DestinationsSection destinations={destinations} />
@@ -121,9 +126,13 @@ function HomeSearchParamsWrapper({
   partners,
   proVideoUrl,
   particulierVideoUrl,
-}: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose'>) {
+}: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose' | 'onShowAuthModal'>) {
   const searchParams = useSearchParams();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1');
+
+  useEffect(() => {
+    setIsAuthModalOpen(searchParams.get('auth') === '1');
+  }, [searchParams]);
 
   return (
     <HomeContent
@@ -136,6 +145,7 @@ function HomeSearchParamsWrapper({
       particulierVideoUrl={particulierVideoUrl}
       isAuthModalOpen={isAuthModalOpen}
       onAuthModalClose={() => setIsAuthModalOpen(false)}
+      onShowAuthModal={() => setIsAuthModalOpen(true)}
     />
   );
 }
@@ -153,9 +163,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const typesUrl = session?.isAuthenticated
-          ? "/travel-types?active=true&includePro=true"
-          : "/travel-types?active=true";
+        const typesUrl ="/travel-types?active=true&includePro=true"
 
         const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
           await Promise.all([

@@ -34,6 +34,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     summary: row.short_description || '',
     description: row.description || '',
     is_active: row.is_active,
+    is_pro: row.is_pro || false,
     price: row.price,
     price_currency: row.price_currency,
     promotional_price: row.promotional_price,
@@ -93,6 +94,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     description = '',
     images = [] as any[],
     is_active = 1,
+    is_pro = 0,
     price = null,
     price_currency = 'EUR',
     promotional_price = null,
@@ -133,8 +135,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       : null;
 
     await query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, description, is_active ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
+      [title, slug, summary, description, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
     );
   } catch (e) {
     console.error('[PUT /offers] Erreur UPDATE offers:', e);

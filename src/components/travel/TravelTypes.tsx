@@ -3,14 +3,19 @@
 import Link from "next/link";
 import OptimizedImage from "@/components/OptimizedImage";
 import { TravelType } from "@/types";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useProfessional } from "@/contexts/ProfessionalContext";
+import { X } from "lucide-react";
 
 interface TravelTypesProps {
   travelTypes: TravelType[];
+  onShowAuthModal?: () => void;
 }
 
-export default function TravelTypes({ travelTypes }: TravelTypesProps) {
+function TravelTypesContent({ travelTypes, onShowAuthModal }: TravelTypesProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [showProModal, setShowProModal] = useState(false);
+  const { session } = useProfessional();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -110,12 +115,21 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <Link
-                    href={`/type-de-voyage/${travelType.slug}`}
-                    className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold transition-colors"
-                  >
-                    Explorer
-                  </Link>
+                  {travelType.is_pro && !session?.isAuthenticated ? (
+                    <button
+                      onClick={() => setShowProModal(true)}
+                      className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold transition-colors hover:bg-[#c49800]"
+                    >
+                      Explorer
+                    </button>
+                  ) : (
+                    <Link
+                      href={`/type-de-voyage/${travelType.slug}`}
+                      className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold transition-colors hover:bg-[#c49800]"
+                    >
+                      Explorer
+                    </Link>
+                  )}
                   <div className="w-12 h-12 rounded-full flex items-center justify-center ripple-container"></div>
                 </div>
               </div>
@@ -123,6 +137,61 @@ export default function TravelTypes({ travelTypes }: TravelTypesProps) {
           </div>
         ))}
       </div>
+
+      {/* Modal Pro - Accès réservé aux professionnels */}
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Header */}
+            <div className="bg-black px-6 py-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[#FFFF00] font-[Alro] uppercase">Accès Professionnel</h2>
+                <p className="text-white/70 text-sm mt-1">Réservé aux agents de voyage</p>
+              </div>
+              <button
+                onClick={() => setShowProModal(false)}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="h-1 bg-[#FFFF00]" />
+
+            {/* Body */}
+            <div className="p-8 text-center space-y-6">
+              <div className="text-5xl">🔒</div>
+
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Contenu Professionnel</h3>
+                <p className="text-gray-600 text-sm">
+                  Cette offre est réservée aux agents de voyage professionnels. Veuillez vous connecter à votre espace pour y accéder.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setShowProModal(false);
+                    onShowAuthModal?.();
+                  }}
+                  className="w-full bg-black hover:bg-gray-900 text-[#FFFF00] font-bold py-3 rounded-lg transition-colors"
+                >
+                  Se connecter
+                </button>
+                <button
+                  onClick={() => setShowProModal(false)}
+                  className="w-full text-gray-600 hover:text-gray-900 font-medium py-3"
+                >
+                  Retour
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+export default TravelTypesContent;

@@ -30,6 +30,7 @@ type OfferData = {
   description: string;
   images: OfferImage[];
   is_active: 0 | 1;
+  is_pro: 0 | 1;
   price: number | null;
   price_currency: string | null;
   promotional_price: number | null;
@@ -473,15 +474,26 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Statut et prix</CardTitle>
           </CardHeader>
           <CardContent>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={!!offer.is_active}
-                onChange={(e) => setOffer({ ...(offer as OfferData), is_active: e.target.checked ? 1 : 0 })}
-                className="h-4 w-4"
-              />
-              Actif
-            </label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={!!offer.is_active}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), is_active: e.target.checked ? 1 : 0 })}
+                  className="h-4 w-4"
+                />
+                Actif
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={!!offer.is_pro}
+                  onChange={(e) => setOffer({ ...(offer as OfferData), is_pro: e.target.checked ? 1 : 0 })}
+                  className="h-4 w-4"
+                />
+                Réservé aux Professionnels
+              </label>
+            </div>
             <div className="mt-3 grid gap-3 md:grid-cols-[1fr,160px]">
               <label className="text-sm">
                 Prix
