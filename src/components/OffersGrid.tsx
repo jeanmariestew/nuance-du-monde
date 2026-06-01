@@ -5,6 +5,7 @@ import { Offer, Destination, TravelType, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
 import { OfferCardSkeleton } from "@/components/ui/SkeletonLoader";
 import { api } from "@/lib/axios";
+import { useProfessional } from "@/contexts/ProfessionalContext";
 
 interface OffersGridProps {
   destination?: string;
@@ -25,6 +26,7 @@ export default function OffersGrid({
   itemsPerPage = 4,
   hasTheme=false,
 }: OffersGridProps) {
+  const { session } = useProfessional();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +88,9 @@ export default function OffersGrid({
         if (theme) params.append("theme", theme);
         if (hasTheme) params.append("hasActiveTheme", "true");
 
+        // Inclure les offres pro seulement si authentifié
+        if ((type || destination || theme) && session?.isAuthenticated) params.append("includePro", "true");
+
         // Paramètres des selects
         if (selectedDestination)
           params.append("destination", selectedDestination);
@@ -119,6 +124,7 @@ export default function OffersGrid({
     selectedDestination,
     selectedType,
     selectedTheme,
+    session?.isAuthenticated,
   ]);
 
   if (loading) {
@@ -275,45 +281,70 @@ export default function OffersGrid({
 
             {/* Pagination - affichée seulement si plus de 4 offres */}
             {offers.length > itemsPerPage && (
-              <div className="mt-8 flex justify-center items-center space-x-2">
+              <div className="mt-8 flex justify-center items-center space-x-1">
                 {/* Bouton Précédent */}
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-3 py-2 rounded-md ${
+                  className={`px-3 py-2 rounded-md text-sm ${
                     currentPage === 1
                       ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white border border-yellow-500 text-yellow-500"
+                      : "bg-white border border-yellow-500 text-yellow-500 hover:bg-yellow-50"
                   }`}
                 >
                   ← Précédent
                 </button>
 
-                {/* Numéros de pages */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
+                {/* Numéros de pages intelligents */}
+                {(() => {
+                  const pages: (number | string)[] = [];
+                  const delta = 2;
+                  const left = currentPage - delta;
+                  const right = currentPage + delta;
+
+                  // Toujours montrer la page 1
+                  if (left > 2) {
+                    pages.push(1);
+                    if (left > 3) pages.push("...");
+                  }
+
+                  // Montrer les pages autour de la page actuelle
+                  for (let i = Math.max(1, left); i <= Math.min(totalPages, right); i++) {
+                    pages.push(i);
+                  }
+
+                  // Toujours montrer la dernière page
+                  if (right < totalPages - 1) {
+                    if (right < totalPages - 2) pages.push("...");
+                    pages.push(totalPages);
+                  }
+
+                  return pages.map((page, idx) => (
                     <button
-                      key={page}
-                      onClick={() => goToPage(page)}
-                      className={`px-3 py-2 rounded-md ${
-                        currentPage === page
-                          ? "bg-yellow-500 text-white"
-                          : "bg-white border border-yellow-500 text-yellow-500 hover:bg-gray-50"
+                      key={`${page}-${idx}`}
+                      onClick={() => typeof page === "number" && goToPage(page)}
+                      disabled={typeof page === "string"}
+                      className={`px-3 py-2 rounded-md text-sm ${
+                        page === currentPage
+                          ? "bg-yellow-500 text-white font-bold"
+                          : page === "..."
+                          ? "text-gray-400 cursor-default"
+                          : "bg-white border border-yellow-500 text-yellow-500 hover:bg-yellow-50"
                       }`}
                     >
                       {page}
                     </button>
-                  )
-                )}
+                  ));
+                })()}
 
                 {/* Bouton Suivant */}
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-2 rounded-md ${
+                  className={`px-3 py-2 rounded-md text-sm ${
                     currentPage === totalPages
                       ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white border border-yellow-500 text-yellow-500"
+                      : "bg-white border border-yellow-500 text-yellow-500 hover:bg-yellow-50"
                   }`}
                 >
                   Suivant →
