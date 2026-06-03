@@ -13,8 +13,8 @@ export async function POST() {
     SMTP_HOST: process.env.SMTP_HOST || 'NOT SET',
     SMTP_PORT: process.env.SMTP_PORT || 'NOT SET',
     SMTP_SECURE: process.env.SMTP_SECURE || 'NOT SET',
-    SMTP_USER: process.env.SMTP_USER ? '***' : 'NOT SET',
-    SMTP_PASS: process.env.SMTP_PASS ? '***' : 'NOT SET',
+    SMTP_USER: process.env.SMTP_USER || 'NOT SET',
+    SMTP_PASS: process.env.SMTP_PASS || 'NOT SET',
     SMTP_FROM: process.env.SMTP_FROM || 'NOT SET',
   };
 
