@@ -43,6 +43,7 @@ interface HomeContentProps {
   isAuthModalOpen: boolean;
   onAuthModalClose: () => void;
   onShowAuthModal: () => void;
+  registerMode?: boolean;
 }
 
 function HomeContent({
@@ -56,6 +57,7 @@ function HomeContent({
   isAuthModalOpen,
   onAuthModalClose,
   onShowAuthModal,
+  registerMode,
 }: HomeContentProps) {
   return (
     <div className="flex flex-col gap-y-10">
@@ -113,6 +115,7 @@ function HomeContent({
         isOpen={isAuthModalOpen}
         onClose={onAuthModalClose}
         redirectAfterAuth="/espace-pro"
+        initialStep={registerMode ? 'register' : 'email'}
       />
     </div>
   );
@@ -126,12 +129,16 @@ function HomeSearchParamsWrapper({
   partners,
   proVideoUrl,
   particulierVideoUrl,
-}: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose' | 'onShowAuthModal'>) {
+}: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose' | 'onShowAuthModal' | 'registerMode'>) {
   const searchParams = useSearchParams();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1');
+  const isRegister = searchParams.get('register') !== null;
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(searchParams.get('auth') === '1' || isRegister);
+  const [registerMode, setRegisterMode] = useState(isRegister);
 
   useEffect(() => {
-    setIsAuthModalOpen(searchParams.get('auth') === '1');
+    const register = searchParams.get('register') !== null;
+    setRegisterMode(register);
+    setIsAuthModalOpen(searchParams.get('auth') === '1' || register);
   }, [searchParams]);
 
   return (
@@ -146,6 +153,7 @@ function HomeSearchParamsWrapper({
       isAuthModalOpen={isAuthModalOpen}
       onAuthModalClose={() => setIsAuthModalOpen(false)}
       onShowAuthModal={() => setIsAuthModalOpen(true)}
+      registerMode={registerMode}
     />
   );
 }

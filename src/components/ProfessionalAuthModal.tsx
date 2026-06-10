@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProfessional } from '@/contexts/ProfessionalContext';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -9,17 +9,18 @@ interface ProfessionalAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   redirectAfterAuth?: string;
+  initialStep?: 'email' | 'register';
 }
 
 type Step = 'email' | 'login' | 'pending' | 'setup_link_sent' | 'register' | 'registered';
 type EmailStatus = 'not_found' | 'pending' | 'validated_no_password' | 'validated_has_password' | 'rejected';
 
-export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAuth }: ProfessionalAuthModalProps) {
+export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAuth, initialStep }: ProfessionalAuthModalProps) {
   const { login } = useProfessional();
   const router = useRouter();
 
   // États partagés
-  const [step, setStep] = useState<Step>('email');
+  const [step, setStep] = useState<Step>(initialStep ?? 'email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,6 +35,13 @@ export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAu
   const [agencyName, setAgencyName] = useState('');
   const [phone, setPhone] = useState('');
   const [certificateNumber, setCertificateNumber] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(initialStep ?? 'email');
+      setError('');
+    }
+  }, [isOpen, initialStep]);
 
   if (!isOpen) return null;
 
