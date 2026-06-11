@@ -171,7 +171,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                   coverImage
                     ? "bg-yellow-500/90 text-white"
                     : "bg-yellow-500 text-white"
-                } text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-4`}
+                } text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg mb-4`}
               >
                 {offer.destinations?.[0]?.title || "Voyage"}
               </span>
@@ -291,7 +291,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 return <p className="text-sm sm:text-base">{text}</p>;
               })()}
             </div>
-            <button className="w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
+            <button className="w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
               Demander un devis
             </button>
           </div>
@@ -345,7 +345,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
             >
               <AccordionTrigger className="text-xl sm:text-2xl font-bold text-gray-900 hover:no-underline px-6 sm:px-8 py-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
                     <svg
                       className="w-6 h-6 sm:w-7 sm:h-7 text-green-600"
                       fill="none"

@@ -440,6 +440,21 @@ export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAu
           {/* STEP: Register */}
           {step === 'register' && (
             <form onSubmit={handleRegister} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  autoComplete="email"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -502,13 +517,13 @@ export default function ProfessionalAuthModal({ isOpen, onClose, redirectAfterAu
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Numéro de permis OPC *
+                  Numéro de permis délivré par l'OPC *
                 </label>
                 <input
                   type="text"
                   value={certificateNumber}
                   onChange={(e) => setCertificateNumber(e.target.value)}
-                  placeholder="Ex: 702345"
+                  placeholder="Ex: CCV000000000000"
                   disabled={loading}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />

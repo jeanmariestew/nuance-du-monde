@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import OptimizedImage from "@/components/OptimizedImage";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import OffersGrid from "@/components/OffersGrid";
@@ -19,6 +20,75 @@ interface Destination {
   price_currency?: string;
   duration_days?: number;
   duration_nights?: number;
+}
+
+function ContinentDropdown({ destinations }: { destinations: Destination[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const showArrows = destinations.length > 4;
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 0);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll);
+    return () => el.removeEventListener("scroll", checkScroll);
+  }, [destinations]);
+
+  const scrollUp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    scrollRef.current?.scrollBy({ top: -120, behavior: "smooth" });
+  };
+
+  const scrollDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    scrollRef.current?.scrollBy({ top: 120, behavior: "smooth" });
+  };
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-1 px-2 min-w-[200px]">
+      {showArrows && canScrollUp && (
+        <button
+          onClick={scrollUp}
+          className="w-full flex justify-center py-1 text-white hover:text-white/60 transition-colors"
+        >
+          <ChevronUp size={18} strokeWidth={2.5} />
+        </button>
+      )}
+      <div
+        ref={scrollRef}
+        className="max-h-[120px] overflow-y-scroll [&::-webkit-scrollbar]:hidden [scrollbar-width:none] space-y-1"
+      >
+        {destinations.map((dest) => (
+          <Link
+            key={dest.id}
+            href={`/destinations/${dest.slug}`}
+            className="block px-2 py-1 text-sm text-white rounded-md hover:bg-white/20 transition-colors duration-200 font-medium"
+          >
+            {dest.title}
+          </Link>
+        ))}
+      </div>
+      {showArrows && canScrollDown && (
+        <button
+          onClick={scrollDown}
+          className="w-full flex justify-center py-1 text-white hover:text-white/60 transition-colors"
+        >
+          <ChevronDown size={18} strokeWidth={2.5} />
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function DestinationsClient() {
@@ -87,14 +157,14 @@ export default function DestinationsClient() {
   return (
     <div>
       {/* Hero Section avec rectangles de continents */}
-      <section className="relative h-screen w-full overflow-hidden">
+      <section className="relative min-h-screen w-full mb-20 md:mb-0">
         {/* Titre et texte flottants en haut au centre */}
         <div className="absolute top-0 left-0 right-0 flex items-start justify-center z-20 pointer-events-none pt-8 sm:pt-20 md:pt-24">
           <div className="text-center px-4">
             <h1 className="text-2xl md:text-5xl font-bold md:mb-6 md:text-white text-black drop-shadow-2xl font-[Alro] uppercase">
               NOS DESTINATIONS
             </h1>
-            <p className="text-lg  md:text-3xl text-black md:text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
+            <p className="text-lg  md:text-3xl md:hidden text-black md:text-white/95 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
               Voyagez au cœur des plus belles destinations du monde à travers des
               itinéraires captivants et soigneusement conçus pour vous.
             </p>
@@ -146,7 +216,7 @@ export default function DestinationsClient() {
                   
                   {/* Contenu centré */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-12">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 text-center drop-shadow-2xl">
+                    <h3 className="text-xl h-10 font-bold text-white mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 text-center drop-shadow-2xl">
                       {continent}
                     </h3>
                     <p className="text-white/90 text-base sm:text-lg lg:text-xl font-medium text-center drop-shadow-lg">
@@ -159,20 +229,8 @@ export default function DestinationsClient() {
                 </Link>
 
                 {/* Menu déroulant des destinations au hover */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-12 transition-all duration-300 z-50 pointer-events-none group-hover:pointer-events-auto">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-3 px-4 min-w-[200px] overflow-y-auto">
-                    <div className="space-y-1">
-                      {continentDestinations.map((dest: Destination) => (
-                        <Link
-                          key={dest.id}
-                          href={`/destinations/${dest.slug}`}
-                          className="block px-3 py-2 text-sm text-white rounded-md transition-colors duration-200 font-medium"
-                        >
-                          {dest.title}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-12 transition-all duration-300 z-50 pointer-events-none group-hover:pointer-events-auto">
+                  <ContinentDropdown destinations={continentDestinations} />
                 </div>
               </div>
             );
@@ -180,7 +238,7 @@ export default function DestinationsClient() {
         </div>
 
         {/* Mobile: Grille de cartes */}
-        <div className="absolute inset-0 md:hidden overflow-y-auto px-4 pt-48 pb-8">
+        <div className="absolute inset-0 md:hidden h-auto px-4 pt-48 pb-8">
           <div className="grid grid-cols-2 gap-3">
             {continents.map((continent) => {
               const destinationCount = destinationsByContinent?.[continent]?.length || 0;

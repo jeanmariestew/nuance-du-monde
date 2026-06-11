@@ -124,7 +124,7 @@ const Footer = () => {
                   href="https://www.facebook.com/Nuancedumonde"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
+                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-lg transition-colors text-black text-sm md:text-base"
                 >
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     f
@@ -135,7 +135,7 @@ const Footer = () => {
                   href="https://instagram.com/nuance_du_monde"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
+                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-lg transition-colors text-black text-sm md:text-base"
                 >
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     @
@@ -146,7 +146,7 @@ const Footer = () => {
                   href="https://www.linkedin.com/company/nuance-du-monde"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
+                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-lg transition-colors text-black text-sm md:text-base"
                 >
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     in
@@ -157,7 +157,7 @@ const Footer = () => {
                   href="https://www.youtube.com/@Nuance_du_monde"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-full transition-colors text-black text-sm md:text-base"
+                  className="flex items-center space-x-3 bg-white/60 hover:bg-gray-100 px-4 py-2.5 md:py-3 rounded-lg transition-colors text-black text-sm md:text-base"
                 >
                   <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-sm font-bold">
                     ▶

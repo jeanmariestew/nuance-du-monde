@@ -61,7 +61,7 @@ export default function OfferCard({ offer }: Props) {
               }}
             />
             {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent m-2 rounded-xl" />
+            <div className="absolute inset-0 group-hover:scale-105 bg-linear-to-t from-black/70 via-black/20 to-transparent m-2 rounded-xl" />
             {/* Overlay text */}
             <div className="absolute bottom-4 left-4 text-white z-10">
               {/* <h3 className="text-xl sm:text-2xl font-bold drop-shadow-lg">{destination}</h3> */}
@@ -84,7 +84,7 @@ export default function OfferCard({ offer }: Props) {
           </div>
 
           {/* Right side - Content */}
-          <div className="md:col-span-3 p-5 sm:p-6 flex flex-col justify-between h-full">
+          <div className="md:col-span-3 pt-0 p-5 sm:p-6 flex flex-col justify-between h-full">
             <div className="flex-1">
               <h2 className="text-base sm:text-lg text-yellow-500 font-[Alro] uppercase leading-snug line-clamp-3">
                 {title}

@@ -34,7 +34,7 @@ export default function DestinationsGrid({
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
+          <h2 className="text-2xl text-center font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
             {title}
           </h2>
           <DestinationCardSkeleton count={8} />
@@ -46,7 +46,7 @@ export default function DestinationsGrid({
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
+        <h2 className="text-2xl text-center font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
           {title}
         </h2>
 

@@ -7,7 +7,6 @@ import { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { XIcon } from "lucide-react";
 import DestinationsDropdown from "./DestinationsDropdown";
-import MobileDestinationsMenu from "./MobileDestinationsMenu";
 import TravelTypesDropdown from "./TravelTypesDropdown";
 import TravelThemesDropdown from "./TravelThemesDropdown";
 import ProfessionalAuthModal from "./ProfessionalAuthModal";
@@ -20,7 +19,6 @@ const Header = () => {
   const [showDestinationsDropdown, setShowDestinationsDropdown] = useState(false);
   const [showTypesDropdown, setShowTypesDropdown] = useState(false);
   const [showThemesDropdown, setShowThemesDropdown] = useState(false);
-  const [showMobileDestinations, setShowMobileDestinations] = useState(false);
   const [isProModalOpen, setIsProModalOpen] = useState(false);
   const [proModalRedirect, setProModalRedirect] = useState<string | undefined>(undefined);
   const destinationsRef = useRef<HTMLDivElement>(null);
@@ -51,7 +49,6 @@ const Header = () => {
 
   const handleMobileMenuClose = () => {
     setIsMenuOpen(false);
-    setShowMobileDestinations(false);
   };
 
   // Appelé par TravelTypesDropdown quand on clique sur un type PRO sans être connecté
@@ -81,7 +78,7 @@ const Header = () => {
                 alt="Nuance du Monde"
                 width={150}
                 height={42}
-                className="h-8 w-auto"
+                className="h-6 mx-2 w-auto"
                 priority
               />
             </Link>
@@ -90,7 +87,7 @@ const Header = () => {
             <nav className="hidden md:flex justify-between items-center space-x-8">
               <Link
                 href="/qui-sommes-nous"
-                className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+                className="text-gray-700 text-sm hover:text-black transition-colors text-base font-medium"
               >
                 Qui sommes nous
               </Link>
@@ -104,7 +101,7 @@ const Header = () => {
               >
                 <Link
                   href="/type-de-voyage"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
+                  className="text-gray-700  text-sm hover:text-black transition-colors text-base font-medium flex items-center gap-1"
                 >
                   Types de voyages
                 </Link>
@@ -120,7 +117,7 @@ const Header = () => {
               <div className="relative hidden md:block lg:hidden">
                 <Link
                   href="/type-de-voyage"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+                  className="text-gray-700  text-sm hover:text-black transition-colors text-base font-medium"
                 >
                   Types de voyages
                 </Link>
@@ -135,7 +132,7 @@ const Header = () => {
               >
                 <Link
                   href="/destinations"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
+                  className="text-gray-700  text-sm hover:text-black transition-colors text-base font-medium flex items-center gap-1"
                 >
                   Destinations
                 </Link>
@@ -148,7 +145,7 @@ const Header = () => {
               <div className="relative hidden md:block lg:hidden">
                 <Link
                   href="/destinations"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+                  className="text-gray-700  text-sm hover:text-black transition-colors text-base font-medium"
                 >
                   Destinations
                 </Link>
@@ -163,7 +160,7 @@ const Header = () => {
               >
                 <Link
                   href="/themes"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium flex items-center gap-1"
+                  className="text-gray-700  text-sm hover:text-black transition-colors text-base font-medium flex items-center gap-1"
                 >
                   Thèmes de voyages
                 </Link>
@@ -176,7 +173,7 @@ const Header = () => {
               <div className="relative hidden md:block lg:hidden">
                 <Link
                   href="/themes"
-                  className="text-gray-700 hover:text-black transition-colors text-base font-medium"
+                  className="text-gray-700 text-md  hover:text-black transition-colors text-base font-medium"
                 >
                   Thèmes de voyages
                 </Link>
@@ -188,13 +185,13 @@ const Header = () => {
               <Link
                 href="/espace-pro"
                 onClick={handleEspaceProClick}
-                className="inline-flex items-center gap-1.5 px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
+                className="inline-flex text-xs items-center gap-1.5 px-3 py-2 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
               >
                 Espace Agent de voyage
               </Link>
               <Link
                 href="/devis-personnalise"
-                className="px-4 py-3 border border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
+                className="px-3 py-2 border text-xs border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
               >
                 Demander un devis
               </Link>
@@ -214,63 +211,61 @@ const Header = () => {
 
           {/* Menu Mobile */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-white/10 h-screen flex flex-col justify-center items-center">
-              <nav className="flex flex-col space-y-7 max-w-sm w-full px-4">
+            <div className="md:hidden fixed inset-0 bg-white z-50 flex flex-col">
+              <XIcon className="w-10 h-10 absolute top-5 right-5 cursor-pointer" onClick={() => setIsMenuOpen(false)} />
+              <nav className="flex flex-col items-center justify-center flex-1 gap-8 px-8">
                 <Link
                   href="/type-de-voyage"
-                  className="text-black text-center transition-colors"
+                  className="text-black text-lg text-center transition-colors"
                   onClick={handleMobileMenuClose}
                 >
                   Type de voyage
                 </Link>
-                <div className="text-center">
-                  <button
-                    onClick={() => setShowMobileDestinations(!showMobileDestinations)}
-                    className="text-black transition-colors mb-2 font-medium"
-                  >
-                    Destinations
-                  </button>
-                  {showMobileDestinations && (
-                    <MobileDestinationsMenu onClose={handleMobileMenuClose} />
-                  )}
-                </div>
+                <Link
+                  href="/destinations"
+                  className="text-black text-lg text-center transition-colors"
+                  onClick={handleMobileMenuClose}
+                >
+                  Destinations
+                </Link>
                 <Link
                   href="/themes"
-                  className="text-black text-center transition-colors"
+                  className="text-black text-lg text-center transition-colors"
                   onClick={handleMobileMenuClose}
                 >
                   Thème de voyage
                 </Link>
                 <Link
                   href="/qui-sommes-nous"
-                  className="text-black text-center transition-colors"
+                  className="text-black text-lg text-center transition-colors"
                   onClick={handleMobileMenuClose}
                 >
                   Qui sommes nous
                 </Link>
-                <button
-                  onClick={() => {
-                    handleMobileMenuClose();
-                    if (!session?.isAuthenticated) {
-                      setProModalRedirect('/espace-pro');
-                      setIsProModalOpen(true);
-                    } else {
-                      router.push('/espace-pro');
-                    }
-                  }}
-                  className="text-black text-center transition-colors px-4 py-2 border border-black rounded-md"
-                >
-                  Espace Agent de voyage
-                </button>
-                <Link
-                  href="/devis-personnalise"
-                  className="text-black text-center transition-colors mt-8 px-4 py-2 border border-black rounded-md"
-                  onClick={handleMobileMenuClose}
-                >
-                  Demander un devis
-                </Link>
+                <div className="flex flex-col items-center gap-4 w-full mt-4">
+                  <button
+                    onClick={() => {
+                      handleMobileMenuClose();
+                      if (!session?.isAuthenticated) {
+                        setProModalRedirect('/espace-pro');
+                        setIsProModalOpen(true);
+                      } else {
+                        router.push('/espace-pro');
+                      }
+                    }}
+                    className="w-full max-w-xs text-black text-center px-4 py-3 border border-black rounded-md text-base"
+                  >
+                    Espace Agent de voyage
+                  </button>
+                  <Link
+                    href="/devis-personnalise"
+                    className="w-full max-w-xs text-black text-center px-4 py-3 border border-black rounded-md text-base"
+                    onClick={handleMobileMenuClose}
+                  >
+                    Demander un devis
+                  </Link>
+                </div>
               </nav>
-              <XIcon className="w-14 h-14 absolute top-4 right-4 cursor-pointer" onClick={() => setIsMenuOpen(false)} />
             </div>
           )}
         </div>
