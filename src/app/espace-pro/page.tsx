@@ -315,6 +315,92 @@ function AuthenticatedView({
         </div>
       </section>*/}
 
+      {/* Section Commissions & Programmes */}
+      <section className="py-12 md:py-20 px-4 bg-[#f8f6f1]">
+        <div className="max-w-4xl mx-auto space-y-10">
+
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl md:text-4xl font-bold font-[Alro] uppercase text-black">
+              Commissions &amp; Programmes
+            </h2>
+            <div className="w-16 h-1 bg-[#c4a74a] mx-auto rounded-full" />
+          </div>
+
+          {/* Bloc 1 : Circuits Voyageurs */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+              <div className="w-1 h-8 rounded-full bg-[#c4a74a]" />
+              <h3 className="text-base md:text-lg font-bold text-black">
+                Circuits Voyageurs regroupés à dates fixes / vente à la place
+              </h3>
+            </div>
+            <div className="px-6 py-5 space-y-3 text-sm md:text-base text-gray-700">
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                <span>Commission de <strong className="text-black">10 %</strong></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                <span>Sur commission à partir de <strong className="text-black">20 personnes à l&apos;année</strong> : <strong className="text-[#c4a74a]">+ 2 %</strong></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                <span>Sur commission à partir de <strong className="text-black">40 personnes à l&apos;année</strong> : <strong className="text-[#c4a74a]">+ 4 %</strong></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                <span>Sur commission à partir de <strong className="text-black">60 personnes à l&apos;année</strong> : <strong className="text-[#c4a74a]">+ 6 %</strong></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Blocs 2 & 3 côte à côte */}
+          <div className="grid md:grid-cols-2 gap-6">
+
+            {/* Bloc 2 : FIT */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+                <div className="w-1 h-8 rounded-full bg-[#c4a74a]" />
+                <h3 className="text-base md:text-lg font-bold text-black">
+                  Programmes FIT / en individuel
+                </h3>
+              </div>
+              <div className="px-6 py-5 space-y-3 text-sm md:text-base text-gray-700">
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                  <span>Tarifs commissionnés à <strong className="text-black">10 %</strong> sur la portion terrestre seulement.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#c4a74a] shrink-0" />
+                  <span>Les tarifs présentés sur le site sont <strong className="text-black">hors vols internationaux</strong>.</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bloc 3 : Groupe */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+                <div className="w-1 h-8 rounded-full bg-black" />
+                <h3 className="text-base md:text-lg font-bold text-black">
+                  Programmes GROUPE
+                </h3>
+              </div>
+              <div className="px-6 py-5 space-y-3 text-sm md:text-base text-gray-700">
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-black shrink-0" />
+                  <span>Tarif <strong className="text-black">net non commissionné</strong>.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-black shrink-0" />
+                  <span>L&apos;agence ne perçoit pas une commission mais un <strong className="text-black">trop-perçu</strong>.</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Section Brochure 2026 */}
       <section className="py-12 md:py-16 px-4 bg-gradient-to-r from-amber-100 to-orange-100 text-gray-900">
         <div className="max-w-5xl mx-auto">

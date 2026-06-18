@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DateOption {
@@ -338,9 +339,12 @@ export default function DatesAndPricing({
                   </div>
 
                   {/* Bouton CTA */}
-                  <button className="w-full bg-white text-yellow-700 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105">
+                  <Link
+                    href={`/devis-personnalise?circuit=${encodeURIComponent(title)}`}
+                    className="block w-full bg-white text-yellow-700 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
+                  >
                     Demander un devis pour cette période
-                  </button>
+                  </Link>
                 </div>
               </div>
             )}
