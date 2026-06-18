@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Felana - Nuance du Monde</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&display=swap');
+        
+        body {
+            background-color: #f4f6f9;
+            padding: 20px 10px;
+            font-family: 'Archivo', Arial, sans-serif;
+        }
+        .page-container {
+            max-width: 640px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .btn-copy {
+            display: block;
+            width: 100%;
+            background-color: #0A369D;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .signature-preview {
+            padding: 5px;
+            border: 1px solid #e1e6eb;
+            border-radius: 6px;
+        }
+
+        /* Responsive Mobile - Gestion du Logo Pleine Largeur et des Boutons */
+        @media screen and (max-width: 599px) {
+            .email-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 100% !important;
+            }
+            .profile-row {
+                display: block !important;
+                width: 100% !important;
+            }
+            .logo-cell {
+                display: block !important;
+                width: 100% !important;
+                padding-right: 0 !important;
+                padding-bottom: 20px !important;
+                text-align: center !important;
+            }
+            .logo-img {
+                width: 180px !important; /* Logo plus grand et visible sur mobile */
+                max-width: 80% !important;
+            }
+            .separator-cell {
+                display: none !important; /* Cache la ligne verticale devenue inutile */
+            }
+            .info-cell {
+                display: block !important;
+                width: 100% !important;
+                padding-left: 0 !important;
+            }
+            .cta-stack {
+                display: block !important;
+                width: 100% !important;
+            }
+            .cta-cell {
+                display: inline-block !important;
+                padding-bottom: 8px !important;
+                padding-right: 4px !important;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .force-text { color: #131312 !important; }
+            .force-link, .force-link a { color: #131312 !important; }
+            .force-web { color: #0A369D !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        <button class="btn-copy" onclick="copySignature()">📋 Copier la signature pour Gmail</button>
+
+        <div class="signature-preview">
+            <!-- DEBUT DE LA SIGNATURE EMAIL -->
+            <div id="nuance-signature">
+                <table class="email-table" cellpadding="0" cellspacing="0" border="0" width="600" style="width: 600px; max-width: 600px; border-collapse: collapse; font-family: 'Archivo', Arial, sans-serif; color: #131312; background-color: transparent; margin: 0 auto;">
+                    <tr>
+                        <!-- Padding horizontal gauche de 15px -->
+                        <td width="15" style="width: 15px; padding: 0; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                        
+                        <td style="padding: 20px 0 15px 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; border-collapse: collapse;">
+                                <tr class="profile-row">
+                                    <!-- Section Logo (Responsive pleine largeur sur mobile) -->
+                                    <td class="logo-cell" valign="middle" width="140" style="width: 140px; padding-right: 15px; vertical-align: middle; text-align: center;">
+                                        <img class="logo-img" src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Fnuance-du-monde-logo-or-9f665c25.png&w=640&q=75" alt="Nuance du Monde" width="130" style="display: block; border: 0; max-width: 100%; height: auto; margin: 0 auto;">
+                                    </td>
+                                    
+                                    <!-- Ligne séparatrice verticale (Cachée automatiquement sur mobile) -->
+                                    <td class="separator-cell" width="2" style="width: 2px; background-color: #0A369D; padding: 0;" valign="stretch"></td>
+                                    
+                                    <!-- Informations de contact -->
+                                    <td class="info-cell" valign="top" style="padding-left: 15px; vertical-align: top;">
+                                        <div style="font-size: 15px; font-weight: bold; color: #0A369D; margin-bottom: 2px; font-family: 'Archivo', Arial, sans-serif;">Felana</div>
+                                        <div class="force-text" style="font-size: 11px; font-weight: bold; color: #131312; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Archivo', Arial, sans-serif;">Service de la comptabilité</div>
+                                        
+                                        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                                            <tr>
+                                                <td valign="middle" style="padding: 2px 6px 2px 0; width: 14px; text-align: center;">
+                                                    <img src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Femail-nuance-676bef2c.png&w=640&q=75" alt="Email" width="12" height="12" style="display: block; border: 0;">
+                                                </td>
+                                                <td class="force-link" style="font-size: 11px; line-height: 13px; color: #131312; font-family: 'Archivo', Arial, sans-serif;">
+                                                    <a href="mailto:felana@nuancedumonde.com" style="color: #131312; text-decoration: none;">felana@nuancedumonde.com</a>
+                                                    <span style="color: #BF211E;"> | </span>
+                                                    <a href="mailto:info@nuancedumonde.com" style="color: #131312; text-decoration: none; font-weight: bold;">info@nuancedumonde.com</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td valign="middle" style="padding: 2px 6px 2px 0; width: 14px; text-align: center;">
+                                                    <img src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Fphone-nuance-11b25e13.png&w=640&q=75" alt="Tél" width="12" height="12" style="display: block; border: 0;">
+                                                </td>
+                                                <td class="force-link" style="font-size: 11px; line-height: 13px; color: #131312; font-family: 'Archivo', Arial, sans-serif;">
+                                                    <span style="font-weight: bold;">Standard :</span> <a href="tel:5143429696" style="color: #131312; text-decoration: none;">514-342-9696</a>
+                                                    <span style="color: #BF211E;"> | </span>
+                                                    <span style="font-weight: bold;">Direct :</span> <a href="tel:(514) 876-5292" style="color: #131312; text-decoration: none;">Poste 107 — (514) 876-5292</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td valign="middle" style="padding: 2px 6px 2px 0; width: 14px; text-align: center;">
+                                                    <img src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Fweb-nuance-c55e16a1.png&w=640&q=75" alt="Web" width="12" height="12" style="display: block; border: 0;">
+                                                </td>
+                                                <td style="font-size: 11px; line-height: 13px; font-family: 'Archivo', Arial, sans-serif;">
+                                                    <a class="force-web" href="https://www.nuancedumonde.com" target="_blank" style="color: #0A369D; text-decoration: none; font-weight: bold;">www.nuancedumonde.com</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td valign="top" style="padding: 4px 6px 2px 0; width: 14px; text-align: center;">
+                                                    <img src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Fpin-nuance-2449c095.png&w=640&q=75" alt="Adresse" width="12" height="12" style="display: block; border: 0; margin-top: 1px;">
+                                                </td>
+                                                <td class="force-text" style="font-size: 11px; color: #131312; line-height: 14px; padding-top: 2px; font-family: 'Archivo', Arial, sans-serif;">
+                                                    1087 Laurier Ouest, QC H2V2L2, Montréal, Canada
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="padding-top: 8px;">
+                                                    <a href="tel:18443620555" style="text-decoration: none; display: inline-block;">
+                                                        <img src="https://nuancedumonde.com/_next/image?url=%2Fuploads%2Fnuance-du-monde-numero-gratuit-bcf94638.png&w=640&q=75" alt="(844) 362-0555" width="180" style="display: block; border: 0; max-width: 100%; height: auto;">
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        
+                        <!-- Padding horizontal droit de 15px -->
+                        <td width="15" style="width: 15px; padding: 0; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    </tr>
+
+                    <!-- Trait rouge (#BF211E) -->
+                    <tr>
+                        <td width="15" style="width: 15px;"></td>
+                        <td style="padding: 0 0 15px 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="height: 1px; background-color: #BF211E; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="15" style="width: 15px;"></td>
+                    </tr>
+
+                    <!-- Section Blocs de Boutons d'Action -->
+                    <tr>
+                        <td width="15" style="width: 15px;"></td>
+                        <td style="padding: 5px 0 15px 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; border-collapse: collapse; font-family: 'Archivo', Arial, sans-serif;">
+                                <tr class="cta-stack">
+                                    <td class="cta-cell" style="padding-right: 4px; padding-bottom: 5px;">
+                                        <a href="https://link.sendlink.co/qr/b9uuFCuT0cCf" target="_blank" style="display: inline-block; background-color: #0A369D; color: #ffffff; font-size: 11px; font-weight: bold; text-decoration: none; padding: 8px 14px; border-radius: 4px; text-transform: uppercase; white-space: nowrap;">Demandez un devis</a>
+                                    </td>
+                                    <td class="cta-cell" style="padding-right: 4px; padding-bottom: 5px;">
+                                        <a href="https://link.sendlink.co/qr/J9DVkV6ZW4p7" target="_blank" style="display: inline-block; background-color: #ffffff; color: #131312; font-size: 11px; font-weight: bold; text-decoration: none; padding: 7px 13px; border-radius: 4px; border: 1px solid #131312; text-transform: uppercase; white-space: nowrap;">Brochure technique</a>
+                                    </td>
+                                    <td class="cta-cell" style="padding-right: 4px; padding-bottom: 5px;">
+                                        <a href="https://link.sendlink.co/qr/XeQ5fn0N71CL" target="_blank" style="display: inline-block; background-color: #ffffff; color: #131312; font-size: 11px; font-weight: bold; text-decoration: none; padding: 7px 13px; border-radius: 4px; border: 1px solid #131312; text-transform: uppercase; white-space: nowrap;">Communauté FB</a>
+                                    </td>
+                                    <td class="cta-cell" style="padding-bottom: 5px;">
+                                        <a href="https://link.sendlink.co/qr/A8GsntqZgy8i" target="_blank" style="display: inline-block; background-color: #FAFF00; color: #131312; font-size: 11px; font-weight: bold; text-decoration: none; padding: 8px 14px; border-radius: 4px; text-transform: uppercase; white-space: nowrap;">Espace Agent 🔑</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="15" style="width: 15px;"></td>
+                    </tr>
+
+                    <!-- Bannière Promotionnelle responsive -->
+                    <tr>
+                        <td width="15" style="width: 15px;"></td>
+                        <td style="padding: 5px 0 15px 0; text-align: center;">
+                            <a href="https://link.sendlink.co/qr/eVRJhNV-y53r" target="_blank" style="text-decoration: none; display: inline-block; width: 100%;">
+                                <img src="https://nuancedumonde.com/uploads/banniere-email-2026-nuance-du-monde.gif" alt="Bannière promotionnelle" width="570" style="display: block; border: 0; width: 100%; max-width: 570px; height: auto; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; margin: 0 auto;">
+                            </a>
+                        </td>
+                        <td width="15" style="width: 15px;"></td>
+                    </tr>
+
+                    <!-- Séparateur bas ultra fin -->
+                    <tr>
+                        <td width="15" style="width: 15px;"></td>
+                        <td style="padding: 0 0 12px 0;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; border-collapse: collapse; border-top: 0.5px solid #BF211E;">
+                                <tr>
+                                    <td style="font-size: 1px; line-height: 1px; height: 1px;">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td width="15" style="width: 15px;"></td>
+                    </tr>
+
+                    <!-- Mentions Légales Centrées -->
+                    <tr>
+                        <td width="15" style="width: 15px;"></td>
+                        <td style="font-size: 9px; color: #777777; line-height: 14px; text-align: center; font-family: 'Archivo', Arial, sans-serif;">
+                            ©2026 Nuance du Monde. INTELLIGENCE TECHNOLOGIQUE ET TOURISME SOLUTIONS INC. (ITTS).<br>
+                            Code d’identification IATA TIDS N°96155474. Titulaire de permis du Québec : 703510.
+                        </td>
+                        <td width="15" style="width: 15px;"></td>
+                    </tr>
+                </table>
+            </div>
+            <!-- FIN DE LA SIGNATURE EMAIL -->
+        </div>
+    </div>
+
+    <script>
+        function copySignature() {
+            const container = document.getElementById('nuance-signature');
+            if (navigator.clipboard && window.ClipboardItem) {
+                const type = 'text/html';
+                const blob = new Blob([container.innerHTML], { type });
+                const data = [new ClipboardItem({ [type]: blob })];
+                navigator.clipboard.write(data).then(() => {
+                    alert('🎉 Signature copiée avec succès ! Collez-la directement dans vos paramètres Gmail.');
+                }).catch(err => { fallbackCopy(container); });
+            } else { fallbackCopy(container); }
+        }
+
+        function fallbackCopy(element) {
+            const range = document.createRange();
+            range.selectNode(element);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try { document.execCommand('copy'); alert('🎉 Signature copiée !'); } catch (err) { alert('Erreur, copiez manuellement.'); }
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>
