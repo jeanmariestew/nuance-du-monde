@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Script from "next/script";
-import { Clock } from "lucide-react";
+import { Clock, Tag } from "lucide-react";
 import OptimizedImage from "@/components/OptimizedImage";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
@@ -203,14 +203,33 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
-            {(offer.duration_days || offer.duration_nights) && (
-              <div className="flex items-center gap-3 mt-3 sm:mt-4 mb-4 sm:mb-6">
-                <Clock className="w-6 h-6 text-yellow-500 shrink-0" />
-                <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
-                  {offer.duration_days ? `${offer.duration_days} jour${offer.duration_days > 1 ? 's' : ''}` : ''}
-                  {offer.duration_days && offer.duration_nights ? ' / ' : ''}
-                  {offer.duration_nights ? `${offer.duration_nights} nuit${offer.duration_nights > 1 ? 's' : ''}` : ''}
-                </h1>
+            {(offer.duration_days || offer.duration_nights || offer.price) && (
+              <div className="flex flex-col gap-2 mt-3 sm:mt-4 mb-4 sm:mb-6">
+                {(offer.duration_days || offer.duration_nights) && (
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
+                      <Clock className="w-4 h-4 text-yellow-500" />
+                    </div>
+                    <span className="text-lg sm:text-xl font-semibold text-gray-900">
+                      {offer.duration_days ? `${offer.duration_days} jour${offer.duration_days > 1 ? 's' : ''}` : ''}
+                      {offer.duration_days && offer.duration_nights ? ' / ' : ''}
+                      {offer.duration_nights ? `${offer.duration_nights} nuit${offer.duration_nights > 1 ? 's' : ''}` : ''}
+                    </span>
+                  </div>
+                )}
+                {offer.price && (
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
+                      <Tag className="w-4 h-4 text-yellow-500" />
+                    </div>
+                    <span className="text-base font-bold sm:text-lg text-gray-600">
+                      À partir de{" "}
+                      <strong className="text-yellow-600">
+                        {offer.price.toLocaleString("fr-FR")}{" "}{offer.price_currency || "CAD"}
+                      </strong>
+                    </span>
+                  </div>
+                )}
               </div>
             )}
             <div className="prose prose-base sm:prose-lg max-w-[450px] text-gray-700 leading-relaxed mb-6 sm:mb-8">
@@ -291,9 +310,12 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 return <p className="text-sm sm:text-base">{text}</p>;
               })()}
             </div>
-            <button className="w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105">
+            <Link
+              href={`/devis-personnalise?circuit=${encodeURIComponent(offer.title)}`}
+              className="inline-block w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
+            >
               Demander un devis
-            </button>
+            </Link>
           </div>
 
           {/* Right: Stacked Images Carousel */}

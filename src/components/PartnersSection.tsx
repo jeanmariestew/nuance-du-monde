@@ -40,10 +40,10 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
         {/* Partners Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {partners.map((partner) => (
-            <Link
+            <div
               key={partner.id}
               className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 hover:scale-105 border-2 border-yellow-200/50"
-              href={partner.website_url || "#"}
+              //href={partner.website_url || "#"}
             >
               {/* Gradient overlay on hover */}
               <div className="absolute inset-0 bg-linear-to-br from-yellow-400/0 to-orange-500/0 group-hover:from-yellow-400/10 group-hover:to-orange-500/10 rounded-3xl transition-all duration-500"></div>
@@ -86,7 +86,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
                   </svg>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

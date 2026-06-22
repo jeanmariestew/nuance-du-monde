@@ -175,7 +175,7 @@ export default function Home() {
 
         const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
           await Promise.all([
-            api.get("/destinations?active=true&limit=5"),
+            api.get("/destinations?active=true&limit=9"),
             api.get(typesUrl),
             api.get("/travel-themes?active=true&limit=20"),
             api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
