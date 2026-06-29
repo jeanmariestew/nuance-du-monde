@@ -14,6 +14,7 @@ import OfferItinerarySection from "@/components/OfferItinerarySection";
 import DatesAndPricing from "@/components/DatesAndPricing";
 import ImageStackCarousel from "@/components/ImageStackCarousel";
 import OfferExtensions from "@/components/OfferExtensions";
+import OfferHotels from "@/components/OfferHotels";
 
 interface OfferImage {
   id?: number;
@@ -77,6 +78,13 @@ interface OfferDetail {
     price_currency?: string;
     price_note?: string;
     itinerary?: string;
+    images?: Array<{ id?: number; image_url: string; alt_text?: string }>;
+  }>;
+  hotels?: Array<{
+    id: number;
+    name: string;
+    location?: string;
+    description?: string;
     images?: Array<{ id?: number; image_url: string; alt_text?: string }>;
   }>;
 }
@@ -352,6 +360,11 @@ export default async function OfferDetailPage({ params }: PageProps) {
         basePrice={offer.price}
         baseCurrency={offer.price_currency}
       />
+
+      {/* Section Hôtels */}
+      {offer.hotels && offer.hotels.length > 0 && (
+        <OfferHotels hotels={offer.hotels} />
+      )}
 
       {/* Section Extensions */}
       {offer.extensions && offer.extensions.length > 0 && (

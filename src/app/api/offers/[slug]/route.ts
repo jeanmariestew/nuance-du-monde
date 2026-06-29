@@ -100,6 +100,29 @@ export async function GET(
       console.log('offer_extensions table not found or error:', e);
     }
 
+    // Récupérer les hôtels
+    let hotelsResult: any[] = [];
+    try {
+      hotelsResult = await query(
+        `SELECT * FROM offer_hotels
+         WHERE offer_id = ? AND is_active = TRUE
+         ORDER BY sort_order`,
+        [offer.id]
+      ) as any[];
+
+      for (const hotel of hotelsResult) {
+        const hotelImages = await query(
+          `SELECT * FROM offer_hotel_images
+           WHERE hotel_id = ?
+           ORDER BY sort_order`,
+          [hotel.id]
+        );
+        hotel.images = hotelImages;
+      }
+    } catch (e) {
+      console.log('offer_hotels table not found or error:', e);
+    }
+
     const mainImage = images?.find(img => img.image_type === 'main')?.image_url || offer.image_main;
     const bannerImage = images?.find(img => img.image_type === 'banner')?.image_url || offer.image_banner;
     const availableDates = dates?.map(d => d.departure_date) || [];
@@ -146,6 +169,7 @@ export async function GET(
         dates,
         day_options: dayOptions,
         extensions: extensionsResult,
+        hotels: hotelsResult,
       },
     });
   } catch (error) {

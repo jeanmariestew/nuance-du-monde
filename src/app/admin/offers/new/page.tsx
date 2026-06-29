@@ -9,6 +9,7 @@ import { adminApi } from '@/lib/axios';
 import ItineraryEditor from '@/components/admin/ItineraryEditor';
 import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
 import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
+import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
 
 type RefItem = { id: number; title: string; slug: string };
 
@@ -88,6 +89,7 @@ export default function AdminOfferNewPage() {
   const [uploading, setUploading] = useState(false);
   const [dayOptions, setDayOptions] = useState<DayOption[]>([]);
   const [extensions, setExtensions] = useState<OfferExtension[]>([]);
+  const [hotels, setHotels] = useState<OfferHotel[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -152,7 +154,12 @@ export default function AdminOfferNewPage() {
       if (response.data?.id && extensions.length > 0) {
         await adminApi.put(`/offers/${response.data.id}/extensions`, { extensions });
       }
-      
+
+      // Sauvegarder les hôtels si l'offre a été créée
+      if (response.data?.id && hotels.length > 0) {
+        await adminApi.put(`/offers/${response.data.id}/hotels`, { hotels });
+      }
+
       setStatus('Offre créée avec succès');
       // Rediriger vers la page d'édition de l'offre créée
       if (response.data?.id) {
@@ -483,6 +490,18 @@ export default function AdminOfferNewPage() {
             <ExtensionEditor
               extensions={extensions}
               onChange={setExtensions}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Hôtels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HotelEditor
+              hotels={hotels}
+              onChange={setHotels}
             />
           </CardContent>
         </Card>

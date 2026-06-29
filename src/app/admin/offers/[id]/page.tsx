@@ -10,6 +10,7 @@ import ImageInput from '@/components/admin/ImageInput';
 import ItineraryEditor from '@/components/admin/ItineraryEditor';
 import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
 import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
+import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
 import { adminApi } from '@/lib/axios';
 
 type RefItem = { id: number; title: string; slug: string };
@@ -73,6 +74,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [originalDayOptions, setOriginalDayOptions] = useState<DayOption[]>([]);
   const [extensions, setExtensions] = useState<OfferExtension[]>([]);
   const [originalExtensions, setOriginalExtensions] = useState<OfferExtension[]>([]);
+  const [hotels, setHotels] = useState<OfferHotel[]>([]);
+  const [originalHotels, setOriginalHotels] = useState<OfferHotel[]>([]);
   // const [_uploading, setUploading] = useState(false);
 
   // Détecter si des modifications ont été apportées
@@ -81,8 +84,9 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
     const offerChanged = JSON.stringify(offer) !== JSON.stringify(originalOffer);
     const optionsChanged = JSON.stringify(dayOptions) !== JSON.stringify(originalDayOptions);
     const extensionsChanged = JSON.stringify(extensions) !== JSON.stringify(originalExtensions);
-    return offerChanged || optionsChanged || extensionsChanged;
-  }, [offer, originalOffer, dayOptions, originalDayOptions, extensions, originalExtensions]);
+    const hotelsChanged = JSON.stringify(hotels) !== JSON.stringify(originalHotels);
+    return offerChanged || optionsChanged || extensionsChanged || hotelsChanged;
+  }, [offer, originalOffer, dayOptions, originalDayOptions, extensions, originalExtensions, hotels, originalHotels]);
 
   useEffect(() => {
     let mounted = true;
@@ -97,13 +101,14 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           return;
         }
         
-        const [o, t, th, d, opts, exts] = await Promise.all([
+        const [o, t, th, d, opts, exts, hts] = await Promise.all([
           adminApi.get(`/offers/${resolvedId}`).then(res => res.data),
           adminApi.get(`/travel-types`).then(res => res.data),
           adminApi.get(`/travel-themes`).then(res => res.data),
           adminApi.get(`/destinations`).then(res => res.data),
           adminApi.get(`/offers/${resolvedId}/options`).then(res => res.data).catch(() => ({ data: [] })),
           adminApi.get(`/offers/${resolvedId}/extensions`).then(res => res.data).catch(() => ({ data: [] })),
+          adminApi.get(`/offers/${resolvedId}/hotels`).then(res => res.data).catch(() => ({ data: [] })),
         ]);
         if (!mounted) return;
         setOffer(o.data);
@@ -112,6 +117,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         setOriginalDayOptions(JSON.parse(JSON.stringify(opts.data || [])));
         setExtensions(exts.data || []);
         setOriginalExtensions(JSON.parse(JSON.stringify(exts.data || [])));
+        setHotels(hts.data || []);
+        setOriginalHotels(JSON.parse(JSON.stringify(hts.data || [])));
         setTypes((t.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setThemes((th.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
         setDestinations((d.data as any[]).map((x: any) => ({ id: x.id, title: x.title, slug: x.slug })));
@@ -188,6 +195,20 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           const extErrMsg = extErr.response?.data?.error || extErr.message || 'Erreur extensions';
           setError(prev => prev ? `${prev}\n${extErrMsg}` : extErrMsg);
           setErrorDetails(prev => prev ? [...prev, `Extensions: ${extErrMsg}`] : [`Extensions: ${extErrMsg}`]);
+          setShowErrorPopup(true);
+        }
+      }
+
+      // Sauvegarder les hôtels
+      if (JSON.stringify(hotels) !== JSON.stringify(originalHotels)) {
+        try {
+          await adminApi.put(`/offers/${id}/hotels`, { hotels });
+          setOriginalHotels(JSON.parse(JSON.stringify(hotels)));
+        } catch (hotelErr: any) {
+          console.error('Erreur sauvegarde hôtels:', hotelErr);
+          const hotelErrMsg = hotelErr.response?.data?.error || hotelErr.message || 'Erreur hôtels';
+          setError(prev => prev ? `${prev}\n${hotelErrMsg}` : hotelErrMsg);
+          setErrorDetails(prev => prev ? [...prev, `Hôtels: ${hotelErrMsg}`] : [`Hôtels: ${hotelErrMsg}`]);
           setShowErrorPopup(true);
         }
       }
@@ -425,6 +446,18 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <ExtensionEditor
               extensions={extensions}
               onChange={setExtensions}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Hôtels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HotelEditor
+              hotels={hotels}
+              onChange={setHotels}
             />
           </CardContent>
         </Card>
