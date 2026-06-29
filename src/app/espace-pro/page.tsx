@@ -62,16 +62,19 @@ function VideoEmbed({ url, className }: { url: string; className?: string }) {
 
 
 // ---------- Page authentifiée ----------
+const FACEBOOK_GROUPS = [
+  { label: 'Information', url: 'https://www.facebook.com/groups/nuancedumondeconseillersgroupeinformation' },
+  { label: 'Formation', url: 'https://www.facebook.com/groups/nuancedumondeconseillersgroupeformation' },
+];
+
 function AuthenticatedView({
   session,
   onLogout,
   proVideoUrl,
-  facebookGroupUrl,
 }: {
   session: { firstName: string; lastName: string; agencyName: string };
   onLogout: () => void;
   proVideoUrl: string;
-  facebookGroupUrl: string;
 }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -448,19 +451,20 @@ function AuthenticatedView({
               </li>
             ))}
           </ul>
-          {facebookGroupUrl && (
-            <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            {FACEBOOK_GROUPS.map((group) => (
               <a
-                href={facebookGroupUrl}
+                key={group.label}
+                href={group.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#c4a74a] text-black font-bold py-2.5 md:py-3 px-6 rounded-lg hover:bg-yellow-300 transition-all shadow-lg text-sm md:text-base"
+                className="inline-flex items-center justify-center gap-2 bg-[#c4a74a] text-black font-bold py-2.5 md:py-3 px-6 rounded-lg hover:bg-yellow-300 transition-all shadow-lg text-sm md:text-base"
               >
                 <Facebook className="w-4 h-4 md:w-5 md:h-5" />
-                Rejoindre
+                Groupe {group.label}
               </a>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -558,16 +562,14 @@ function AuthenticatedView({
 // ---------- Page principale ----------
 export default function EspaceProPage() {
   const [proVideoUrl, setProVideoUrl] = useState('');
-  const [facebookGroupUrl, setFacebookGroupUrl] = useState('');
   const { session, logout, isLoading } = useProfessional();
   const router = useRouter();
 
-  // Charger l'URL de la vidéo pro et lien FB depuis les settings
+  // Charger l'URL de la vidéo pro depuis les settings
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(data => {
       if (data.success) {
         setProVideoUrl(data.data?.pro_video_url || '');
-        setFacebookGroupUrl(data.data?.facebook_group_url || '');
       }
     }).catch(() => {});
   }, []);
@@ -600,7 +602,6 @@ export default function EspaceProPage() {
     <AuthenticatedView
       session={{ firstName: session.firstName, lastName: session.lastName, agencyName: session.agencyName }}
       proVideoUrl={proVideoUrl}
-      facebookGroupUrl={facebookGroupUrl}
       onLogout={() => { logout(); router.push('/'); }}
     />
   );

@@ -12,7 +12,6 @@ export default function AdminSettingsPage() {
   const [maintenance, setMaintenance] = useState(false);
   const [proVideoUrl, setProVideoUrl] = useState('');
   const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
-  const [facebookGroupUrl, setFacebookGroupUrl] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -24,7 +23,6 @@ export default function AdminSettingsPage() {
           setMaintenance(String(data.data?.maintenance_mode || 'FALSE').toUpperCase() === 'TRUE');
           setProVideoUrl(data.data?.pro_video_url || '');
           setParticulierVideoUrl(data.data?.particulier_video_url || '');
-          setFacebookGroupUrl(data.data?.facebook_group_url || '');
         }
       } catch {}
       if (mounted) setLoading(false);
@@ -40,7 +38,6 @@ export default function AdminSettingsPage() {
         maintenance_mode: maintenance ? 'TRUE' : 'FALSE',
         pro_video_url: proVideoUrl.trim(),
         particulier_video_url: particulierVideoUrl.trim(),
-        facebook_group_url: facebookGroupUrl.trim(),
       });
       const data = res.data;
       if (data.success) setStatus('Paramètres enregistrés');
@@ -117,31 +114,6 @@ export default function AdminSettingsPage() {
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
                 {particulierVideoUrl && (
-                  <p className="text-xs text-green-600 mt-1">✓ URL enregistrée</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Groupes Facebook */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Groupes Facebook</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Lien groupe Facebook agents de voyage
-                  <span className="ml-1 text-gray-400 font-normal">(espace pro section groupes)</span>
-                </label>
-                <input
-                  type="url"
-                  value={facebookGroupUrl}
-                  onChange={(e) => setFacebookGroupUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="https://www.facebook.com/groups/..."
-                />
-                {facebookGroupUrl && (
                   <p className="text-xs text-green-600 mt-1">✓ URL enregistrée</p>
                 )}
               </div>
