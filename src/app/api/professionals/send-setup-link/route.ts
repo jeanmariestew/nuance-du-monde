@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Générer un token unique
     const token = randomUUID();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    const expiresAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000); // 5 jours
 
     await execute(
       'UPDATE professionals SET password_set_token = ?, password_token_expires = ? WHERE id = ?',

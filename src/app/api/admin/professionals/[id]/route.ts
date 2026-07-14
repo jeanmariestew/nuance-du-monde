@@ -82,7 +82,7 @@ export async function PUT(
         if (status === 'validated') {
           // Générer un token pour la configuration du mot de passe
           const token = randomUUID();
-          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+          const expiresAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000); // 5 jours
 
           await execute(
             'UPDATE professionals SET password_set_token = ?, password_token_expires = ? WHERE id = ?',

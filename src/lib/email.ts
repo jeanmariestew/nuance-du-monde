@@ -131,7 +131,7 @@ export async function sendPasswordSetupEmail(professional: {
             </a>
           </div>
           <p style="margin:24px 0 0;color:#888;font-size:13px;line-height:1.5">
-            Ce lien expire dans 24 heures.
+            Ce lien expire dans 5 jours.
           </p>
         </td></tr>
         <tr><td style="background:#f4f4f4;padding:24px 40px;text-align:center;border-top:1px solid #eee">
