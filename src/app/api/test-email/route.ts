@@ -3,10 +3,13 @@ import nodemailer from 'nodemailer';
 
 export async function POST() {
   try {
+    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const smtpSecure = process.env.SMTP_SECURE === 'true';
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
+      port: smtpPort,
+      secure: smtpSecure,
+      requireTLS: !smtpSecure,
       auth: {
         user: process.env.SMTP_USER || '',
         pass: process.env.SMTP_PASS || '',
@@ -20,7 +23,7 @@ export async function POST() {
 
     const result = await transporter.sendMail({
       from: FROM,
-      to: 'jfidelica@gmail.com',
+      to: 'jannyfidelica@gmail.com',
       subject: '🧪 Email de Test - Nuance du Monde',
       html: `
 <!DOCTYPE html>

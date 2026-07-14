@@ -57,10 +57,13 @@ export async function POST() {
   // 3. Tester l'authentification SMTP
   try {
     const nodemailer = await import('nodemailer');
+    const smtpPort2 = Number(process.env.SMTP_PORT) || 587;
+    const smtpSecure2 = process.env.SMTP_SECURE === 'true';
     const transporter = nodemailer.default.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
+      port: smtpPort2,
+      secure: smtpSecure2,
+      requireTLS: !smtpSecure2,
       auth: {
         user: process.env.SMTP_USER || '',
         pass: process.env.SMTP_PASS || '',
