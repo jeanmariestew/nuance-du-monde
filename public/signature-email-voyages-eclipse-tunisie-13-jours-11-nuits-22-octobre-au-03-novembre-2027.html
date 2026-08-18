@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Signature email - Voyages Éclipse - Tunisie - 13 jours 11 nuits - 22 Octobre au 03 Novembre 2027</title>
+    <style>
+        body {
+            font-family: Outfit, sans-serif;
+        }
+        #copyButton {
+            margin: 15px auto;
+            display: block;
+            padding: 10px 15px;
+            background-color: #005287;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+        #copyButton:hover {
+            background-color: #222222;
+        }
+    </style>
+</head>
+<body>
+    <!-- Bouton Copier -->
+    <button id="copyButton">Copier la signature</button>
+
+    <!-- Début de la signature -->
+    <table id="signature" style="font-family: Outfit, sans-serif; color: #222222; width: 100%; max-width: 600px; border-collapse: collapse; border-top: 1px solid #121212; padding-top: 15px;">
+        <tr>
+            <td style="padding: 10px;">
+                <!-- Bannière promotionnelle -->
+                <a href="https://link.sendlink.co/qr/1yD_4io-i-2Y" target="_blank">
+                    <img src="https://nuancedumonde.com/uploads/signature-email-voyages-eclipse-tunisie-13-jours-11-nuits-22-octobre-au-03-novembre-2027.gif" alt="Bannière signature" style="width: 100%; max-width: 600px; display: block; margin: 15px auto 0; border-radius: 8px;">
+                </a>
+
+                <!-- Texte de fin -->
+                <p style="font-size: 12px; color: #131312; text-align: center; line-height: 1.5; padding-top: 15px; margin-top: 20px; max-width: 600px;">
+                    2026 © Voyages Éclipse. Tous droits réservés.<br>
+					Voyages Éclipse est détenteur d'un permis du Québec. Numéro de permis: 703635
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        document.getElementById('copyButton').addEventListener('click', function() {
+            var signature = document.getElementById('signature');
+            var range = document.createRange();
+            range.selectNode(signature);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try {
+                document.execCommand('copy');
+                alert('Signature copiée avec succès !');
+            } catch (e) {
+                alert('Impossible de copier la signature. Veuillez essayer manuellement.');
+            }
+            selection.removeAllRanges();
+        });
+    </script>
+</body>
+</html>
