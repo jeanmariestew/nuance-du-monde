@@ -28,20 +28,23 @@ export default function OfferCard({ offer }: Props) {
   const category = offer.meta_title || "Voyage";
   const description = offer.label || "";
 
-  // Compute the next upcoming date range for the pill
-  const now = new Date();
+  // Compute the next upcoming date range for the pill.
+  // departure_date/return_date are calendar dates ("YYYY-MM-DD") parsed by `new Date()`
+  // as UTC midnight. We compare against "today" at UTC midnight (not local midnight) and
+  // format with timeZone: 'UTC' so the day shown never depends on the visitor's country.
+  const nowUTCMidnight = new Date(new Date().toISOString().split('T')[0]);
   const sortedDates = (offer.dates || [])
     .slice()
     .sort((a, b) => new Date(a.departure_date).getTime() - new Date(b.departure_date).getTime());
-  const nextRange = sortedDates.find(d => new Date(d.departure_date) >= new Date(now.toDateString()));
+  const nextRange = sortedDates.find(d => new Date(d.departure_date) >= nowUTCMidnight);
   const formatRange = (dep?: string, ret?: string | null) => {
     if (!dep) return null;
     const d = new Date(dep);
-    if (!ret) return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    if (!ret) return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
     const r = new Date(ret);
-    const sameMonth = d.getFullYear() === r.getFullYear() && d.getMonth() === r.getMonth();
-    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit' } : { day: '2-digit', month: '2-digit' };
-    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const sameMonth = d.getUTCFullYear() === r.getUTCFullYear() && d.getUTCMonth() === r.getUTCMonth();
+    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit', timeZone: 'UTC' } : { day: '2-digit', month: '2-digit', timeZone: 'UTC' };
+    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' };
     return `${d.toLocaleDateString('fr-FR', startFmt)} → ${r.toLocaleDateString('fr-FR', endFmt)}`;
   };
   return (

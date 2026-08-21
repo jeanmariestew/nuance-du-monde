@@ -808,8 +808,8 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   offer.dates.map((d, index) => (
                     <div key={index} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
                       <span className="text-sm">
-                        {new Date(d.departure_date).toLocaleDateString('fr-FR')} 
-                        {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR')}` : ''}
+                        {new Date(d.departure_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
+                        {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}` : ''}
                         {typeof d.price === 'number' ? ` — ${(d.price_currency || offer.price_currency || 'EUR')} ${d.price}` : ''}
                       </span>
                       <button

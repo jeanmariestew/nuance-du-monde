@@ -36,14 +36,18 @@ export default function DatesAndPricing({
     return `${currency || baseCurrency} ${new Intl.NumberFormat('fr-FR').format(value)}`;
   };
 
+  // Les dates de départ/retour sont des dates "calendaires" (sans heure ni fuseau).
+  // On force timeZone: 'UTC' pour que le jour affiché soit identique quel que soit
+  // le pays/fuseau horaire du visiteur (sinon new Date("YYYY-MM-DD") est interprété
+  // en UTC puis reformaté dans le fuseau local du navigateur, ce qui peut décaler le jour).
   const formatRange = (dep: string, ret?: string) => {
     const d = new Date(dep);
-    const optsStart: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const optsStart: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' };
     if (!ret) return d.toLocaleDateString('fr-FR', optsStart);
     const r = new Date(ret);
-    const sameMonth = d.getFullYear() === r.getFullYear() && d.getMonth() === r.getMonth();
-    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit' } : { day: '2-digit', month: '2-digit' };
-    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const sameMonth = d.getUTCFullYear() === r.getUTCFullYear() && d.getUTCMonth() === r.getUTCMonth();
+    const startFmt: Intl.DateTimeFormatOptions = sameMonth ? { day: '2-digit', timeZone: 'UTC' } : { day: '2-digit', month: '2-digit', timeZone: 'UTC' };
+    const endFmt: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' };
     return `${d.toLocaleDateString('fr-FR', startFmt)} → ${r.toLocaleDateString('fr-FR', endFmt)}`;
   };
 
@@ -52,11 +56,15 @@ export default function DatesAndPricing({
   }
 
   // Obtenir tous les mois avec des dates disponibles
+  // Note: on lit les composantes en UTC (getUTCFullYear/getUTCMonth) car
+  // departure_date ("YYYY-MM-DD") est parsé par `new Date()` comme minuit UTC ;
+  // utiliser les getters locaux (getFullYear/getMonth) décalerait le jour/mois
+  // selon le fuseau horaire du visiteur.
   const availableMonths = Array.from(
     new Set(
       dates.map((d) => {
         const date = new Date(d.departure_date);
-        return `${date.getFullYear()}-${date.getMonth()}`;
+        return `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
       })
     )
   )
@@ -70,8 +78,8 @@ export default function DatesAndPricing({
   const datesInCurrentMonth = dates.filter((d) => {
     const date = new Date(d.departure_date);
     return (
-      date.getMonth() === currentMonth.getMonth() &&
-      date.getFullYear() === currentMonth.getFullYear()
+      date.getUTCMonth() === currentMonth.getMonth() &&
+      date.getUTCFullYear() === currentMonth.getFullYear()
     );
   });
 
@@ -89,14 +97,14 @@ export default function DatesAndPricing({
   const isDateAvailable = (day: number) => {
     return datesInCurrentMonth.some((d) => {
       const date = new Date(d.departure_date);
-      return date.getDate() === day;
+      return date.getUTCDate() === day;
     });
   };
 
   const getDateOption = (day: number) => {
     return datesInCurrentMonth.find((d) => {
       const date = new Date(d.departure_date);
-      return date.getDate() === day;
+      return date.getUTCDate() === day;
     });
   };
 
@@ -301,6 +309,7 @@ export default function DatesAndPricing({
                           day: "numeric",
                           month: "long",
                           year: "numeric",
+                          timeZone: "UTC",
                         }
                       )}
                     </p>
@@ -319,6 +328,7 @@ export default function DatesAndPricing({
                             day: "numeric",
                             month: "long",
                             year: "numeric",
+                            timeZone: "UTC",
                           }
                         )}
                       </p>

@@ -13,6 +13,13 @@ const dbConfig = {
   queueLimit: 5,
   acquireTimeout: 60000,
   timeout: 60000,
+  // Les colonnes DATE (departure_date, return_date, promotion_start_date, ...) sont des
+  // dates "calendaires" sans heure. Sans ceci, mysql2 les convertit en objets Date JS
+  // (interprétés dans le fuseau du serveur), qui sont ensuite sérialisés en ISO UTC puis
+  // réaffichés dans le fuseau du navigateur du visiteur : selon le pays, le jour affiché
+  // peut sauter de +/-1. En forçant des chaînes "YYYY-MM-DD" brutes, aucune conversion de
+  // fuseau horaire n'est appliquée côté serveur.
+  dateStrings: ['DATE'] as Array<'TIMESTAMP' | 'DATETIME' | 'DATE'>,
 };
 
 // Déclaration du pool dans le scope global pour Next.js hot reload (dev mode)
