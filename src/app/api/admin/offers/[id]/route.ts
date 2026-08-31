@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import {query, execute} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
+// Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
+function normalizePriceNote(note: string | null | undefined): string | null {
+  const trimmed = (note || '').trim();
+  return trimmed ? trimmed.slice(0, 255) : null;
+}
+
 // Fonction pour formater une date ISO en format MySQL YYYY-MM-DD
 function formatDateForMySQL(dateStr: string | null | undefined): string | null {
   if (!dateStr) return null;
@@ -55,7 +61,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const types = await query('SELECT travel_type_id FROM offer_travel_types WHERE offer_id = ?', [id]);
   const themes = await query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
   const dests = await query('SELECT destination_id FROM offer_destinations WHERE offer_id = ?', [id]);
-  const datesRows = await query('SELECT id, departure_date, return_date, price, price_currency FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
+  const datesRows = await query('SELECT id, departure_date, return_date, price, price_currency, price_note FROM offer_dates WHERE offer_id = ? ORDER BY departure_date', [id]);
   const images = await query(`
     SELECT oi.id, i.url as image_url, oi.image_type, oi.alt_text, oi.sort_order 
     FROM offer_images oi
@@ -112,7 +118,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
-    dates = [] as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[],
+    dates = [] as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -242,29 +248,30 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const processedIds: number[] = [];
     
     for (const d of datesToProcess) {
-      const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null };
-      
+      const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null };
+
       // Formater les dates pour MySQL
       const formattedDepartureDate = formatDateForMySQL(dateData.departure_date);
       const formattedReturnDate = formatDateForMySQL(dateData.return_date);
-      
+      const priceNote = normalizePriceNote(dateData.price_note);
+
       if (!formattedDepartureDate) {
         console.warn('[PUT /offers] Date de départ invalide ignorée:', dateData.departure_date);
         continue;
       }
-      
+
       if (dateData.id && existingDateIds.includes(dateData.id)) {
         // Mise à jour d'une date existante
         await query(
-          `UPDATE offer_dates SET departure_date=?, return_date=?, price=?, price_currency=? WHERE id=? AND offer_id=?`,
-          [formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR', dateData.id, id]
+          `UPDATE offer_dates SET departure_date=?, return_date=?, price=?, price_currency=?, price_note=? WHERE id=? AND offer_id=?`,
+          [formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR', priceNote, dateData.id, id]
         );
         processedIds.push(dateData.id);
       } else {
         // Nouvelle date
         const result = await execute(
-          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES (?, ?, ?, ?, ?)`,
-          [id, formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR']
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency, price_note) VALUES (?, ?, ?, ?, ?, ?)`,
+          [id, formattedDepartureDate, formattedReturnDate, dateData.price ?? null, dateData.price_currency || 'EUR', priceNote]
         );
         processedIds.push(result.insertId);
       }

@@ -52,7 +52,7 @@ interface OfferDetail {
   travel_types?: Array<{ id: number; title: string; slug: string }>;
   travel_themes?: Array<{ id: number; title: string; slug: string }>;
   destinations?: Array<{ id: number; title: string; slug: string }>;
-  dates?: Array<{ id: number; departure_date: string; return_date?: string }>;
+  dates?: Array<{ id: number; departure_date: string; return_date?: string; price?: number; price_currency?: string; price_note?: string }>;
   programme_link?: string;
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   map_center?: { lat: number; lng: number; zoom: number } | null;

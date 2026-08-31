@@ -13,6 +13,11 @@ import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEdi
 import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
 import { adminApi } from '@/lib/axios';
 
+// Normalise une date (string ISO ou "YYYY-MM-DD") pour la valeur d'un <input type="date">
+function toInputDate(value?: string | null): string {
+  return value ? value.slice(0, 10) : '';
+}
+
 type RefItem = { id: number; title: string; slug: string };
 
 type OfferImage = {
@@ -49,7 +54,7 @@ type OfferData = {
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
-  dates?: { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[];
+  dates?: { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null }[];
   typeIds: number[];
   themeIds: number[];
   destinationIds: number[];
@@ -63,6 +68,10 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   const [errorDetails, setErrorDetails] = useState<string[] | null>(null);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [editingDateIndex, setEditingDateIndex] = useState<number | null>(null);
+  const [dateDraft, setDateDraft] = useState<{ departure_date: string; return_date: string; price: string; price_currency: string; price_note: string }>({
+    departure_date: '', return_date: '', price: '', price_currency: 'CAD', price_note: '',
+  });
 
   const [offer, setOffer] = useState<OfferData | null>(null);
   const [originalOffer, setOriginalOffer] = useState<OfferData | null>(null);
@@ -731,10 +740,10 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           <CardContent>
             <div className="grid gap-3">
               <div className="text-sm text-neutral-600">
-                Ajoutez des périodes avec une date de départ, une date de retour (optionnelle) et un prix.
+                Ajoutez des périodes avec une date de départ, une date de retour (optionnelle). Le prix est optionnel : vous pouvez annoncer une date sans prix connu et utiliser le champ texte pour préciser (ex: PRIX SUR DEMANDE).
                 <span className="font-medium text-orange-600"> N&apos;oubliez pas de cliquer sur &quot;Enregistrer&quot; en bas pour sauvegarder.</span>
               </div>
-              <div className="grid gap-2 md:grid-cols-[1fr,1fr,160px,120px,auto]">
+              <div className="grid gap-2 md:grid-cols-[1fr,1fr,120px,100px,1fr,auto]">
                 <label className="text-sm">
                   Date de départ
                   <input
@@ -755,7 +764,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                   />
                 </label>
                 <label className="text-sm">
-                  Prix
+                  Prix (optionnel)
                   <input
                     type="number"
                     id="new-date-price"
@@ -773,12 +782,23 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                     placeholder="Ex: EUR, CAD, USD"
                   />
                 </label>
+                <label className="text-sm">
+                  Texte affiché (optionnel)
+                  <input
+                    type="text"
+                    id="new-date-note"
+                    maxLength={255}
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                    placeholder="Ex: COMPLET, PRIX SUR DEMANDE, TARIF PROMOTIONNEL"
+                  />
+                </label>
                 <Button
                   onClick={() => {
                     const start = document.getElementById('new-start-date') as HTMLInputElement;
                     const end = document.getElementById('new-end-date') as HTMLInputElement;
                     const price = document.getElementById('new-date-price') as HTMLInputElement;
                     const currency = document.getElementById('new-date-currency') as HTMLInputElement;
+                    const note = document.getElementById('new-date-note') as HTMLInputElement;
                     if (!start.value) {
                       setError('La date de départ est requise');
                       return;
@@ -788,6 +808,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                       return_date: end.value || null,
                       price: price.value === '' ? null : Number(price.value),
                       price_currency: (currency.value || 'EUR'),
+                      price_note: note.value.trim() || null,
                     };
                     setOffer({
                       ...(offer as OfferData),
@@ -796,6 +817,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                     start.value = '';
                     end.value = '';
                     price.value = '';
+                    note.value = '';
                     setStatus('Période ajoutée - cliquez sur Enregistrer pour sauvegarder');
                   }}
                   className="px-4 py-2 text-sm"
@@ -806,12 +828,116 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
               <div className="grid gap-2">
                 {(offer.dates && offer.dates.length > 0) ? (
                   offer.dates.map((d, index) => (
+                    editingDateIndex === index ? (
+                      <div key={index} className="grid gap-2 rounded-md border-2 border-[--color-primary] bg-white px-3 py-3 md:grid-cols-[1fr,1fr,120px,100px,1fr,auto,auto]">
+                        <label className="text-xs text-neutral-600">
+                          Date de départ
+                          <input
+                            type="date"
+                            value={dateDraft.departure_date}
+                            onChange={(e) => setDateDraft({ ...dateDraft, departure_date: e.target.value })}
+                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                          />
+                        </label>
+                        <label className="text-xs text-neutral-600">
+                          Date de retour
+                          <input
+                            type="date"
+                            value={dateDraft.return_date}
+                            onChange={(e) => setDateDraft({ ...dateDraft, return_date: e.target.value })}
+                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                          />
+                        </label>
+                        <label className="text-xs text-neutral-600">
+                          Prix
+                          <input
+                            type="number"
+                            value={dateDraft.price}
+                            onChange={(e) => setDateDraft({ ...dateDraft, price: e.target.value })}
+                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                          />
+                        </label>
+                        <label className="text-xs text-neutral-600">
+                          Devise
+                          <input
+                            type="text"
+                            value={dateDraft.price_currency}
+                            onChange={(e) => setDateDraft({ ...dateDraft, price_currency: e.target.value })}
+                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                          />
+                        </label>
+                        <label className="text-xs text-neutral-600">
+                          Texte affiché
+                          <input
+                            type="text"
+                            maxLength={255}
+                            value={dateDraft.price_note}
+                            onChange={(e) => setDateDraft({ ...dateDraft, price_note: e.target.value })}
+                            placeholder="Ex: COMPLET, PRIX SUR DEMANDE"
+                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                          />
+                        </label>
+                        <Button
+                          onClick={() => {
+                            if (!dateDraft.departure_date) {
+                              setError('La date de départ est requise');
+                              return;
+                            }
+                            const updated = (offer.dates || []).map((entry, i) =>
+                              i === index
+                                ? {
+                                    ...entry,
+                                    departure_date: dateDraft.departure_date,
+                                    return_date: dateDraft.return_date || null,
+                                    price: dateDraft.price === '' ? null : Number(dateDraft.price),
+                                    price_currency: dateDraft.price_currency || 'EUR',
+                                    price_note: dateDraft.price_note.trim() || null,
+                                  }
+                                : entry
+                            ).sort((a, b) => a.departure_date.localeCompare(b.departure_date));
+                            setOffer({ ...(offer as OfferData), dates: updated });
+                            setEditingDateIndex(null);
+                            setStatus('Période modifiée - cliquez sur Enregistrer pour sauvegarder');
+                          }}
+                          className="self-end px-3 py-2 text-sm"
+                        >
+                          Enregistrer
+                        </Button>
+                        <button
+                          onClick={() => setEditingDateIndex(null)}
+                          className="self-end px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    ) : (
                     <div key={index} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-                      <span className="text-sm">
+                      <span className="text-sm flex items-center gap-2">
                         {new Date(d.departure_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
                         {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}` : ''}
                         {typeof d.price === 'number' ? ` — ${(d.price_currency || offer.price_currency || 'EUR')} ${d.price}` : ''}
+                        {d.price_note && (
+                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
+                            {d.price_note}
+                          </span>
+                        )}
                       </span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setDateDraft({
+                              departure_date: toInputDate(d.departure_date),
+                              return_date: toInputDate(d.return_date),
+                              price: typeof d.price === 'number' ? String(d.price) : '',
+                              price_currency: d.price_currency || offer.price_currency || 'CAD',
+                              price_note: d.price_note || '',
+                            });
+                            setEditingDateIndex(index);
+                          }}
+                          className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline"
+                        >
+                          Modifier
+                        </button>
                       <button
                         onClick={() => {
                           const updated = (offer.dates || []).filter((_, i) => i !== index);
@@ -825,7 +951,9 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                       >
                         Supprimer
                       </button>
+                      </div>
                     </div>
+                    )
                   ))
                 ) : (
                   <div className="text-sm text-neutral-500 italic">Aucune période configurée</div>

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 
+// Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
+function normalizePriceNote(note: string | null | undefined): string | null {
+  const trimmed = (note || '').trim();
+  return trimmed ? trimmed.slice(0, 255) : null;
+}
+
 // Fonction pour formater une date ISO en format MySQL YYYY-MM-DD
 function formatDateForMySQL(dateStr: string | null | undefined): string | null {
   if (!dateStr) return null;
@@ -55,7 +61,7 @@ export async function POST(req: Request) {
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
-    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null }[],
+    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -105,16 +111,17 @@ export async function POST(req: Request) {
         .filter(d => d.departure_date); // Filtrer les dates invalides
       
       if (valid.length > 0) {
-        const placeholders = valid.map(() => '(?, ?, ?, ?, ?)').join(', ');
+        const placeholders = valid.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
         const values = valid.flatMap((d) => [
           offerId,
           d.departure_date,
           d.return_date || null,
           d.price ?? null,
           (d.price_currency || 'EUR'),
+          normalizePriceNote(d.price_note),
         ]);
         await query(
-          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency) VALUES ${placeholders}`,
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency, price_note) VALUES ${placeholders}`,
           values
         );
       }

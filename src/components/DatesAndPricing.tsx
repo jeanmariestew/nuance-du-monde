@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 
 interface DateOption {
   id: number;
@@ -10,8 +10,13 @@ interface DateOption {
   return_date?: string;
   price?: number;
   price_currency?: string;
-  status?: string;
+  // Texte libre affiché à droite du prix (ex: COMPLET, PRIX SUR DEMANDE, TARIF PROMOTIONNEL...)
+  price_note?: string;
 }
+
+// Heuristique légère : si l'agence indique explicitement "complet" dans le texte libre,
+// on met en évidence la date (bannière + calendrier) sans pour autant imposer un statut figé.
+const isCompletNote = (note?: string) => !!note && /complet/i.test(note);
 
 interface DatesAndPricingProps {
   dates?: DateOption[];
@@ -54,6 +59,12 @@ export default function DatesAndPricing({
   if (!dates || dates.length === 0) {
     return null;
   }
+
+  // Calculé sur l'ensemble de la liste (pas ligne par ligne) : si au moins une date a une
+  // remarque, on réserve une 3e colonne fixe sur TOUTES les lignes pour que le prix reste
+  // aligné. Si aucune date de l'offre n'a de remarque, cette colonne serait un espace mort
+  // permanent : on repasse alors toute la liste en 2 colonnes (dates + prix).
+  const hasAnyNote = dates.some((d) => !!d.price_note);
 
   // Obtenir tous les mois avec des dates disponibles
   // Note: on lit les composantes en UTC (getUTCFullYear/getUTCMonth) car
@@ -212,17 +223,21 @@ export default function DatesAndPricing({
                 const dateOption = getDateOption(day);
                 const isSelected =
                   selectedDate && dateOption?.id === selectedDate.id;
+                const isComplet = isCompletNote(dateOption?.price_note);
 
                 return (
                   <button
                     key={day}
                     onClick={() => dateOption && setSelectedDate(dateOption)}
                     disabled={!isAvailable}
+                    title={isComplet ? "Départ complet" : undefined}
                     className={`
-                      aspect-square rounded-md flex items-center justify-center text-xs font-semibold transition-all
+                      relative aspect-square rounded-md flex items-center justify-center text-xs font-semibold transition-all
                       ${
                         isSelected
                           ? "bg-linear-to-br from-yellow-500 to-orange-500 text-white shadow-lg scale-110 ring-2 ring-yellow-600"
+                          : isComplet
+                          ? "bg-red-50 text-red-700 hover:bg-red-100 hover:scale-105 border-2 border-red-300 shadow-sm"
                           : isAvailable
                           ? "bg-white text-yellow-900 hover:bg-yellow-200 hover:scale-105 border-2 border-yellow-400 shadow-sm"
                           : "text-gray-300 cursor-not-allowed bg-gray-50"
@@ -230,6 +245,9 @@ export default function DatesAndPricing({
                     `}
                   >
                     {day}
+                    {isComplet && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                    )}
                   </button>
                 );
               })}
@@ -246,6 +264,10 @@ export default function DatesAndPricing({
                   <div className="w-3 h-3 rounded bg-white border-2 border-yellow-400" />
                   <span>Disponible</span>
                 </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-red-50 border-2 border-red-300" />
+                  <span>Complet</span>
+                </div>
               </div>
             </div>
           </div>
@@ -261,17 +283,23 @@ export default function DatesAndPricing({
               <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 sm:pr-2">
                 {dates.map((date) => {
                   const isSelected = selectedDate?.id === date.id;
+                  const complet = isCompletNote(date.price_note);
                   return (
                     <button
                       key={date.id}
                       onClick={() => setSelectedDate(date)}
-                      className={`w-full text-left p-4 rounded-xl transition-all border-2 flex items-center justify-between ${
+                      className={`w-full text-left p-4 rounded-xl transition-all border-2 grid items-center gap-3 ${
+                        hasAnyNote
+                          ? "grid-cols-[minmax(0,1fr)_120px_140px] sm:grid-cols-[minmax(0,1fr)_130px_160px]"
+                          : "grid-cols-[minmax(0,1fr)_auto]"
+                      } ${
                         isSelected
                           ? "bg-linear-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
                           : "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-gray-900"
                       }`}
                     >
-                      <div className="min-w-0 pr-3">
+                      {/* Colonne 1 : dates */}
+                      <div className="min-w-0">
                         <p className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-900'} truncate`}>
                           {formatRange(date.departure_date, date.return_date)}
                         </p>
@@ -279,12 +307,31 @@ export default function DatesAndPricing({
                           {date.return_date ? 'Date de retour incluse' : 'Départ unique'}
                         </p>
                       </div>
-                      <div className={`text-right shrink-0`}>
-                        <p className={`text-lg font-extrabold ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
+                      {/* Colonne 2 : prix — largeur fixe et identique sur toutes les lignes dès qu'au
+                          moins une date de la liste a une remarque, pour que le prix reste aligné */}
+                      <div className="text-right">
+                        <p className={`text-lg font-extrabold whitespace-nowrap ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
                           {formatPrice(date.price, date.price_currency)}
                         </p>
-                        <p className={`text-[11px] ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
+                        <p className={`text-[11px] whitespace-nowrap ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
                       </div>
+                      {/* Colonne 3 : texte libre — n'existe que si au moins une date de la liste a
+                          une remarque (sinon la liste entière repasse en 2 colonnes ci-dessus) */}
+                      {hasAnyNote && (
+                        <div className="text-right">
+                          {date.price_note && (
+                            <span className={`inline-block rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase leading-tight break-words ${
+                              isSelected
+                                ? "bg-white/20 text-white"
+                                : complet
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-200 text-yellow-900"
+                            }`}>
+                              {date.price_note}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -295,6 +342,15 @@ export default function DatesAndPricing({
             {selectedDate && (
               <div className="bg-linear-to-br from-gray-800 to-black rounded-2xl shadow-xl border-2 border-yellow-600 p-6 text-white">
                 <h3 className="text-xl sm:text-2xl font-bold mb-5">Détails du départ</h3>
+
+                {isCompletNote(selectedDate.price_note) && (
+                  <div className="mb-5 flex items-start gap-3 rounded-xl border-2 border-red-400 bg-red-500/15 px-4 py-3">
+                    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-sm font-semibold text-red-100">
+                      Ce départ garanti est complet. Contactez-nous pour être ajouté(e) à la liste d&apos;attente ou pour connaître la prochaine date disponible.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-5">
                   {/* Date de départ */}
@@ -337,9 +393,18 @@ export default function DatesAndPricing({
 
                   {/* Prix */}
                   <div className="pt-5 border-t-2 border-yellow-400">
-                    <p className="text-sm text-yellow-100 mb-2">
-                      Prix par personne
-                    </p>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm text-yellow-100 mb-2">
+                        Prix par personne
+                      </p>
+                      {selectedDate.price_note && (
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                          isCompletNote(selectedDate.price_note) ? "bg-red-500/20 text-red-100" : "bg-yellow-400/20 text-yellow-100"
+                        }`}>
+                          {selectedDate.price_note}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-4xl sm:text-5xl font-bold">
                       {formatPrice(selectedDate.price, selectedDate.price_currency)}
                     </p>
@@ -353,7 +418,9 @@ export default function DatesAndPricing({
                     href={`/devis-personnalise?circuit=${encodeURIComponent(title)}`}
                     className="block w-full bg-white text-yellow-700 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
                   >
-                    Demander un devis pour cette période
+                    {isCompletNote(selectedDate.price_note)
+                      ? "Rejoindre la liste d'attente"
+                      : "Demander un devis pour cette période"}
                   </Link>
                 </div>
               </div>
