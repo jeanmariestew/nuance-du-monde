@@ -31,6 +31,8 @@ RÈGLES IMPORTANTES :
    - Transports : [Moyens de transport SI mentionnés - sinon OMETS cette ligne complètement]
    - Hébergements : [Type d'hébergement SI mentionné - sinon OMETS cette ligne complètement]
 
+3b. Si plusieurs jours consécutifs se passent au même endroit ou sont décrits ensemble dans le texte original (ex. "Jour 10-11-12", "Jours 10 à 12"), garde UNE SEULE entrée avec la plage : "Jours 10-12 : [Destination]". N'invente jamais de plage si le texte original ne la mentionne pas.
+
 4. Si une information n'est pas mentionnée (transport ou hébergement), N'INVENTE PAS et n'écris pas la ligne
 5. Sépare les jours par une ligne vide
 6. Retourne UNIQUEMENT le texte formaté, sans explication ni commentaire

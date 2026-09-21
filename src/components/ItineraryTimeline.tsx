@@ -5,6 +5,8 @@ import OptimizedImage from "./OptimizedImage";
 
 interface DayItinerary {
   day: number;
+  // Tous les jours couverts par l'étape (ex. [10, 11, 12]) ; absent = seulement `day`
+  dayNumbers?: number[];
   title: string;
   description: string;
   location?: string;
@@ -81,9 +83,12 @@ export default function ItineraryTimeline({
       )}
 
       <div className="space-y-6 sm:space-y-8">
-        {itinerary.map((day, index) => (
-          <div 
-            key={day.day} 
+        {itinerary.map((day, index) => {
+          const dayNumbers = day.dayNumbers?.length ? day.dayNumbers : [day.day];
+          const dayOptionsList = dayNumbers.flatMap((n) => optionsByDay[n] ?? []);
+          return (
+          <div
+            key={day.day}
             className={`relative ${onDayClick ? 'cursor-pointer hover:bg-yellow-50/50 rounded-lg transition-colors -mx-2 px-2 py-1' : ''}`}
             onClick={() => onDayClick?.(index)}
           >
@@ -94,11 +99,13 @@ export default function ItineraryTimeline({
 
             {/* Day content */}
             <div className="flex gap-3 sm:gap-5">
-              {/* Day number circle */}
-              <div className="shrink-0 relative z-10">
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white ${onDayClick ? 'hover:scale-110 transition-transform' : ''}`}>
-                  {day.day}
-                </div>
+              {/* Day number circles : une bulle par jour, empilées si l'étape couvre plusieurs jours */}
+              <div className="shrink-0 relative z-10 flex flex-col gap-2 sm:gap-3">
+                {dayNumbers.map((n) => (
+                  <div key={n} className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xl border-2 sm:border-4 border-white ${onDayClick ? 'hover:scale-110 transition-transform' : ''}`}>
+                    {n}
+                  </div>
+                ))}
               </div>
 
               {/* Content without card */}
@@ -200,13 +207,13 @@ export default function ItineraryTimeline({
                 </div>
 
                 {/* Options d'activités */}
-                {optionsByDay[day.day] && optionsByDay[day.day].length > 0 && (
+                {dayOptionsList.length > 0 && (
                   <div className="mt-4 p-3 sm:p-4 rounded-xl border-4 border-yellow-200">
                     <div className="text-sm w-full sm:text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                       En options
                     </div>
                     <div className="space-y-5 ">
-                      {optionsByDay[day.day].map((option, optIdx) => (
+                      {dayOptionsList.map((option, optIdx) => (
                         <div key={optIdx} className={clsx("gap-3",optIdx > 0 && " border-t pt-4 ")}>
                           <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-semibold text-sm sm:text-base text-gray-900">
@@ -249,7 +256,8 @@ export default function ItineraryTimeline({
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

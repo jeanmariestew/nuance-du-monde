@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import { parseDayHeader, formatDayLabel } from '@/lib/itineraryParser';
 
 // Structure d'un jour d'itinéraire
 export type ItineraryDay = {
   day: number;
+  // Dernier jour couvert quand l'étape dure plusieurs jours (ex. day=10, endDay=12 -> "Jour 10-12")
+  endDay?: number;
   location: string;
   activities: string;
   transports: string;
@@ -47,14 +50,15 @@ function parseTextToItinerary(text: string): ItineraryData {
     if (!trimmed) continue;
 
     // Détecter un nouveau jour
-    const dayMatch = trimmed.match(/^Jour\s*(\d+)\s*[:\-–]\s*(.+)$/i);
-    if (dayMatch) {
+    const dayMatch = parseDayHeader(trimmed);
+    if (dayMatch && dayMatch.title) {
       if (currentDay) {
         days.push(currentDay);
       }
       currentDay = {
-        day: parseInt(dayMatch[1]),
-        location: dayMatch[2].trim(),
+        day: dayMatch.days[0],
+        endDay: dayMatch.days.length > 1 ? dayMatch.days[dayMatch.days.length - 1] : undefined,
+        location: dayMatch.title,
         activities: '',
         transports: '',
         accommodation: '',
@@ -104,12 +108,26 @@ function parseTextToItinerary(text: string): ItineraryData {
 // Convertir la structure en texte formaté
 function itineraryToText(data: ItineraryData): string {
   return data.days.map(day => {
-    const parts = [`Jour ${day.day} : ${day.location}`];
+    const covered = day.endDay && day.endDay > day.day
+      ? Array.from({ length: day.endDay - day.day + 1 }, (_, i) => day.day + i)
+      : [day.day];
+    const parts = [`${covered.length > 1 ? 'Jours' : 'Jour'} ${formatDayLabel(covered)} : ${day.location}`];
     if (day.activities) parts.push(`Activités : ${day.activities}`);
     if (day.transports) parts.push(`Transports : ${day.transports}`);
     if (day.accommodation) parts.push(`Hébergements : ${day.accommodation}`);
     return parts.join('\n');
   }).join('\n\n');
+}
+
+// Numérote les jours à la suite (1, 2, 3...) en respectant la durée de chaque étape
+function renumberDays(days: ItineraryDay[]): ItineraryDay[] {
+  let next = 1;
+  return days.map((d) => {
+    const span = Math.max(1, (d.endDay ?? d.day) - d.day + 1);
+    const start = next;
+    next += span;
+    return { ...d, day: start, endDay: span > 1 ? start + span - 1 : undefined };
+  });
 }
 
 export default function ItineraryEditor({ value, onChange }: ItineraryEditorProps) {
@@ -146,23 +164,33 @@ export default function ItineraryEditor({ value, onChange }: ItineraryEditorProp
     onChange(itineraryToText(newItinerary));
   };
 
+  // Définir la durée d'une étape (nombre de jours consécutifs au même endroit)
+  const updateSpan = (index: number, span: number) => {
+    const safeSpan = Math.max(1, Math.min(60, Math.floor(span) || 1));
+    const newDays = [...itinerary.days];
+    newDays[index] = { ...newDays[index], endDay: safeSpan > 1 ? newDays[index].day + safeSpan - 1 : undefined };
+    const newItinerary = { days: renumberDays(newDays) };
+    setItinerary(newItinerary);
+    onChange(itineraryToText(newItinerary));
+  };
+
   // Ajouter un jour
   const addDay = () => {
     const newDay: ItineraryDay = {
-      day: itinerary.days.length + 1,
+      day: 0,
       location: '',
       activities: '',
       transports: '',
       accommodation: '',
     };
-    const newItinerary = { days: [...itinerary.days, newDay] };
+    const newItinerary = { days: renumberDays([...itinerary.days, newDay]) };
     setItinerary(newItinerary);
     onChange(itineraryToText(newItinerary));
   };
 
   // Supprimer un jour
   const removeDay = (index: number) => {
-    const newDays = itinerary.days.filter((_, i) => i !== index).map((d, i) => ({ ...d, day: i + 1 }));
+    const newDays = renumberDays(itinerary.days.filter((_, i) => i !== index));
     const newItinerary = { days: newDays };
     setItinerary(newItinerary);
     onChange(itineraryToText(newItinerary));
@@ -276,8 +304,10 @@ Hébergements : Chambre d'hôtes`}
             <div key={index} className="border border-neutral-200 rounded-lg p-4 bg-neutral-50">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[--color-primary] text-white font-bold text-sm">
-                    {day.day}
+                  <span className="inline-flex items-center justify-center min-w-8 h-8 px-2 rounded-full bg-[--color-primary] text-white font-bold text-sm whitespace-nowrap">
+                    {formatDayLabel(day.endDay && day.endDay > day.day
+                      ? Array.from({ length: day.endDay - day.day + 1 }, (_, i) => day.day + i)
+                      : [day.day])}
                   </span>
                   <input
                     type="text"
@@ -286,6 +316,18 @@ Hébergements : Chambre d'hôtes`}
                     placeholder="Destination (ex: Paris)"
                     className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium"
                   />
+                  <label className="flex items-center gap-1.5 text-xs text-neutral-600 whitespace-nowrap">
+                    Durée
+                    <input
+                      type="number"
+                      min={1}
+                      max={60}
+                      value={day.endDay && day.endDay > day.day ? day.endDay - day.day + 1 : 1}
+                      onChange={(e) => updateSpan(index, parseInt(e.target.value, 10))}
+                      className="w-14 rounded-md border border-neutral-300 px-2 py-1.5 text-sm"
+                    />
+                    jour(s)
+                  </label>
                 </div>
                 <button
                   type="button"
@@ -348,7 +390,7 @@ Hébergements : Chambre d'hôtes`}
 
       {/* Aide */}
       <div className="text-xs text-neutral-500 bg-neutral-100 px-3 py-2 rounded-md">
-        <strong>Format attendu :</strong> Chaque jour doit avoir une ligne &quot;Jour X : Destination&quot; suivie des sections Activités, Transports et Hébergements sur des lignes séparées.
+        <strong>Format attendu :</strong> Chaque jour doit avoir une ligne &quot;Jour X : Destination&quot; suivie des sections Activités, Transports et Hébergements sur des lignes séparées. Pour plusieurs jours au même endroit, utilisez &quot;Jours 10-12 : Destination&quot; (une bulle par jour sur le site).
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 interface DayItinerary {
   day: number;
+  // Tous les jours couverts par cette étape (ex. [10, 11, 12] pour "Jour 10-12")
+  dayNumbers: number[];
   title: string;
   description: string;
   location?: string;
@@ -61,6 +63,55 @@ const LOCATION_COORDINATES: Record<string, { lat: number; lng: number }> = {
 };
 
 /**
+ * Reconnaît un en-tête de jour et retourne tous les jours qu'il couvre.
+ * Formats acceptés : "Jour 3", "Jour 10-11-12", "Jours 10 à 12", "Jours 10, 11 et 12".
+ * Retourne null si la ligne n'est pas un en-tête de jour.
+ */
+export function parseDayHeader(line: string): { days: number[]; title: string } | null {
+  const multi = line.match(/^Jours?\s*(\d+(?:\s*(?:[-–—,&]|à|au|et)\s*\d+)*)\s*[:\-–—]?\s*(.*)$/i);
+  if (!multi) return null;
+
+  const days: number[] = [];
+  let isRange = false;
+  let valid = true;
+
+  for (const token of multi[1].match(/\d+|au|à|et|[-–—,&]/gi) ?? []) {
+    if (/^\d+$/.test(token)) {
+      const n = parseInt(token, 10);
+      const last = days[days.length - 1];
+      if (last !== undefined && n <= last) { valid = false; break; }
+      if (isRange && last !== undefined) {
+        if (n - last > 60) { valid = false; break; }
+        for (let d = last + 1; d <= n; d++) days.push(d);
+      } else {
+        days.push(n);
+      }
+      isRange = false;
+    } else {
+      isRange = /^(?:[-–—]|à|au)$/i.test(token);
+    }
+  }
+
+  // "Jour 1 - 2 nuits à Paris" : le 2 est une durée, pas un jour
+  if (valid && days.length > 0 && !/^(?:nuits?|jours?)\b/i.test(multi[2].trim())) {
+    return { days, title: multi[2].trim() };
+  }
+
+  // Séquence incohérente (ex. "Jour 1 - 2 nuits à Paris") : on ne garde que le premier numéro
+  const single = line.match(/^Jours?\s*(\d+)\s*[:\-–—]?\s*(.*)$/i);
+  return single ? { days: [parseInt(single[1], 10)], title: single[2].trim() } : null;
+}
+
+/**
+ * Libellé compact d'une liste de jours : [3] -> "3", [10, 11, 12] -> "10-12", [1, 3] -> "1, 3"
+ */
+export function formatDayLabel(days: number[]): string {
+  if (days.length <= 1) return String(days[0] ?? "");
+  const contiguous = days.every((d, i) => i === 0 || d === days[i - 1] + 1);
+  return contiguous ? `${days[0]}-${days[days.length - 1]}` : days.join(", ");
+}
+
+/**
  * Parse la description d'une offre pour extraire l'itinéraire jour par jour
  */
 export function parseItinerary(description: string): DayItinerary[] {
@@ -92,22 +143,23 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
       continue;
     }
     
-    // Détecte les lignes de type "Jour 1", "JOUR 14", etc.
-    const dayMatch = trimmedLine.match(/^Jour\s+(\d+)\s*:?\s*(.*)$/i);
-    
+    // Détecte les lignes de type "Jour 1", "JOUR 14", "Jour 10-11-12", "Jours 10 à 12", etc.
+    const dayMatch = parseDayHeader(trimmedLine);
+
     if (dayMatch) {
       inIntroduction = false;
       // Si on avait un jour en cours, on le sauvegarde
       if (currentDay) {
         itinerary.push(currentDay);
       }
-      
-      // Commence un nouveau jour
-      const dayNumber = parseInt(dayMatch[1]);
-      const title = dayMatch[2].trim() || `Jour ${dayNumber}`;
-      
+
+      // Commence un nouveau jour (ou une étape couvrant plusieurs jours)
+      const dayNumber = dayMatch.days[0];
+      const title = dayMatch.title || `Jour ${formatDayLabel(dayMatch.days)}`;
+
       currentDay = {
         day: dayNumber,
+        dayNumbers: dayMatch.days,
         title: title,
         description: "",
         location: extractLocation(title),
