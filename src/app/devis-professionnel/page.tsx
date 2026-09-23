@@ -1,9 +1,30 @@
 "use client";
 
-import { Suspense } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { useProfessional } from "@/contexts/ProfessionalContext";
 
-function DemanderDevisForm() {
+export default function DevisProfessionnelPage() {
+  const { session, isLoading } = useProfessional();
+  const router = useRouter();
+
+  // Page réservée aux agents connectés : redirige vers l'accueil avec la modal
+  // de connexion si aucune session active (même logique que /espace-pro et /brochure_2026)
+  useEffect(() => {
+    if (!isLoading && !session?.isAuthenticated) {
+      router.push("/?auth=1");
+    }
+  }, [isLoading, session?.isAuthenticated, router]);
+
+  if (isLoading || !session?.isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
@@ -11,19 +32,20 @@ function DemanderDevisForm() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-800 mb-4">
-              Demander un devis
+              Demande de devis professionnel
             </h1>
             <p className="text-lg text-gray-600">
-              Remplissez ce formulaire et nous vous contacterons dans les plus
-              brefs délais pour créer votre voyage sur mesure.
+              Remplissez ce formulaire pour soumettre une demande de devis pour
+              votre client, {session.firstName}.
             </p>
           </div>
+
           <div className="w-full">
             <iframe
-              src="https://api.leadconnectorhq.com/widget/survey/S2Bhjmr4Y2DySxDwhVWh"
+              src="https://api.leadconnectorhq.com/widget/survey/BCeSe6pSCdVCivgNKezY"
               style={{ border: "none", width: "100%" }}
               scrolling="no"
-              id="S2Bhjmr4Y2DySxDwhVWh"
+              id="BCeSe6pSCdVCivgNKezY"
               title="survey"
               data-cookie-consent="true"
               data-cookie-consent-provider="auto"
@@ -46,22 +68,5 @@ function DemanderDevisForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function DemanderDevisPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
-            <p className="mt-4 text-gray-600">Chargement...</p>
-          </div>
-        </div>
-      }
-    >
-      <DemanderDevisForm />
-    </Suspense>
   );
 }

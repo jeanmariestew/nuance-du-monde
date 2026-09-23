@@ -9,7 +9,7 @@ import { useProfessional } from "@/contexts/ProfessionalContext";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
 import {
   Briefcase, LogOut, Users, Globe, Anchor,
-  Facebook, Star, ChevronLeft, ChevronRight
+  Facebook, Star, ChevronLeft, ChevronRight, FileText
 } from "lucide-react";
 import TravelTypesSection from "@/components/TravelTypesSection";
 import { TravelType } from "@/types";
@@ -177,13 +177,22 @@ function AuthenticatedView({
               </p>
             </div>
           </div>
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-2 text-gray-400 hover:text-[#c4a74a] transition-colors text-sm md:text-base"
-          >
-            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
-            <span>Déconnexion</span>
-          </button>
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link
+              href="/devis-professionnel"
+              className="flex items-center gap-2 bg-[#c4a74a] text-black text-sm md:text-base font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors shrink-0"
+            >
+              <FileText className="w-4 h-4 md:w-5 md:h-5" />
+              <span>Demande de devis</span>
+            </Link>
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 text-gray-400 hover:text-[#c4a74a] transition-colors text-sm md:text-base"
+            >
+              <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+              <span>Déconnexion</span>
+            </button>
+          </div>
         </div>
       </div>
 
