@@ -15,6 +15,7 @@ import DatesAndPricing from "@/components/DatesAndPricing";
 import ImageStackCarousel from "@/components/ImageStackCarousel";
 import OfferExtensions from "@/components/OfferExtensions";
 import OfferHotels from "@/components/OfferHotels";
+import OfferQuoteButton from "@/components/OfferQuoteButton";
 
 interface OfferImage {
   id?: number;
@@ -318,12 +319,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 return <p className="text-sm sm:text-base">{text}</p>;
               })()}
             </div>
-            <Link
-              href={`/devis-personnalise?circuit=${encodeURIComponent(offer.title)}`}
+            <OfferQuoteButton
+              circuit={offer.title}
               className="inline-block w-full sm:w-auto bg-linear-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
-            >
-              Demander un devis
-            </Link>
+            />
           </div>
 
           {/* Right: Stacked Images Carousel */}
@@ -359,6 +358,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         dates={offer.dates}
         basePrice={offer.price}
         baseCurrency={offer.price_currency}
+        circuit={offer.title}
       />
 
       {/* Section Hôtels */}

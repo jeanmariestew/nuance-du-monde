@@ -10,6 +10,7 @@ import DestinationsDropdown from "./DestinationsDropdown";
 import TravelTypesDropdown from "./TravelTypesDropdown";
 import TravelThemesDropdown from "./TravelThemesDropdown";
 import ProfessionalAuthModal from "./ProfessionalAuthModal";
+import QuoteRequestModal from "./QuoteRequestModal";
 import { useProfessional } from "@/contexts/ProfessionalContext";
 
 const Header = () => {
@@ -21,6 +22,7 @@ const Header = () => {
   const [showThemesDropdown, setShowThemesDropdown] = useState(false);
   const [isProModalOpen, setIsProModalOpen] = useState(false);
   const [proModalRedirect, setProModalRedirect] = useState<string | undefined>(undefined);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const destinationsRef = useRef<HTMLDivElement>(null);
   const typesRef = useRef<HTMLDivElement>(null);
   const themesRef = useRef<HTMLDivElement>(null);
@@ -189,12 +191,12 @@ const Header = () => {
               >
                 Espace Agent de voyage
               </Link>
-              <Link
-                href={session?.isAuthenticated ? "/devis-professionnel" : "/devis-personnalise"}
+              <button
+                onClick={() => setIsQuoteModalOpen(true)}
                 className="px-3 py-2 border text-xs border-black rounded-md transition-colors text-base font-medium hover:bg-black hover:text-white"
               >
                 Demander un devis
-              </Link>
+              </button>
             </div>
 
             {/* Bouton Menu Mobile */}
@@ -257,13 +259,12 @@ const Header = () => {
                   >
                     Espace Agent de voyage
                   </button>
-                  <Link
-                    href={session?.isAuthenticated ? "/devis-professionnel" : "/devis-personnalise"}
+                  <button
+                    onClick={() => { handleMobileMenuClose(); setIsQuoteModalOpen(true); }}
                     className="w-full max-w-xs text-black text-center px-4 py-3 border border-black rounded-md text-base"
-                    onClick={handleMobileMenuClose}
                   >
                     Demander un devis
-                  </Link>
+                  </button>
                 </div>
               </nav>
             </div>
@@ -275,6 +276,11 @@ const Header = () => {
         isOpen={isProModalOpen}
         onClose={() => { setIsProModalOpen(false); setProModalRedirect(undefined); }}
         redirectAfterAuth={proModalRedirect}
+      />
+
+      <QuoteRequestModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
       />
     </>
   );

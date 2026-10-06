@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import QuoteRequestModal from "@/components/QuoteRequestModal";
 
 interface DateOption {
   id: number;
@@ -23,6 +23,9 @@ interface DatesAndPricingProps {
   basePrice?: number;
   baseCurrency?: string;
   title?: string;
+  // Nom du circuit/offre, transmis au formulaire de devis (distinct de `title`,
+  // qui est le titre affiché de cette section)
+  circuit?: string;
 }
 
 export default function DatesAndPricing({
@@ -30,11 +33,13 @@ export default function DatesAndPricing({
   basePrice,
   baseCurrency = "$",
   title = "Dates et prix",
+  circuit,
 }: DatesAndPricingProps) {
   const [selectedDate, setSelectedDate] = useState<DateOption | null>(
     dates[0] || null
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   const formatPrice = (value?: number, currency?: string) => {
     if (value === undefined || value === null) return basePrice ? `${baseCurrency} ${new Intl.NumberFormat('fr-FR').format(basePrice)}` : "—";
@@ -414,20 +419,26 @@ export default function DatesAndPricing({
                   </div>
 
                   {/* Bouton CTA */}
-                  <Link
-                    href={`/devis-personnalise?circuit=${encodeURIComponent(title)}`}
+                  <button
+                    onClick={() => setIsQuoteModalOpen(true)}
                     className="block w-full bg-white text-yellow-700 hover:bg-yellow-50 py-3.5 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 text-center"
                   >
                     {isCompletNote(selectedDate.price_note)
                       ? "Rejoindre la liste d'attente"
                       : "Demander un devis pour cette période"}
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      <QuoteRequestModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
+        circuit={circuit}
+      />
     </section>
   );
 }
