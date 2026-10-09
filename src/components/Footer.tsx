@@ -195,6 +195,13 @@ const Footer = () => {
                   N°703510.
                 </p>
                 <p>Code d&apos;identification IATA TIDS N°96155474.</p>
+                <OptimizedImage
+                  src="/images/iata-accredited-agent.png"
+                  alt="IATA Accredited Agent"
+                  width={240}
+                  height={79}
+                  className="mt-6 mb-2 h-16 w-auto mx-auto md:ml-auto md:mr-0 bg-white rounded-md p-2"
+                />
               </div>
             </div>
           </div>
