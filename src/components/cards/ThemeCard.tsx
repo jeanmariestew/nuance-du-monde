@@ -4,13 +4,13 @@ import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import type { TravelTheme } from "@/types";
 
-type Props = { theme: TravelTheme };
+type Props = { theme: TravelTheme; compact?: boolean };
 
-export default function ThemeCard({ theme }: Props) {
+export default function ThemeCard({ theme, compact = false }: Props) {
   const img = theme.banner_image_url || theme.image_url;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[420px] w-full">
+    <div className={`relative rounded-3xl overflow-hidden shadow-md group w-full ${compact ? "h-[170px] sm:h-[260px] lg:h-[320px]" : "h-[420px]"}`}>
       {img ? (
         <OptimizedImage
           src={img}
@@ -27,13 +27,13 @@ export default function ThemeCard({ theme }: Props) {
       <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40"></div>
 
       {/* content */}
-      <div className="absolute inset-x-0 bottom-0 p-6">
-        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro] uppercase">
+      <div className={`absolute inset-x-0 bottom-0 ${compact ? "p-3 sm:p-5" : "p-6"}`}>
+        <h3 className={`text-white font-bold drop-shadow-sm font-[Alro] uppercase ${compact ? "text-sm sm:text-xl lg:text-2xl" : "text-2xl"}`}>
           {theme.title}
         </h3>
         <Link
           href={`/themes/${encodeURIComponent(theme.slug)}`}
-          className="inline-block mt-4 px-4 py-2 text-sm rounded-md bg-[#d9a900] text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"
+          className={`inline-block rounded-md bg-[#d9a900] text-white font-semibold shadow hover:bg-[#d9a900] transition-colors ${compact ? "mt-2 sm:mt-4 px-3 py-1.5 text-xs sm:text-sm" : "mt-4 px-4 py-2 text-sm"}`}
         >
           Explorer
         </Link>

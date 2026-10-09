@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import OptimizedImage from "@/components/OptimizedImage";
-import { Destination, TravelType, TravelTheme } from "@/types";
+import { TravelType, TravelTheme } from "@/types";
 import HeroAnimated from "@/components/HeroAnimated";
 import TravelTypesHero from "@/components/TravelTypesHero";
 import TravelTypesSection from "@/components/TravelTypesSection";
@@ -33,7 +33,6 @@ interface Partner {
 }
 
 interface HomeContentProps {
-  destinations: Destination[];
   travelTypes: TravelType[];
   travelThemes: TravelTheme[];
   testimonials: Testimonial[];
@@ -47,7 +46,6 @@ interface HomeContentProps {
 }
 
 function HomeContent({
-  destinations,
   travelTypes,
   travelThemes,
   testimonials,
@@ -60,7 +58,7 @@ function HomeContent({
   registerMode,
 }: HomeContentProps) {
   return (
-    <div className="flex flex-col gap-y-10">
+    <div className="flex flex-col gap-y-6">
       {/* Hero animé */}
       <HeroAnimated />
 
@@ -71,10 +69,11 @@ function HomeContent({
       <TravelTypesSection
         travelTypes={travelTypes}
         onShowAuthModal={onShowAuthModal}
+        gridLimit={4}
       />
 
       {/* Destinations Section */}
-      <DestinationsSection destinations={destinations} />
+      <DestinationsSection />
 
       {/* Thèmes Section */}
       <ThemesSection travelThemes={travelThemes} />
@@ -122,7 +121,6 @@ function HomeContent({
 }
 
 function HomeSearchParamsWrapper({
-  destinations,
   travelTypes,
   travelThemes,
   testimonials,
@@ -143,7 +141,6 @@ function HomeSearchParamsWrapper({
 
   return (
     <HomeContent
-      destinations={destinations}
       travelTypes={travelTypes}
       travelThemes={travelThemes}
       testimonials={testimonials}
@@ -159,7 +156,6 @@ function HomeSearchParamsWrapper({
 }
 
 export default function Home() {
-  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [travelTypes, setTravelTypes] = useState<TravelType[]>([]);
   const [travelThemes, setTravelThemes] = useState<TravelTheme[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -173,9 +169,8 @@ export default function Home() {
       try {
         const typesUrl ="/travel-types?active=true&includePro=true"
 
-        const [destRes, typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
+        const [typesRes, themesRes, testimonialsRes, partnersRes, settingsRes] =
           await Promise.all([
-            api.get("/destinations?active=true&limit=9"),
             api.get(typesUrl),
             api.get("/travel-themes?active=true&limit=20"),
             api.get("/testimonials?featured=true&active=true&published=true&limit=6"),
@@ -183,7 +178,6 @@ export default function Home() {
             fetch("/api/settings").then(r => r.json()).catch(() => ({ success: false })),
           ]);
 
-        if (destRes.data.success) setDestinations(destRes.data.data);
         if (typesRes.data.success) setTravelTypes(typesRes.data.data);
         if (themesRes.data.success) setTravelThemes(themesRes.data.data);
         if (testimonialsRes.data.success) setTestimonials(testimonialsRes.data.data);
@@ -201,9 +195,8 @@ export default function Home() {
   }, [session?.isAuthenticated]);
 
   return (
-    <Suspense fallback={<div className="flex flex-col gap-y-10"><div className="h-96 bg-gray-200 animate-pulse" /></div>}>
+    <Suspense fallback={<div className="flex flex-col gap-y-6"><div className="h-96 bg-gray-200 animate-pulse" /></div>}>
       <HomeSearchParamsWrapper
-        destinations={destinations}
         travelTypes={travelTypes}
         travelThemes={travelThemes}
         testimonials={testimonials}

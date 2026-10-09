@@ -65,6 +65,9 @@ body {
   font-family: 'Archivo', sans-serif;
   font-size: 1rem; /* Taille de base pour une lisibilité optimale */
   line-height: 1.6; /* Line-height confortable pour la lecture */
+  /* Empêche tout élément qui déborde volontairement de sa boîte (ex. l'éventail
+     de photos des pages offres) de créer un défilement horizontal de la page. */
+  overflow-x: hidden;
 }
 
 /* Typography en pixels - Archivo nécessite des tailles généreuses pour la lisibilité */
@@ -305,6 +308,6 @@ html::-webkit-scrollbar {
 }
 
 .site-section {
-  @apply py-12 sm:py-16 lg:py-20;
+  @apply py-8 sm:py-10 lg:py-12;
 }
 
