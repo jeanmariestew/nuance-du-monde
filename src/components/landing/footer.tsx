@@ -96,7 +96,7 @@ export function Footer() {
             <p>© 2026 NUANCE DU MONDE. INTELLIGENCE TECHNOLOGIQUE ET TOURISME SOLUTIONS INC. (ITTS).</p>
             <div className="flex gap-8">
               <span>PERMIS DU QUÉBEC N°703510.</span>
-              <span>IATA TIDS N°96155474.</span>
+              <span>IATA N°69582763.</span>
             </div>
           </div>
         </div>

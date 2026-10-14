@@ -194,7 +194,7 @@ const Footer = () => {
                   forfaitistes du Québec. Titulaire du permis du Québec
                   N°703510.
                 </p>
-                <p>Code d&apos;identification IATA TIDS N°96155474.</p>
+                <p>Code d&apos;identification IATA N°69582763.</p>
                 <OptimizedImage
                   src="/images/iata-accredited-agent.png"
                   alt="IATA Accredited Agent"
