@@ -9,22 +9,26 @@ import { useProfessional } from "@/contexts/ProfessionalContext";
 
 interface OffersGridProps {
   destination?: string;
+  continent?: string;
   type?: string;
   theme?: string;
   title?: string;
   emptyMessage?: string;
   itemsPerPage?: number;
-  hasTheme?: boolean
+  hasTheme?: boolean;
+  compact?: boolean;
 }
 
 export default function OffersGrid({
   destination,
+  continent,
   type,
   theme,
   title = "Offres",
   emptyMessage = "Aucune offre disponible.",
   itemsPerPage = 4,
   hasTheme=false,
+  compact = false,
 }: OffersGridProps) {
   const { session } = useProfessional();
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -52,6 +56,7 @@ export default function OffersGrid({
       try {
         const params = new URLSearchParams();
         if (destination) params.append("destination", destination);
+        if (continent) params.append("continent", continent);
         if (type) params.append("type", type);
         if (theme) params.append("theme", theme);
 
@@ -71,10 +76,12 @@ export default function OffersGrid({
     };
 
     fetchFiltersData();
-  }, [destination, type, theme]); // Retirer selectedDestination, selectedType, selectedTheme des dépendances
+  }, [destination, continent, type, theme]);
 
   // Charger les offres
   useEffect(() => {
+    let cancelled = false;
+
     const fetchOffers = async () => {
       try {
         setLoading(true);
@@ -84,12 +91,13 @@ export default function OffersGrid({
 
         // Paramètres principaux
         if (destination) params.append("destination", destination);
+        if (continent) params.append("continent", continent);
         if (type) params.append("type", type);
         if (theme) params.append("theme", theme);
         if (hasTheme) params.append("hasActiveTheme", "true");
 
         // Inclure les offres pro seulement si authentifié
-        if ((type || destination || theme) && session?.isAuthenticated) params.append("includePro", "true");
+        if ((type || destination || continent || theme) && session?.isAuthenticated) params.append("includePro", "true");
 
         // Paramètres des selects
         if (selectedDestination)
@@ -99,25 +107,30 @@ export default function OffersGrid({
 
         const response = await api.get(`/offers?${params.toString()}`);
         const data = response.data;
+        if (cancelled) return;
 
         if (data.success) {
-          console.log("===>>",data.data[0])
           setOffers(data.data);
           setCurrentPage(1); // Retourner à la première page quand les offres changent
         } else {
           setError("Erreur lors du chargement des offres");
         }
       } catch (err) {
+        if (cancelled) return;
         console.error("Erreur lors du chargement des offres:", err);
         setError("Erreur lors du chargement des offres");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchOffers();
+    return () => {
+      cancelled = true;
+    };
   }, [
     destination,
+    continent,
     type,
     theme,
     hasTheme,
@@ -127,11 +140,23 @@ export default function OffersGrid({
     session?.isAuthenticated,
   ]);
 
+  const sectionClass = compact ? "pb-8" : "py-12";
+  const titleBlock = compact ? (
+    <div className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+      </div>
+    </div>
+  ) : (
+    <h2 className="text-2xl md:text-3xl font-bold mb-6">{title}</h2>
+  );
+
   if (loading) {
     return (
-      <section className="py-12">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">{title}</h2>
+      <section className={sectionClass}>
+        {compact ? titleBlock : null}
+        <div className={`container mx-auto max-w-6xl ${compact ? "pt-4" : ""}`}>
+          {compact ? null : titleBlock}
           <OfferCardSkeleton count={itemsPerPage} />
         </div>
       </section>
@@ -140,9 +165,10 @@ export default function OffersGrid({
 
   if (error) {
     return (
-      <section className="py-12">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">{title}</h2>
+      <section className={sectionClass}>
+        {compact ? titleBlock : null}
+        <div className={`container mx-auto max-w-6xl ${compact ? "pt-4" : ""}`}>
+          {compact ? null : titleBlock}
           <div className="text-red-600 bg-red-50 p-4 rounded-lg">{error}</div>
         </div>
       </section>
@@ -171,8 +197,10 @@ export default function OffersGrid({
   };
 
   return (
-    <section className="py-12">
-      <div className="container mx-auto max-w-6xl">
+    <section className={sectionClass}>
+      {compact ? titleBlock : null}
+      <div className={`container mx-auto max-w-6xl ${compact ? "pt-4" : ""}`}>
+        {compact ? null : titleBlock}
         {/* Filtres dynamiques */}
         {itemsPerPage < 10 && (
           <div className="mb-8 bg-gray-50 p-6 rounded-lg">

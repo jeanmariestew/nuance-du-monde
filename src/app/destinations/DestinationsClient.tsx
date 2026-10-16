@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronUp, ChevronDown } from "lucide-react";
 import OptimizedImage from "@/components/OptimizedImage";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import OffersGrid from "@/components/OffersGrid";
@@ -22,79 +21,23 @@ interface Destination {
   duration_nights?: number;
 }
 
-function ContinentDropdown({ destinations }: { destinations: Destination[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
-  const showArrows = destinations.length > 4;
+const DESTINATIONS_LIST_ID = "toutes-les-destinations";
 
-  const checkScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollUp(el.scrollTop > 0);
-    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
-  };
+function continentHref(continent: string) {
+  return `/destinations?continent=${encodeURIComponent(continent)}#${DESTINATIONS_LIST_ID}`;
+}
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    checkScroll();
-    el.addEventListener("scroll", checkScroll);
-    return () => el.removeEventListener("scroll", checkScroll);
-  }, [destinations]);
-
-  const scrollUp = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    scrollRef.current?.scrollBy({ top: -120, behavior: "smooth" });
-  };
-
-  const scrollDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    scrollRef.current?.scrollBy({ top: 120, behavior: "smooth" });
-  };
-
-  return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-lg shadow-2xl py-1 px-2 min-w-[200px]">
-      {showArrows && canScrollUp && (
-        <button
-          onClick={scrollUp}
-          className="w-full flex justify-center py-1 text-white hover:text-white/60 transition-colors"
-        >
-          <ChevronUp size={18} strokeWidth={2.5} />
-        </button>
-      )}
-      <div
-        ref={scrollRef}
-        className="max-h-[120px] overflow-y-scroll [&::-webkit-scrollbar]:hidden [scrollbar-width:none] space-y-1"
-      >
-        {destinations.map((dest) => (
-          <Link
-            key={dest.id}
-            href={`/destinations/${dest.slug}`}
-            className="block px-2 py-1 text-sm text-white rounded-md hover:bg-white/20 transition-colors duration-200 font-medium"
-          >
-            {dest.title}
-          </Link>
-        ))}
-      </div>
-      {showArrows && canScrollDown && (
-        <button
-          onClick={scrollDown}
-          className="w-full flex justify-center py-1 text-white hover:text-white/60 transition-colors"
-        >
-          <ChevronDown size={18} strokeWidth={2.5} />
-        </button>
-      )}
-    </div>
-  );
+function scrollToDestinationsList() {
+  document.getElementById(DESTINATIONS_LIST_ID)?.scrollIntoView({ behavior: "smooth" });
 }
 
 export default function DestinationsClient() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [filteredDestinations, setFilteredDestinations] = useState<Destination[]>([]);
-  const [selectedContinent, setSelectedContinent] = useState<string | null>(null);
+  const [selectedContinent, setSelectedContinent] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return new URLSearchParams(window.location.search).get("continent");
+  });
   const [loading, setLoading] = useState(true);
   const { destinations: destinationsByContinent, fetchDestinations: fetchContinents } = useDestinationsByContinent();
 
@@ -177,21 +120,20 @@ export default function DestinationsClient() {
             const destinationCount = destinationsByContinent?.[continent]?.length || 0;
             const isSelected = selectedContinent === continent;
             const continentStyle = getContinentStyle(continent);
-            const continentDestinations = destinationsByContinent?.[continent] || [];
-            
             return (
               <div
                 key={continent}
-                className={`group relative flex-1 overflow-visible hover:flex-[1.2] transition-all duration-500 ease-in-out ${
+                className={`group relative flex-1 overflow-hidden hover:flex-[1.2] transition-all duration-500 ease-in-out ${
                   isSelected ? 'flex-[1.3] ring-4 ring-white/50' : ''
                 }`}
               >
                 <Link
-                  href={`/destinations?continent=${encodeURIComponent(continent)}`}
+                  href={continentHref(continent)}
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedContinent(continent);
-                    window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
+                    window.history.pushState({}, '', continentHref(continent));
+                    scrollToDestinationsList();
                   }}
                   className="absolute inset-0 overflow-hidden"
                 >
@@ -222,16 +164,14 @@ export default function DestinationsClient() {
                     <p className="text-white/90 text-base sm:text-lg lg:text-xl font-medium text-center drop-shadow-lg">
                       {destinationCount} {destinationCount > 1 ? 'destinations' : 'destination'}
                     </p>
+                    <span className="mt-4 inline-flex items-center rounded-full bg-[#d9a900] px-4 py-2 text-sm font-semibold text-white shadow">
+                      Découvrir
+                    </span>
                   </div>
                   
                   {/* Effet hover */}
                   <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></div>
                 </Link>
-
-                {/* Menu déroulant des destinations au hover */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-12 transition-all duration-300 z-50 pointer-events-none group-hover:pointer-events-auto">
-                  <ContinentDropdown destinations={continentDestinations} />
-                </div>
               </div>
             );
           })}
@@ -248,11 +188,12 @@ export default function DestinationsClient() {
               return (
                 <Link
                   key={continent}
-                  href={`/destinations?continent=${encodeURIComponent(continent)}`}
+                  href={continentHref(continent)}
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedContinent(continent);
-                    window.history.pushState({}, '', `/destinations?continent=${encodeURIComponent(continent)}`);
+                    window.history.pushState({}, '', continentHref(continent));
+                    scrollToDestinationsList();
                   }}
                   className={`group relative h-40 rounded-xl overflow-hidden ${
                     isSelected ? 'ring-4 ring-yellow-400' : ''
@@ -283,6 +224,9 @@ export default function DestinationsClient() {
                     <p className="text-white/80 text-xs mt-1">
                       {destinationCount} {destinationCount > 1 ? 'dest.' : 'dest.'}
                     </p>
+                    <span className="mt-2 inline-flex items-center rounded-full bg-[#d9a900] px-3 py-1 text-xs font-semibold text-white">
+                      Découvrir
+                    </span>
                   </div>
                 </Link>
               );
@@ -292,33 +236,38 @@ export default function DestinationsClient() {
       </section>
 
       {/* Destinations Grid */}
-      {selectedContinent && (
-        <div className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Destinations en {selectedContinent}
-            </h2>
-            <button
-              onClick={() => {
-                setSelectedContinent(null);
-                window.history.pushState({}, '', '/destinations');
-              }}
-              className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
-            >
-              Voir toutes nos destinations
-            </button>
+      <div id={DESTINATIONS_LIST_ID} className="scroll-mt-24">
+        {selectedContinent && (
+          <div className="bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Destinations en {selectedContinent}
+              </h2>
+              <button
+                onClick={() => {
+                  setSelectedContinent(null);
+                  window.history.pushState({}, '', '/destinations');
+                }}
+                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                Voir toutes nos destinations
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-      <DestinationsGrid 
-        destinations={filteredDestinations}
-        loading={loading}
-      />
+        )}
+        <DestinationsGrid
+          destinations={filteredDestinations}
+          loading={loading}
+          compact
+        />
+      </div>
       <section>
         <OffersGrid
+          continent={selectedContinent || undefined}
+          compact
           itemsPerPage={10}
-          title="Offres pour cette destination"
-          emptyMessage="Aucune offre pour cette destination."
+          title={selectedContinent ? `Offres en ${selectedContinent}` : "Offres pour cette destination"}
+          emptyMessage={selectedContinent ? `Aucune offre pour ${selectedContinent}.` : "Aucune offre pour cette destination."}
         />
       </section>
     </div>

@@ -10,17 +10,20 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 interface TravelTypesProps {
   travelTypes: TravelType[];
   onShowAuthModal?: () => void;
+  // Si défini : affiche un extrait en grille (2 colonnes) au lieu du carousel
+  gridLimit?: number;
 }
 
 interface CardProps {
   travelType: TravelType;
   isAuthenticated: boolean;
   onProClick: () => void;
+  compact?: boolean;
 }
 
-function TravelCard({ travelType, isAuthenticated, onProClick }: CardProps) {
+function TravelCard({ travelType, isAuthenticated, onProClick, compact = false }: CardProps) {
   return (
-    <div className="relative bg-cover bg-center h-[420px] rounded-lg overflow-hidden group cursor-pointer">
+    <div className={`relative bg-cover bg-center rounded-lg overflow-hidden group cursor-pointer ${compact ? "h-[170px] sm:h-[260px] lg:h-[320px]" : "h-[420px]"}`}>
       {travelType.is_pro && (
         <div className="absolute top-4 right-[-35px] z-10 bg-black text-white text-xs font-bold py-1 px-10 rotate-45 shadow-lg">
           PRO
@@ -47,37 +50,37 @@ function TravelCard({ travelType, isAuthenticated, onProClick }: CardProps) {
         </div>
       )}
       <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/50"></div>
-      <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
+      <div className={`absolute inset-0 flex flex-col justify-end text-white ${compact ? "p-2.5 sm:p-4 gap-1 sm:gap-2" : "p-4"}`}>
         <div>
-          <h3 className="text-2xl font-bold mb-4 font-[Alro] uppercase">{travelType.title}</h3>
+          <h3 className={`font-bold font-[Alro] uppercase ${compact ? "text-base sm:text-xl mb-0.5 sm:mb-1" : "text-2xl mb-4"}`}>{travelType.title}</h3>
           {travelType.short_description && (
-            <p className="text-base leading-relaxed">{travelType.short_description}</p>
+            <p className={compact ? "text-xs sm:text-sm leading-snug line-clamp-1 sm:line-clamp-2" : "text-base leading-relaxed"}>{travelType.short_description}</p>
           )}
         </div>
         <div className="flex items-center justify-between">
           {travelType.is_pro && !isAuthenticated ? (
             <button
               onClick={onProClick}
-              className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold transition-colors hover:bg-[#c49800]"
+              className={`bg-[#d9a900] text-white rounded font-semibold transition-colors hover:bg-[#c49800] ${compact ? "text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2" : "text-base px-6 py-3"}`}
             >
               Explorer
             </button>
           ) : (
             <Link
               href={`/type-de-voyage/${travelType.slug}`}
-              className="bg-[#d9a900] text-white text-base px-6 py-3 rounded font-semibold transition-colors hover:bg-[#c49800]"
+              className={`bg-[#d9a900] text-white rounded font-semibold transition-colors hover:bg-[#c49800] ${compact ? "text-sm px-4 py-2" : "text-base px-6 py-3"}`}
             >
               Explorer
             </Link>
           )}
-          <div className="w-12 h-12 rounded-full flex items-center justify-center ripple-container"></div>
+          {!compact && <div className="w-12 h-12 rounded-full flex items-center justify-center ripple-container"></div>}
         </div>
       </div>
     </div>
   );
 }
 
-function TravelTypesContent({ travelTypes, onShowAuthModal }: TravelTypesProps) {
+function TravelTypesContent({ travelTypes, onShowAuthModal, gridLimit }: TravelTypesProps) {
   const [showProModal, setShowProModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 3;
@@ -101,15 +104,24 @@ function TravelTypesContent({ travelTypes, onShowAuthModal }: TravelTypesProps) 
 
   return (
     <div className="relative">
+      {/* Extrait en grille (page d'accueil) */}
+      {gridLimit !== undefined && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:grid-cols-[repeat(2,calc((100%-3rem)/3))] lg:justify-evenly">
+          {travelTypes.slice(0, gridLimit).map((travelType) => (
+            <TravelCard key={travelType.id} travelType={travelType} {...cardProps} compact />
+          ))}
+        </div>
+      )}
+
       {/* Mobile : grille 1 colonne */}
-      <div className="grid grid-cols-1 lg:hidden gap-8">
+      <div className={`grid grid-cols-1 lg:hidden gap-8 ${gridLimit !== undefined ? "hidden" : ""}`}>
         {travelTypes.map((travelType) => (
           <TravelCard key={travelType.id} travelType={travelType} {...cardProps} />
         ))}
       </div>
 
       {/* Desktop : carousel */}
-      <div className="hidden lg:block relative">
+      <div className={`${gridLimit !== undefined ? "hidden" : "hidden lg:block"} relative`}>
         <button
           onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
           disabled={currentIndex === 0}

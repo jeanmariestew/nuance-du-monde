@@ -22,19 +22,24 @@ interface DestinationsGridProps {
   loading?: boolean;
   title?: string;
   emptyMessage?: string;
+  compact?: boolean;
 }
 
 export default function DestinationsGrid({
   destinations,
   loading = false,
   title = "TOUTES LES DESTINATIONS",
-  emptyMessage = "Aucune destination disponible pour le moment."
+  emptyMessage = "Aucune destination disponible pour le moment.",
+  compact = false,
 }: DestinationsGridProps) {
+  const sectionClass = compact ? "pt-4 pb-2" : "py-16";
+  const titleClass = compact ? "mb-4" : "mb-12";
+
   if (loading) {
     return (
-      <section className="py-16">
+      <section className={sectionClass}>
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl text-center font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
+          <h2 className={`text-2xl text-center font-bold text-yellow-600 font-[Alro] uppercase ${titleClass}`}>
             {title}
           </h2>
           <DestinationCardSkeleton count={8} />
@@ -44,9 +49,9 @@ export default function DestinationsGrid({
   }
 
   return (
-    <section className="py-16">
+    <section className={sectionClass}>
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl text-center font-bold mb-12 text-yellow-600 font-[Alro] uppercase">
+        <h2 className={`text-2xl text-center font-bold text-yellow-600 font-[Alro] uppercase ${titleClass}`}>
           {title}
         </h2>
 

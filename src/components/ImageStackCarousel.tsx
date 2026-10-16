@@ -167,7 +167,7 @@ export default function ImageStackCarousel({
 
       {/* ===================== DESKTOP : stack éventail ===================== */}
       <div className="hidden lg:block relative w-full max-w-4xl mx-auto">
-        <div className="relative h-[450px] xl:h-[500px] flex items-center justify-center select-none overflow-visible">
+        <div className="relative h-[450px] xl:h-[500px] flex items-center justify-center select-none overflow-visible isolate">
           {imageList.map((img, index) => {
             const totalImages = imageList.length;
             const middleIndex = Math.floor(totalImages / 2);

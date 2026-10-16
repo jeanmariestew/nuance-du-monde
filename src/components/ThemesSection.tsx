@@ -2,7 +2,6 @@
 
 import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
-import { useRef } from "react";
 import { TravelTheme } from "@/types";
 import ThemeCard from "@/components/cards/ThemeCard";
 
@@ -11,122 +10,44 @@ interface ThemesSectionProps {
 }
 
 export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
-  const themeSliderRef = useRef<HTMLDivElement>(null);
-
-  const scrollByAmount = (
-    element: HTMLDivElement | null,
-    direction: "left" | "right"
-  ) => {
-    if (!element) return;
-    const scrollAmount = element.clientWidth * 0.8;
-    element.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
   if (travelThemes.length === 0) return null;
 
   return (
     <>
-      {/* Thèmes Section - Header */}
-      <section className="bg-gray-50">
-        <div className="mx-auto">
-          <div className="relative grid grid-cols-1 md:grid-cols-2 items-center">
-            <div className="relative h-full overflow-hidden flex items-center justify-center">
-              <OptimizedImage
-                src="/images/fond_theme.png"
-                alt="Background themes"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0" />
+      {/* Thèmes Section - Bannière fine */}
+      <section className="relative text-white overflow-hidden">
+        {/* Fond texturé */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <OptimizedImage
+            src="/images/texture.png"
+            alt=""
+            fill
+            className="object-cover mix-blend-overlay"
+            priority
+          />
+        </div>
 
-              <div className="relative min-h-80 z-10 flex p-4 flex-col items-start justify-center w-full">
-
-              {/* Icône circulaire exacte comme la capture */}
-              <div className=" top-0 left-8 w-16 h-16  rounded-full flex items-center justify-center ripple-container">
-              </div>
-                <h2 className="text-3xl font-bold mb-6 text-black tracking-wide font-[Alro] uppercase my-10">
-                  NOS THÈMES
-                </h2>
-                <Link
-                  href="/themes"
-                  className="bg-[#d9a900] text-base text-white px-8 py-4 rounded   transition-colors inline-block mt-8"
-                >
-                  Voir tous nos thèmes
-                </Link>
-              </div>
-            </div>
-            <div className="relative min-h-80 overflow-hidden">
-              <OptimizedImage
-                src="/images/a-la-une-2-1.jpg"
-                alt="Themes"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
+        {/* Titre centré, bouton centré juste en dessous */}
+        <div className="mx-auto max-w-[1400px] px-4 py-5 flex flex-col items-center gap-3 text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-wide font-[Alro] uppercase leading-tight">
+            NOS THÈMES
+          </h2>
+          <Link
+            href="/themes"
+            className="bg-[#d9a900] text-sm text-white px-5 py-2 rounded transition-colors inline-block whitespace-nowrap"
+          >
+            Voir tous nos thèmes
+          </Link>
         </div>
       </section>
 
-      {/* Thèmes - Slider */}
+      {/* Thèmes - Extrait en grille : 3x2 sur grand écran, 2x2 sinon */}
       <section>
-        <div className="relative">
-          {/* Nav buttons (desktop only) */}
-          <button
-            aria-label="Précédent"
-            onClick={() => scrollByAmount(themeSliderRef.current, "left")}
-            className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M15 6l-6 6 6 6"
-                stroke="#C8A341"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <button
-            aria-label="Suivant"
-            onClick={() => scrollByAmount(themeSliderRef.current, "right")}
-            className="hidden md:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-10 h-12 w-16 rounded-2xl bg-white shadow-md hover:bg-gray-50 border"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M9 6l6 6-6 6"
-                stroke="#C8A341"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-
-          <div
-            ref={themeSliderRef}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 ml-4 px-4"
-          >
-            {travelThemes.slice(0, 20).map((t) => (
-              <div
-                key={t.id}
-                className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[46%] lg:w-[32%]"
-              >
-                <ThemeCard theme={t} />
+        <div className="mx-auto px-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            {travelThemes.slice(0, 6).map((t, i) => (
+              <div key={t.id} className={i >= 4 ? "hidden lg:block" : undefined}>
+                <ThemeCard theme={t} compact />
               </div>
             ))}
           </div>

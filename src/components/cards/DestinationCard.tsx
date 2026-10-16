@@ -10,7 +10,7 @@ export default function DestinationCard({ destination }: Props) {
   const img = destination.banner_image_url || destination.image_url;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[420px] w-full">
+    <div className="relative rounded-3xl overflow-hidden shadow-md group h-[170px] sm:h-[260px] lg:h-[320px] w-full">
       {img ? (
         <OptimizedImage
           src={img}
@@ -27,11 +27,11 @@ export default function DestinationCard({ destination }: Props) {
       <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/50"></div>
 
       {/* content */}
-      <div className="absolute flex flex-col items-center inset-x-0 bottom-0 p-6">
-        <h3 className="text-white text-2xl font-bold drop-shadow-sm font-[Alro] uppercase">{destination.title}</h3>
+      <div className="absolute flex flex-col items-center inset-x-0 bottom-0 p-4 sm:p-5">
+        <h3 className="text-white text-lg sm:text-xl lg:text-2xl font-bold drop-shadow-sm font-[Alro] uppercase">{destination.title}</h3>
         <Link
           href={`/destinations/${destination.slug}`}
-          className="inline-block mt-4 px-4 py-2 text-sm rounded-md bg-[#d9a900] text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"
+          className="inline-block mt-2 sm:mt-4 px-4 py-2 text-sm rounded-md bg-[#d9a900] text-white font-semibold shadow hover:bg-[#d9a900] transition-colors"
         >
           Explorer
         </Link>
