@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { parseItinerary, extractLocations } from "@/lib/itineraryParser";
+import { stripRichTags } from "@/lib/richText";
 
 interface Coordinate {
   name: string;
@@ -238,7 +239,7 @@ export default function CoordinatesEditor({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          itinerary: description,
+          itinerary: stripRichTags(description),
           destinations: destinations || [],
         }),
       });

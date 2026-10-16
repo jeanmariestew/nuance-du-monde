@@ -8,6 +8,7 @@ import OfferImagesManager from '@/components/admin/OfferImagesManager';
 import CoordinatesEditor from '@/components/admin/CoordinatesEditor';
 import ImageInput from '@/components/admin/ImageInput';
 import ItineraryEditor from '@/components/admin/ItineraryEditor';
+import RichTextField from '@/components/admin/RichTextField';
 import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
 import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
 import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
@@ -648,24 +649,29 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              <label className="text-sm">
+              <div className="text-sm">
                 Nos tarifs comprennent
-                <textarea
+                <RichTextField
+                  lists
+                  autoList
                   value={offer.price_includes || ''}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), price_includes: e.target.value || null })}
-                  className="mt-1 w-full min-h-[120px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                  placeholder="• Hébergement en pension complète&#10;• Vols internationaux&#10;• Transferts aéroport&#10;• Guide francophone&#10;• Assurance voyage..."
+                  onChange={(price_includes) => setOffer({ ...(offer as OfferData), price_includes: price_includes || null })}
+                  minHeight={120}
+                  placeholder={"Hébergement en pension complète\nVols internationaux\nTransferts aéroport\nGuide francophone"}
                 />
-              </label>
-              <label className="text-sm">
+                <span className="mt-1 block text-xs text-neutral-500">Collez depuis Word pour garder le gras, l&apos;italique et les couleurs. Plusieurs lignes deviennent une liste à puces.</span>
+              </div>
+              <div className="text-sm">
                 Nos tarifs ne comprennent pas
-                <textarea
+                <RichTextField
+                  lists
+                  autoList
                   value={offer.price_excludes || ''}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), price_excludes: e.target.value || null })}
-                  className="mt-1 w-full min-h-[120px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                  placeholder="• Boissons alcoolisées&#10;• Pourboires&#10;• Dépenses personnelles&#10;• Excursions optionnelles&#10;• Visa (si requis)..."
+                  onChange={(price_excludes) => setOffer({ ...(offer as OfferData), price_excludes: price_excludes || null })}
+                  minHeight={120}
+                  placeholder={"Boissons alcoolisées\nPourboires\nDépenses personnelles\nExcursions optionnelles"}
                 />
-              </label>
+              </div>
             </div>
           </CardContent>
         </Card>

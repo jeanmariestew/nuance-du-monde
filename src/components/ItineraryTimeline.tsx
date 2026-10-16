@@ -2,6 +2,8 @@
 
 import clsx from "clsx";
 import OptimizedImage from "./OptimizedImage";
+import RichTextContent from "./RichTextContent";
+import { hasRichText } from "@/lib/richText";
 
 interface DayItinerary {
   day: number;
@@ -66,17 +68,21 @@ export default function ItineraryTimeline({
         <div className="mb-6 sm:mb-8 p-4 sm:p-6 ">
           <div className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-line">
             {introduction.split("\n").map((line, idx) => {
-              if (
+              const emphasized =
                 line.includes("Nos expériences") ||
-                line.includes('Nos expériences "Plus"')
-              ) {
+                line.includes('Nos expériences "Plus"');
+              if (hasRichText(line)) {
                 return (
-                  <p key={idx} className="font-bold text-gray-900">
-                    {line}
-                  </p>
+                  <div key={idx} className={emphasized ? "font-bold text-gray-900" : undefined}>
+                    <RichTextContent value={line} />
+                  </div>
                 );
               }
-              return <p key={idx}>{line}</p>;
+              return (
+                <p key={idx} className={emphasized ? "font-bold text-gray-900" : undefined}>
+                  {line}
+                </p>
+              );
             })}
           </div>
         </div>
@@ -141,6 +147,12 @@ export default function ItineraryTimeline({
                 )} */}
                 {/* Description générale */}
                 {day.description && (
+                  hasRichText(day.description) ? (
+                    <RichTextContent
+                      value={day.description}
+                      className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3"
+                    />
+                  ) : (
                   <div className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3">
                     {day.description.split(/\.\s+/).filter(Boolean).map((sentence, idx) => (
                       <p key={idx} className="first-letter:uppercase">
@@ -148,6 +160,7 @@ export default function ItineraryTimeline({
                       </p>
                     ))}
                   </div>
+                  )
                 )}
 
                 {/* Catégories avec couleurs distinctes */}
@@ -158,6 +171,9 @@ export default function ItineraryTimeline({
                       <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Activités :
                       </span>
+                      {hasRichText(day.activities) ? (
+                        <RichTextContent as="span" value={day.activities} className="text-sm sm:text-base text-gray-700" />
+                      ) : (
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
                         {day.activities.split(/\.\s+/).filter(Boolean).map((sentence, idx, arr) => (
                           <span key={idx}>
@@ -166,6 +182,7 @@ export default function ItineraryTimeline({
                           </span>
                         ))}
                       </span>
+                      )}
                     </div>
                   )}
 
@@ -175,9 +192,13 @@ export default function ItineraryTimeline({
                       <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Repas :
                       </span>
+                      {hasRichText(day.meals) ? (
+                        <RichTextContent as="span" value={day.meals} className="text-sm sm:text-base text-gray-700" />
+                      ) : (
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
                         {day.meals}
                       </span>
+                      )}
                     </div>
                   )}
 
@@ -187,9 +208,13 @@ export default function ItineraryTimeline({
                       <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Hébergement: 
                       </span>
+                      {hasRichText(day.accommodation) ? (
+                        <RichTextContent as="span" value={day.accommodation} className="text-sm sm:text-base text-gray-700" />
+                      ) : (
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
                         {day.accommodation}
                       </span>
+                      )}
                     </div>
                   )}
 
@@ -199,9 +224,13 @@ export default function ItineraryTimeline({
                       <span className="font-semibold mr-2 text-sm sm:text-base shrink-0">
                         Transport :
                       </span>
+                      {hasRichText(day.transports) ? (
+                        <RichTextContent as="span" value={day.transports} className="text-sm sm:text-base text-gray-700" />
+                      ) : (
                       <span className="text-sm sm:text-base text-gray-700 first-letter:uppercase">
                         {day.transports}
                       </span>
+                      )}
                     </div>
                   )}
                 </div>

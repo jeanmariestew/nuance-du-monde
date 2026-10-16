@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import OfferItinerarySection from "@/components/OfferItinerarySection";
+import { RichOrPlain } from "@/components/RichTextContent";
 import DatesAndPricing from "@/components/DatesAndPricing";
 import ImageStackCarousel from "@/components/ImageStackCarousel";
 import OfferExtensions from "@/components/OfferExtensions";
@@ -399,9 +400,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="text-gray-900 text-base sm:text-lg leading-relaxed whitespace-pre-line bg-white px-6 sm:px-8 pb-6 pt-2">
-                  {offer.price_includes}
-                </div>
+                <RichOrPlain
+                  value={offer.price_includes}
+                  className="text-gray-900 text-base sm:text-lg leading-relaxed whitespace-pre-line bg-white px-6 sm:px-8 pb-6 pt-2"
+                />
               </AccordionContent>
             </AccordionItem>
           )}
@@ -432,9 +434,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="text-gray-900 text-base sm:text-lg leading-relaxed whitespace-pre-line bg-white px-6 sm:px-8 pb-6 pt-2">
-                  {offer.price_excludes}
-                </div>
+                <RichOrPlain
+                  value={offer.price_excludes}
+                  className="text-gray-900 text-base sm:text-lg leading-relaxed whitespace-pre-line bg-white px-6 sm:px-8 pb-6 pt-2"
+                />
               </AccordionContent>
             </AccordionItem>
           )}

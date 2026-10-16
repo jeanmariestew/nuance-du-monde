@@ -311,3 +311,10 @@ html::-webkit-scrollbar {
   @apply py-8 sm:py-10 lg:py-12;
 }
 
+.rich-editor[data-empty="true"]::before {
+  content: attr(data-placeholder);
+  color: #a3a3a3;
+  pointer-events: none;
+  white-space: pre-wrap;
+}
+

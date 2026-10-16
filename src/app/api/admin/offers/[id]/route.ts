@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {query, execute} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
+import { editorHtmlToValue } from '@/lib/richText';
 
 // Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
 function normalizePriceNote(note: string | null | undefined): string | null {
@@ -128,6 +129,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ success: false, error: 'Le titre et le slug sont requis', details: 'validation_error' }, { status: 400 });
   }
 
+  const safeDescription = editorHtmlToValue(String(description || ''), { lists: true });
+  const safeIncludes = price_includes ? editorHtmlToValue(String(price_includes), { lists: true }) || null : null;
+  const safeExcludes = price_excludes ? editorHtmlToValue(String(price_excludes), { lists: true }) || null : null;
+
   const errors: string[] = [];
   console.log('[PUT /offers] Mise à jour offre ID:', id, 'title:', title);
 
@@ -142,7 +147,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     await query(
       `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, description, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
+      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
     );
   } catch (e) {
     console.error('[PUT /offers] Erreur UPDATE offers:', e);

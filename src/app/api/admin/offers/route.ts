@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
+import { editorHtmlToValue } from '@/lib/richText';
 
 // Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
 function normalizePriceNote(note: string | null | undefined): string | null {
@@ -69,11 +70,15 @@ export async function POST(req: Request) {
 
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
 
+  const safeDescription = editorHtmlToValue(String(description || ''), { lists: true });
+  const safeIncludes = price_includes ? editorHtmlToValue(String(price_includes), { lists: true }) || null : null;
+  const safeExcludes = price_excludes ? editorHtmlToValue(String(price_excludes), { lists: true }) || null : null;
+
   try {
     const res = await execute(
       `INSERT INTO offers (title, slug, short_description, description, is_active, is_pro, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, summary, description, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights]
+      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, duration_days, duration_nights]
     );
     const offerId = res.insertId;
 

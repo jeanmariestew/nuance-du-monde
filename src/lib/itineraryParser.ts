@@ -1,3 +1,5 @@
+import { plainOf, richAfterLabel, storedRichLine, toItinerarySource } from "./richText";
+
 interface DayItinerary {
   day: number;
   // Tous les jours couverts par cette étape (ex. [10, 11, 12] pour "Jour 10-12")
@@ -121,10 +123,14 @@ export function parseItinerary(description: string): DayItinerary[] {
 /**
  * Parse la description d'une offre pour extraire l'introduction et l'itinéraire
  */
+function appendSection(current: string | undefined, addition: string): string {
+  return current ? `${current} ${addition}` : addition;
+}
+
 export function parseItineraryWithIntro(description: string): ItineraryResult {
   if (!description) return { days: [] };
 
-  const lines = description.split("\n");
+  const lines = toItinerarySource(description).split("\n");
   const itinerary: DayItinerary[] = [];
   let currentDay: DayItinerary | null = null;
   let currentSection: 'introduction' | 'description' | 'activities' | 'meals' | 'transports' | 'accommodation' = 'introduction';
@@ -132,19 +138,19 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
   let inIntroduction = true;
 
   for (const line of lines) {
-    const trimmedLine = line.trim();
-    
+    const plain = plainOf(line);
+    if (!plain) continue;
+
     // Détecte "Introduction :" au début
-    const introMatch = trimmedLine.match(/^Introduction\s*:\s*(.*)$/i);
+    const introMatch = plain.match(/^Introduction\s*:\s*([\s\S]*)$/i);
     if (introMatch) {
-      if (introMatch[1]) {
-        introduction.push(introMatch[1]);
-      }
+      const rest = richAfterLabel(line, plain, introMatch[1] || "");
+      if (rest) introduction.push(rest);
       continue;
     }
     
     // Détecte les lignes de type "Jour 1", "JOUR 14", "Jour 10-11-12", "Jours 10 à 12", etc.
-    const dayMatch = parseDayHeader(trimmedLine);
+    const dayMatch = parseDayHeader(plain);
 
     if (dayMatch) {
       inIntroduction = false;
@@ -169,66 +175,47 @@ export function parseItineraryWithIntro(description: string): ItineraryResult {
         accommodation: undefined,
       };
       currentSection = 'description';
-    } else if (inIntroduction && trimmedLine) {
-      // On est encore dans l'introduction
-      introduction.push(trimmedLine);
-    } else if (currentDay && trimmedLine) {
+    } else if (inIntroduction) {
+      introduction.push(storedRichLine(line, plain));
+    } else if (currentDay) {
+      const stored = storedRichLine(line, plain);
       // Détecte les sections spécifiques
-      const activitiesMatch = trimmedLine.match(/^Activit[ée]s?\s*:\s*(.*)$/i);
-      const mealsMatch = trimmedLine.match(/^Repas\s*:\s*(.*)$/i);
-      const transportsMatch = trimmedLine.match(/^Transports?\s*:\s*(.*)$/i);
-      const accommodationMatch = trimmedLine.match(/^H[ée]bergements?\s*:\s*(.*)$/i);
+      const activitiesMatch = plain.match(/^Activit[ée]s?\s*:\s*([\s\S]*)$/i);
+      const mealsMatch = plain.match(/^Repas\s*:\s*([\s\S]*)$/i);
+      const transportsMatch = plain.match(/^Transports?\s*:\s*([\s\S]*)$/i);
+      const accommodationMatch = plain.match(/^H[ée]bergements?\s*:\s*([\s\S]*)$/i);
       
       if (activitiesMatch) {
         currentSection = 'activities';
-        if (activitiesMatch[1]) {
-          currentDay.activities = activitiesMatch[1].trim();
-        }
+        const rest = richAfterLabel(line, plain, activitiesMatch[1] || "");
+        if (rest) currentDay.activities = rest;
       } else if (mealsMatch) {
         currentSection = 'meals';
-        if (mealsMatch[1]) {
-          currentDay.meals = mealsMatch[1].trim();
-        }
+        const rest = richAfterLabel(line, plain, mealsMatch[1] || "");
+        if (rest) currentDay.meals = rest;
       } else if (transportsMatch) {
         currentSection = 'transports';
-        if (transportsMatch[1]) {
-          currentDay.transports = transportsMatch[1].trim();
-        }
+        const rest = richAfterLabel(line, plain, transportsMatch[1] || "");
+        if (rest) currentDay.transports = rest;
       } else if (accommodationMatch) {
         currentSection = 'accommodation';
-        if (accommodationMatch[1]) {
-          currentDay.accommodation = accommodationMatch[1].trim();
-        }
+        const rest = richAfterLabel(line, plain, accommodationMatch[1] || "");
+        if (rest) currentDay.accommodation = rest;
+      } else if (currentSection === 'activities') {
+        currentDay.activities = appendSection(currentDay.activities, stored);
+      } else if (currentSection === 'meals') {
+        currentDay.meals = appendSection(currentDay.meals, stored);
+      } else if (currentSection === 'transports') {
+        currentDay.transports = appendSection(currentDay.transports, stored);
+      } else if (currentSection === 'accommodation') {
+        currentDay.accommodation = appendSection(currentDay.accommodation, stored);
       } else {
-        // Ajoute la ligne à la section courante
-        if (currentSection === 'activities') {
-          currentDay.activities = currentDay.activities 
-            ? currentDay.activities + ' ' + trimmedLine 
-            : trimmedLine;
-        } else if (currentSection === 'meals') {
-          currentDay.meals = currentDay.meals 
-            ? currentDay.meals + ' ' + trimmedLine 
-            : trimmedLine;
-        } else if (currentSection === 'transports') {
-          currentDay.transports = currentDay.transports 
-            ? currentDay.transports + ' ' + trimmedLine 
-            : trimmedLine;
-        } else if (currentSection === 'accommodation') {
-          currentDay.accommodation = currentDay.accommodation 
-            ? currentDay.accommodation + ' ' + trimmedLine 
-            : trimmedLine;
-        } else {
-          // Description générale
-          if (currentDay.description) {
-            currentDay.description += " ";
-          }
-          currentDay.description += trimmedLine;
-        }
+        currentDay.description = appendSection(currentDay.description, stored);
       }
       
       // Essaie d'extraire une localisation si pas encore trouvée
       if (!currentDay.location) {
-        currentDay.location = extractLocation(trimmedLine);
+        currentDay.location = extractLocation(plain);
       }
     }
   }

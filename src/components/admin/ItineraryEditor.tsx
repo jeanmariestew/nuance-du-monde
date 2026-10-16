@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import { parseDayHeader, formatDayLabel } from '@/lib/itineraryParser';
+import { plainOf, richAfterLabel, storedRichLine, stripRichTags, toItinerarySource } from '@/lib/richText';
+import RichTextField from '@/components/admin/RichTextField';
 
 // Structure d'un jour d'itinéraire
 export type ItineraryDay = {
@@ -40,17 +42,17 @@ function parseTextToItinerary(text: string): ItineraryData {
     // Pas du JSON, continuer avec le parsing texte
   }
 
-  // Parser le texte brut
-  const lines = text.split('\n');
+  // Parser le texte brut (le formatage inline est conservé dans chaque section)
+  const lines = toItinerarySource(text).split('\n');
   let currentDay: ItineraryDay | null = null;
   let currentSection = '';
 
   for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
+    const plain = plainOf(line);
+    if (!plain) continue;
 
     // Détecter un nouveau jour
-    const dayMatch = parseDayHeader(trimmed);
+    const dayMatch = parseDayHeader(plain);
     if (dayMatch && dayMatch.title) {
       if (currentDay) {
         days.push(currentDay);
@@ -68,32 +70,33 @@ function parseTextToItinerary(text: string): ItineraryData {
     }
 
     // Détecter les sections
-    const activitiesMatch = trimmed.match(/^Activit[ée]s?\s*[:\-–]\s*(.*)$/i);
-    const transportsMatch = trimmed.match(/^Transports?\s*[:\-–]\s*(.*)$/i);
-    const accommodationMatch = trimmed.match(/^H[ée]bergements?\s*[:\-–]\s*(.*)$/i);
+    const activitiesMatch = plain.match(/^Activit[ée]s?\s*[:\-–]\s*([\s\S]*)$/i);
+    const transportsMatch = plain.match(/^Transports?\s*[:\-–]\s*([\s\S]*)$/i);
+    const accommodationMatch = plain.match(/^H[ée]bergements?\s*[:\-–]\s*([\s\S]*)$/i);
 
     if (activitiesMatch) {
       currentSection = 'activities';
       if (currentDay && activitiesMatch[1]) {
-        currentDay.activities = activitiesMatch[1].trim();
+        currentDay.activities = richAfterLabel(line, plain, activitiesMatch[1]);
       }
     } else if (transportsMatch) {
       currentSection = 'transports';
       if (currentDay && transportsMatch[1]) {
-        currentDay.transports = transportsMatch[1].trim();
+        currentDay.transports = richAfterLabel(line, plain, transportsMatch[1]);
       }
     } else if (accommodationMatch) {
       currentSection = 'accommodation';
       if (currentDay && accommodationMatch[1]) {
-        currentDay.accommodation = accommodationMatch[1].trim();
+        currentDay.accommodation = richAfterLabel(line, plain, accommodationMatch[1]);
       }
     } else if (currentDay && currentSection) {
       // Ajouter à la section courante
       const key = currentSection as keyof Pick<ItineraryDay, 'activities' | 'transports' | 'accommodation'>;
+      const stored = storedRichLine(line, plain);
       if (currentDay[key]) {
-        currentDay[key] += '\n' + trimmed;
+        currentDay[key] += '\n' + stored;
       } else {
-        currentDay[key] = trimmed;
+        currentDay[key] = stored;
       }
     }
   }
@@ -207,7 +210,7 @@ export default function ItineraryEditor({ value, onChange }: ItineraryEditorProp
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: value }),
+        body: JSON.stringify({ text: stripRichTags(value) }),
       });
 
       const data = await response.json();
@@ -233,25 +236,27 @@ export default function ItineraryEditor({ value, onChange }: ItineraryEditorProp
     <div className="space-y-3">
       {/* Barre d'outils */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md border border-neutral-300 overflow-hidden">
+        <div className="inline-flex rounded-lg bg-neutral-200 p-1" role="group" aria-label="Mode d'édition">
           <button
             type="button"
-            onClick={() => mode === 'structured' ? switchToText() : null}
-            className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-              mode === 'text' 
-                ? 'bg-[--color-primary] text-white' 
-                : 'bg-white text-neutral-700 hover:bg-neutral-100'
+            aria-pressed={mode === 'text'}
+            onClick={() => { if (mode !== 'text') switchToText(); }}
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              mode === 'text'
+                ? 'bg-neutral-900 text-white shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-800'
             }`}
           >
             Texte brut
           </button>
           <button
             type="button"
-            onClick={() => mode === 'text' ? switchToStructured() : null}
-            className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-              mode === 'structured' 
-                ? 'bg-[--color-primary] text-white' 
-                : 'bg-white text-neutral-700 hover:bg-neutral-100'
+            aria-pressed={mode === 'structured'}
+            onClick={() => { if (mode !== 'structured') switchToStructured(); }}
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              mode === 'structured'
+                ? 'bg-neutral-900 text-white shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-800'
             }`}
           >
             Éditeur structuré
@@ -279,12 +284,14 @@ export default function ItineraryEditor({ value, onChange }: ItineraryEditorProp
         </div>
       )}
 
-      {/* Mode texte brut */}
+      {/* Mode texte : saisie libre, avec formatage et collage Word */}
       {mode === 'text' && (
-        <textarea
+        <RichTextField
+          lists
+          listScope="selection"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full min-h-[300px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary] font-mono"
+          onChange={onChange}
+          minHeight={300}
           placeholder={`Jour 1 : Paris
 Activités : Visite de la Tour Eiffel, promenade sur les Champs-Élysées
 Transports : Vol international
@@ -343,11 +350,13 @@ Hébergements : Chambre d'hôtes`}
                   <label className="text-xs font-medium text-neutral-600 mb-1 block">
                     🎯 Activités
                   </label>
-                  <textarea
+                  <RichTextField
+                    lists
+                    listScope="selection"
                     value={day.activities}
-                    onChange={(e) => updateDay(index, 'activities', e.target.value)}
+                    onChange={(next) => updateDay(index, 'activities', next)}
+                    minHeight={60}
                     placeholder="Visite du musée, découverte de la ville..."
-                    className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm min-h-[60px]"
                   />
                 </div>
 
@@ -355,11 +364,13 @@ Hébergements : Chambre d'hôtes`}
                   <label className="text-xs font-medium text-neutral-600 mb-1 block">
                     🚗 Transports
                   </label>
-                  <textarea
+                  <RichTextField
+                    lists
+                    listScope="selection"
                     value={day.transports}
-                    onChange={(e) => updateDay(index, 'transports', e.target.value)}
+                    onChange={(next) => updateDay(index, 'transports', next)}
+                    minHeight={40}
                     placeholder="Vol, train, bus, transfert privé..."
-                    className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm min-h-[40px]"
                   />
                 </div>
 
@@ -367,11 +378,13 @@ Hébergements : Chambre d'hôtes`}
                   <label className="text-xs font-medium text-neutral-600 mb-1 block">
                     🏨 Hébergements
                   </label>
-                  <textarea
+                  <RichTextField
+                    lists
+                    listScope="selection"
                     value={day.accommodation}
-                    onChange={(e) => updateDay(index, 'accommodation', e.target.value)}
+                    onChange={(next) => updateDay(index, 'accommodation', next)}
+                    minHeight={40}
                     placeholder="Hôtel 4 étoiles, chambre d'hôtes, lodge..."
-                    className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm min-h-[40px]"
                   />
                 </div>
               </div>
@@ -390,7 +403,7 @@ Hébergements : Chambre d'hôtes`}
 
       {/* Aide */}
       <div className="text-xs text-neutral-500 bg-neutral-100 px-3 py-2 rounded-md">
-        <strong>Format attendu :</strong> Chaque jour doit avoir une ligne &quot;Jour X : Destination&quot; suivie des sections Activités, Transports et Hébergements sur des lignes séparées. Pour plusieurs jours au même endroit, utilisez &quot;Jours 10-12 : Destination&quot; (une bulle par jour sur le site).
+        <strong>Format attendu :</strong> Chaque jour doit avoir une ligne &quot;Jour X : Destination&quot; suivie des sections Activités, Transports et Hébergements sur des lignes séparées. Pour plusieurs jours au même endroit, utilisez &quot;Jours 10-12 : Destination&quot; (une bulle par jour sur le site). Le gras, l&apos;italique, la couleur, le surlignage et les listes à puces sont conservés, y compris au collage depuis Word. « Formater avec IA » réécrit le texte sans ce formatage.
       </div>
     </div>
   );
