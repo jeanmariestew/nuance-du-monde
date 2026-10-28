@@ -18,6 +18,7 @@ import OfferExtensions from "@/components/OfferExtensions";
 import OfferHotels from "@/components/OfferHotels";
 import OfferQuoteButton from "@/components/OfferQuoteButton";
 import { FIT_TRAVEL_TYPE_SLUG, parseFitPaxPrices } from "@/lib/fitPaxPrices";
+import { VRDF_TRAVEL_TYPE_SLUG } from "@/lib/vrdfPrice";
 
 interface OfferImage {
   id?: number;
@@ -148,6 +149,9 @@ export default async function OfferDetailPage({ params }: PageProps) {
   const fitPrices = offer.travel_types?.some((type) => type.slug === FIT_TRAVEL_TYPE_SLUG)
     ? parseFitPaxPrices(offer.fit_pax_prices)
     : [];
+  const isGroupedFixedDates = offer.travel_types?.some(
+    (type) => type.slug === VRDF_TRAVEL_TYPE_SLUG
+  );
 
   const coverImage =
     offer.images?.find((img) => img.image_type === "banner")?.image_url ||
@@ -375,6 +379,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         basePrice={offer.price}
         baseCurrency={offer.price_currency}
         circuit={offer.title}
+        variant={isGroupedFixedDates ? "accordion" : "calendar"}
       />
 
       {/* Section Hôtels */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { ArrowRight, Calendar, ChevronDown, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import QuoteRequestModal from "@/components/QuoteRequestModal";
 
 interface DateOption {
@@ -26,9 +26,12 @@ interface DatesAndPricingProps {
   // Nom du circuit/offre, transmis au formulaire de devis (distinct de `title`,
   // qui est le titre affiché de cette section)
   circuit?: string;
+  // Accordion pleine largeur pour les départs à dates fixes. Les autres types
+  // conservent le calendrier.
+  variant?: "calendar" | "accordion";
 }
 
-export default function DatesAndPricing({
+function CalendarDatesAndPricing({
   dates = [],
   basePrice,
   baseCurrency = "$",
@@ -441,4 +444,228 @@ export default function DatesAndPricing({
       />
     </section>
   );
+}
+
+function formatLongDate(value: string) {
+  return new Date(value).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function formatStayRange(dep: string, ret?: string) {
+  const d = new Date(dep);
+  if (!ret) {
+    return d.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  }
+  const r = new Date(ret);
+  const sameMonth = d.getUTCFullYear() === r.getUTCFullYear() && d.getUTCMonth() === r.getUTCMonth();
+  const startFmt: Intl.DateTimeFormatOptions = sameMonth
+    ? { day: "2-digit", timeZone: "UTC" }
+    : { day: "2-digit", month: "2-digit", timeZone: "UTC" };
+  const endFmt: Intl.DateTimeFormatOptions = {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  };
+  return `${d.toLocaleDateString("fr-FR", startFmt)} → ${r.toLocaleDateString("fr-FR", endFmt)}`;
+}
+
+function AccordionDatesAndPricing({
+  dates = [],
+  basePrice,
+  baseCurrency = "CAD",
+  title = "Dates et prix",
+  circuit,
+}: DatesAndPricingProps) {
+  const [openId, setOpenId] = useState<number | null>(dates[0]?.id ?? null);
+  const [quoteDate, setQuoteDate] = useState<DateOption | null>(null);
+
+  const formatPrice = (value?: number, currency?: string) => {
+    const amount = value ?? basePrice;
+    if (amount === undefined || amount === null) return "—";
+    const code = (currency || baseCurrency || "CAD").replace(/\s/g, "");
+    const label = code === "$" || code === "CAD$" || code === "C$" ? "CAD" : code;
+    return `${label} ${new Intl.NumberFormat("fr-FR").format(amount)}`;
+  };
+
+  if (!dates.length) return null;
+
+  const toggle = (id: number) => {
+    setOpenId((current) => (current === id ? null : id));
+  };
+
+  return (
+    <section className="site-section bg-linear-to-b from-gray-50 to-white">
+      <div className="site-container">
+        <div className="mb-8 sm:mb-10">
+          <div className="mb-3 flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+              <Calendar className="h-6 w-6 text-yellow-600" />
+            </div>
+            <h2 className="font-serif text-3xl font-medium text-gray-900 sm:text-4xl">
+              {title}
+            </h2>
+          </div>
+          <p className="max-w-3xl text-sm text-gray-500 sm:text-base">
+            Découvrez toutes les dates disponibles pour ce voyage. Chaque départ inclut la date de retour.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {dates.map((date) => {
+            const open = openId === date.id;
+            const panelId = `depart-${date.id}`;
+            const complet = isCompletNote(date.price_note);
+            const occupancy = date.price_note?.trim() || "Prix en chambre double ou twin";
+
+            return (
+              <article
+                key={date.id}
+                className={`rounded-2xl border-2 bg-[#fffdf6] shadow-sm transition-colors duration-500 ${
+                  open ? "border-yellow-300" : "border-yellow-200"
+                }`}
+              >
+                <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+                  <button
+                    type="button"
+                    onClick={() => toggle(date.id)}
+                    aria-expanded={open}
+                    aria-controls={panelId}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <p className="text-base font-bold text-gray-900 sm:text-lg">
+                      {formatStayRange(date.departure_date, date.return_date)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+                      {date.return_date ? "Date de retour incluse" : "Départ unique"}
+                    </p>
+                  </button>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                    <div className="shrink-0 text-left sm:text-right">
+                      <p className="text-xl font-bold whitespace-nowrap text-[#b45309] sm:text-2xl">
+                        {formatPrice(date.price, date.price_currency)}
+                      </p>
+                      <p className="text-xs text-gray-500">/ personne</p>
+                    </div>
+                    <span
+                      className={`inline-flex max-w-full items-center justify-center rounded-md px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight sm:max-w-[180px] ${
+                        complet ? "bg-red-100 text-red-700" : "bg-[#f3e4a1] text-gray-900"
+                      }`}
+                    >
+                      {occupancy}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuoteDate(date)}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
+                    >
+                      Demander un devis
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggle(date.id)}
+                      aria-expanded={open}
+                      aria-controls={panelId}
+                      aria-label={open ? "Fermer les détails du départ" : "Ouvrir les détails du départ"}
+                      className="inline-flex h-10 w-10 items-center justify-center self-end rounded-full text-gray-700 transition-colors hover:bg-yellow-100 sm:self-auto"
+                    >
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                          open ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  id={panelId}
+                  className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                    open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden" aria-hidden={!open}>
+                    <div
+                      className={`px-3 sm:px-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                        open ? "translate-y-0 pb-3 sm:pb-4" : "-translate-y-2 pb-0"
+                      }`}
+                    >
+                    <div className="rounded-2xl bg-[#0c1222] px-5 py-6 text-white sm:px-8 sm:py-7">
+                      <h3 className="mb-6 text-xl font-bold sm:text-2xl">Détails du départ</h3>
+
+                      {complet && (
+                        <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-400/70 bg-red-500/15 px-4 py-3">
+                          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
+                          <p className="text-sm font-medium text-red-100">
+                            Ce départ est complet. Contactez-nous pour être ajouté(e) à la liste d&apos;attente ou pour connaître la prochaine date disponible.
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.2fr)] md:items-center md:gap-8">
+                        <div className="space-y-5">
+                          <div>
+                            <p className="text-sm text-gray-300">Date de départ</p>
+                            <p className="mt-1 text-2xl font-bold">{formatLongDate(date.departure_date)}</p>
+                          </div>
+                          {date.return_date && (
+                            <div>
+                              <p className="text-sm text-gray-300">Date de retour</p>
+                              <p className="mt-1 text-2xl font-bold">{formatLongDate(date.return_date)}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="hidden h-full min-h-28 w-px bg-[#d9a900] md:block" />
+
+                        <div className="border-t border-white/10 pt-5 md:border-0 md:pt-0">
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                              <p className="text-sm text-gray-300">Prix par personne</p>
+                              <span className="inline-flex w-fit items-center rounded-full border border-[#e6c200] px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight text-[#e6c200]">
+                                {occupancy}
+                              </span>
+                            </div>
+                            <p className="text-4xl font-bold tracking-tight whitespace-nowrap sm:text-5xl">
+                              {formatPrice(date.price, date.price_currency)}
+                            </p>
+                            <p className="text-sm text-gray-300">en occupation double</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+
+      <QuoteRequestModal
+        isOpen={quoteDate !== null}
+        onClose={() => setQuoteDate(null)}
+        circuit={circuit}
+      />
+    </section>
+  );
+}
+
+export default function DatesAndPricing(props: DatesAndPricingProps) {
+  if (props.variant === "accordion") {
+    return <AccordionDatesAndPricing {...props} />;
+  }
+  return <CalendarDatesAndPricing {...props} />;
 }
