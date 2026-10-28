@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 import { editorHtmlToValue } from '@/lib/richText';
+import { serializeFitPaxPrices } from '@/lib/fitPaxPrices';
 
 // Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
 function normalizePriceNote(note: string | null | undefined): string | null {
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
+    fit_pax_prices = [] as unknown[],
   } = body || {};
 
   if (!title || !slug) return NextResponse.json({ success: false, error: 'title et slug requis' }, { status: 400 });
@@ -76,9 +78,9 @@ export async function POST(req: Request) {
 
   try {
     const res = await execute(
-      `INSERT INTO offers (title, slug, short_description, description, is_active, is_pro, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, duration_days, duration_nights]
+      `INSERT INTO offers (title, slug, short_description, description, is_active, is_pro, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, price_includes, price_excludes, label, programme_link, duration_days, duration_nights, fit_pax_prices)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, duration_days, duration_nights, serializeFitPaxPrices(fit_pax_prices)]
     );
     const offerId = res.insertId;
 

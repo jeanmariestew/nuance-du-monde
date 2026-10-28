@@ -17,6 +17,7 @@ import ImageStackCarousel from "@/components/ImageStackCarousel";
 import OfferExtensions from "@/components/OfferExtensions";
 import OfferHotels from "@/components/OfferHotels";
 import OfferQuoteButton from "@/components/OfferQuoteButton";
+import { FIT_TRAVEL_TYPE_SLUG, parseFitPaxPrices } from "@/lib/fitPaxPrices";
 
 interface OfferImage {
   id?: number;
@@ -47,6 +48,7 @@ interface OfferDetail {
   promotion_description?: string;
   price_includes?: string;
   price_excludes?: string;
+  fit_pax_prices?: unknown;
   label?: string;
   duration_days?: number;
   duration_nights?: number;
@@ -143,6 +145,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
   }
 
   // Image de couverture principale - vérifier toutes les sources possibles
+  const fitPrices = offer.travel_types?.some((type) => type.slug === FIT_TRAVEL_TYPE_SLUG)
+    ? parseFitPaxPrices(offer.fit_pax_prices)
+    : [];
+
   const coverImage =
     offer.images?.find((img) => img.image_type === "banner")?.image_url ||
     offer.image_banner ||
@@ -213,7 +219,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
-            {(offer.duration_days || offer.duration_nights || offer.price) && (
+            {(offer.duration_days || offer.duration_nights || offer.price || fitPrices.length > 0) && (
               <div className="flex flex-col gap-2 mt-3 sm:mt-4 mb-4 sm:mb-6">
                 {(offer.duration_days || offer.duration_nights) && (
                   <div className="flex items-center gap-2.5">
@@ -239,6 +245,15 @@ export default async function OfferDetailPage({ params }: PageProps) {
                       </strong>
                     </span>
                   </div>
+                )}
+                {fitPrices.length > 0 && (
+                  <ul className="mt-1 space-y-0.5">
+                    {fitPrices.map((price, index) => (
+                      <li key={index} className="text-base font-bold text-yellow-600 sm:text-lg">
+                        {price}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             )}

@@ -93,6 +93,7 @@ export default async function TravelTypePage({ params }: PageProps) {
         type={slug}
         title="Offres pour ce type"
         emptyMessage="Aucune offre pour ce type."
+        paginate={slug !== "voyageurs-regroupes-dates-fixes"}
       />
 
     </div>

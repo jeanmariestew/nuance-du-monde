@@ -25,8 +25,8 @@ function TravelCard({ travelType, isAuthenticated, onProClick, compact = false }
   return (
     <div className={`relative bg-cover bg-center rounded-lg overflow-hidden group cursor-pointer ${compact ? "h-[170px] sm:h-[260px] lg:h-[320px]" : "h-[420px]"}`}>
       {travelType.is_pro && (
-        <div className="absolute top-4 right-[-35px] z-10 bg-black text-white text-xs font-bold py-1 px-10 rotate-45 shadow-lg">
-          PRO
+        <div className="absolute inset-x-0 top-3 z-10 bg-black px-3 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-white sm:text-xs">
+          Section pour professionnels
         </div>
       )}
       {travelType.image_url ? (

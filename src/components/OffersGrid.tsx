@@ -1,11 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Offer, Destination, TravelType, TravelTheme } from "@/types";
 import OfferCard from "@/components/cards/OfferCard";
 import { OfferCardSkeleton } from "@/components/ui/SkeletonLoader";
 import { api } from "@/lib/axios";
 import { useProfessional } from "@/contexts/ProfessionalContext";
+
+const CONTINENT_ORDER = [
+  "Afrique",
+  "Amérique du Nord",
+  "Amérique du Sud",
+  "Asie",
+  "Europe",
+  "Océanie",
+];
+
+const filterFieldClass =
+  "box-border h-11 w-full appearance-none rounded-md border border-yellow-500 bg-yellow-500 px-3 pr-9 text-sm font-medium text-neutral-900 focus:outline-none disabled:opacity-60";
+
+const filterMenuClass =
+  "absolute z-30 mt-1 w-full rounded-md border border-neutral-200 bg-white py-1 text-neutral-900 shadow-lg";
+
+function filterOptionClass(selected: boolean) {
+  return `block w-full px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100 ${selected ? "bg-neutral-100 font-semibold" : ""}`;
+}
+
+function FilterChevron() {
+  return (
+    <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-neutral-900">
+      ▾
+    </span>
+  );
+}
+
+function groupDestinationsByContinent(destinations: Destination[]) {
+  const collator = new Intl.Collator("fr", { sensitivity: "base" });
+  const groups = new Map<string, Destination[]>();
+  for (const destination of destinations) {
+    const continent = destination.continent?.trim() || "Autres";
+    const list = groups.get(continent) ?? [];
+    list.push(destination);
+    groups.set(continent, list);
+  }
+  for (const list of groups.values()) {
+    list.sort((a, b) => collator.compare(a.title, b.title));
+  }
+  return [...groups.keys()]
+    .sort((a, b) => {
+      const indexA = CONTINENT_ORDER.indexOf(a);
+      const indexB = CONTINENT_ORDER.indexOf(b);
+      if (indexA === -1 && indexB === -1) return collator.compare(a, b);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    })
+    .map((continent) => ({ continent, destinations: groups.get(continent)! }));
+}
 
 interface OffersGridProps {
   destination?: string;
@@ -17,6 +68,8 @@ interface OffersGridProps {
   itemsPerPage?: number;
   hasTheme?: boolean;
   compact?: boolean;
+  /** false : toutes les offres sur la page, deux par deux, sans pagination */
+  paginate?: boolean;
 }
 
 export default function OffersGrid({
@@ -29,6 +82,7 @@ export default function OffersGrid({
   itemsPerPage = 4,
   hasTheme=false,
   compact = false,
+  paginate = true,
 }: OffersGridProps) {
   const { session } = useProfessional();
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -37,6 +91,9 @@ export default function OffersGrid({
 
   // États pour les filtres additionnels
   const [selectedDestination, setSelectedDestination] = useState<string>("");
+  const [openMenu, setOpenMenu] = useState<null | "destination" | "type" | "theme">(null);
+  const [openContinent, setOpenContinent] = useState<string | null>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedTheme, setSelectedTheme] = useState<string>("");
 
@@ -77,6 +134,22 @@ export default function OffersGrid({
 
     fetchFiltersData();
   }, [destination, continent, type, theme]);
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!filtersRef.current?.contains(event.target as Node)) setOpenMenu(null);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenMenu(null);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openMenu]);
 
   // Charger les offres
   useEffect(() => {
@@ -187,7 +260,7 @@ export default function OffersGrid({
   const totalPages = Math.ceil(offers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentOffers = offers.slice(startIndex, endIndex);
+  const currentOffers = paginate ? offers.slice(startIndex, endIndex) : offers;
 
   // Fonction pour changer de page
   const goToPage = (page: number) => {
@@ -204,74 +277,156 @@ export default function OffersGrid({
         {/* Filtres dynamiques */}
         {itemsPerPage < 10 && (
           <div className="mb-8 bg-gray-50 p-6 rounded-lg">
-            <div className="flex flex-wrap gap-4 flex-center items-end m-auto max-w-xl">
+            <div className="m-auto flex max-w-3xl flex-wrap items-end gap-4" ref={filtersRef}>
               {/* Select Destination - affiché si pas le paramètre principal */}
               {!destination && destinations.length > 0 && (
-                <div className="flex-1 max-w-md">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="relative min-w-[220px] flex-1 basis-0">
+                  <label id="destination-filter-label" className="mb-2 block text-sm font-medium text-gray-700">
                     Destination
                   </label>
-                  <select
-                    value={selectedDestination}
-                    onChange={(e) => setSelectedDestination(e.target.value)}
-                    className="w-full px-3 py-2 border border-yellow-500 bg-yellow-500 rounded-md focus:outline-none"
-                    disabled={filtersLoading}
-                  >
-                    <option value="">Toutes les destinations</option>
-                    {destinations.map((dest) => (
-                      <option
-                        key={dest.slug}
-                        value={dest.slug}
-                        className="bg-yellow-500"
+                  <div className="relative">
+                    <button
+                      type="button"
+                      aria-labelledby="destination-filter-label"
+                      aria-expanded={openMenu === "destination"}
+                      disabled={filtersLoading}
+                      onClick={() => {
+                        setOpenMenu((current) => {
+                          const next = current === "destination" ? null : "destination";
+                          if (next) {
+                            const selected = destinations.find((dest) => dest.slug === selectedDestination);
+                            setOpenContinent(selected?.continent?.trim() || null);
+                          }
+                          return next;
+                        });
+                      }}
+                      className={`${filterFieldClass} truncate text-left`}
+                    >
+                      {destinations.find((dest) => dest.slug === selectedDestination)?.title || "Toutes les destinations"}
+                    </button>
+                    <FilterChevron />
+                  </div>
+                  {openMenu === "destination" && (
+                    <div className={filterMenuClass}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDestination("");
+                          setOpenMenu(null);
+                        }}
+                        className={filterOptionClass(!selectedDestination)}
                       >
-                        {dest.title}
-                      </option>
-                    ))}
-                  </select>
+                        Toutes les destinations
+                      </button>
+                      {groupDestinationsByContinent(destinations).map((group) => {
+                        const expanded = openContinent === group.continent;
+                        return (
+                          <div key={group.continent}>
+                            <button
+                              type="button"
+                              aria-expanded={expanded}
+                              onClick={() => setOpenContinent(expanded ? null : group.continent)}
+                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-100"
+                            >
+                              <span>{group.continent}</span>
+                              <span className="text-xs font-normal">
+                                {group.destinations.length} pays {expanded ? "▴" : "▾"}
+                              </span>
+                            </button>
+                            {expanded && group.destinations.map((dest) => (
+                              <button
+                                key={dest.slug}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDestination(dest.slug);
+                                  setOpenMenu(null);
+                                }}
+                                className={`block w-full py-2 pl-6 pr-3 text-left text-sm text-neutral-700 hover:bg-neutral-100 ${selectedDestination === dest.slug ? "bg-neutral-100 font-semibold text-neutral-900" : ""}`}
+                              >
+                                {dest.title}
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Select Type - affiché si pas le paramètre principal */}
               {!type && types.length > 0 && (
-                <div className="flex-1 max-w-md">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="relative min-w-[220px] flex-1 basis-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Nos Types de voyages
                   </label>
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full px-3 py-2 border border-yellow-500 bg-yellow-500 rounded-md focus:outline-none"
-                    disabled={filtersLoading}
-                  >
-                    <option value="">Tous les types</option>
-                    {types.map((t) => (
-                      <option key={t.slug} value={t.slug}>
-                        {t.title}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      aria-expanded={openMenu === "type"}
+                      disabled={filtersLoading}
+                      onClick={() => setOpenMenu((current) => current === "type" ? null : "type")}
+                      className={`${filterFieldClass} truncate text-left`}
+                    >
+                      {types.find((item) => item.slug === selectedType)?.title || "Tous les types"}
+                    </button>
+                    <FilterChevron />
+                  </div>
+                  {openMenu === "type" && (
+                    <div className={filterMenuClass}>
+                      <button type="button" onClick={() => { setSelectedType(""); setOpenMenu(null); }} className={filterOptionClass(!selectedType)}>
+                        Tous les types
+                      </button>
+                      {types.map((item) => (
+                        <button
+                          key={item.slug}
+                          type="button"
+                          onClick={() => { setSelectedType(item.slug); setOpenMenu(null); }}
+                          className={filterOptionClass(selectedType === item.slug)}
+                        >
+                          {item.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Select Thème - affiché si pas le paramètre principal */}
               {!theme && themes.length > 0 && (
-                <div className="flex-1 max-w-md">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="relative min-w-[220px] flex-1 basis-0">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Thème
                   </label>
-                  <select
-                    value={selectedTheme}
-                    onChange={(e) => setSelectedTheme(e.target.value)}
-                    className="w-full px-3 py-2 border border-yellow-500 bg-yellow-500 rounded-md focus:outline-none"
-                    disabled={filtersLoading}
-                  >
-                    <option value="">Tous les thèmes</option>
-                    {themes.map((th) => (
-                      <option key={th.slug} value={th.slug}>
-                        {th.title}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      aria-expanded={openMenu === "theme"}
+                      disabled={filtersLoading}
+                      onClick={() => setOpenMenu((current) => current === "theme" ? null : "theme")}
+                      className={`${filterFieldClass} truncate text-left`}
+                    >
+                      {themes.find((item) => item.slug === selectedTheme)?.title || "Tous les thèmes"}
+                    </button>
+                    <FilterChevron />
+                  </div>
+                  {openMenu === "theme" && (
+                    <div className={filterMenuClass}>
+                      <button type="button" onClick={() => { setSelectedTheme(""); setOpenMenu(null); }} className={filterOptionClass(!selectedTheme)}>
+                        Tous les thèmes
+                      </button>
+                      {themes.map((item) => (
+                        <button
+                          key={item.slug}
+                          type="button"
+                          onClick={() => { setSelectedTheme(item.slug); setOpenMenu(null); }}
+                          className={filterOptionClass(selectedTheme === item.slug)}
+                        >
+                          {item.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -308,7 +463,7 @@ export default function OffersGrid({
             </div>
 
             {/* Pagination - affichée seulement si plus de 4 offres */}
-            {offers.length > itemsPerPage && (
+            {paginate && offers.length > itemsPerPage && (
               <div className="mt-8 flex justify-center items-center space-x-1">
                 {/* Bouton Précédent */}
                 <button

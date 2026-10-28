@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import {query, execute} from '@/lib/db';
 import { hasValidAdminToken } from '@/lib/auth';
 import { editorHtmlToValue } from '@/lib/richText';
+import { parseFitPaxPrices, serializeFitPaxPrices } from '@/lib/fitPaxPrices';
 
 // Normalise le texte libre affiché à droite du prix (COMPLET, PRIX SUR DEMANDE, ...)
 function normalizePriceNote(note: string | null | undefined): string | null {
@@ -58,6 +59,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     map_image: row.map_image || null,
     duration_days: row.duration_days,
     duration_nights: row.duration_nights,
+    fit_pax_prices: parseFitPaxPrices(row.fit_pax_prices),
   } as any;
   const types = await query('SELECT travel_type_id FROM offer_travel_types WHERE offer_id = ?', [id]);
   const themes = await query('SELECT travel_theme_id FROM offer_travel_themes WHERE offer_id = ?', [id]);
@@ -123,6 +125,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
+    fit_pax_prices = [] as unknown[],
   } = body || {};
 
   if (!title || !slug) {
@@ -146,8 +149,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       : null;
 
     await query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=? WHERE id=?`,
-      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=?, fit_pax_prices=? WHERE id=?`,
+      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, serializeFitPaxPrices(fit_pax_prices), id]
     );
   } catch (e) {
     console.error('[PUT /offers] Erreur UPDATE offers:', e);

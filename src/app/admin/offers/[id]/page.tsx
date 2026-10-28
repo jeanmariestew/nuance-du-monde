@@ -12,6 +12,8 @@ import RichTextField from '@/components/admin/RichTextField';
 import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor';
 import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
 import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
+import FitPaxPricesEditor from '@/components/admin/FitPaxPricesEditor';
+import { FIT_TRAVEL_TYPE_SLUG } from '@/lib/fitPaxPrices';
 import { adminApi } from '@/lib/axios';
 
 // Normalise une date (string ISO ou "YYYY-MM-DD") pour la valeur d'un <input type="date">
@@ -59,6 +61,7 @@ type OfferData = {
   typeIds: number[];
   themeIds: number[];
   destinationIds: number[];
+  fit_pax_prices: string[];
 };
 
 export default function AdminOfferEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -696,6 +699,20 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             </div>
           </CardContent>
         </Card>
+
+        {types.some((type) => type.slug === FIT_TRAVEL_TYPE_SLUG && offer.typeIds.includes(type.id)) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Prix FIT</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FitPaxPricesEditor
+                prices={offer.fit_pax_prices || []}
+                onChange={(fit_pax_prices) => setOffer({ ...(offer as OfferData), fit_pax_prices })}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

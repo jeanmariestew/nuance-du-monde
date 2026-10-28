@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const currentTheme = searchParams.get('theme');
 
     const result = {
-      destinations: [] as Array<{slug: string, title: string}>,
+      destinations: [] as Array<{slug: string, title: string, continent: string | null}>,
       types: [] as Array<{slug: string, title: string}>,
       themes: [] as Array<{slug: string, title: string}>
     };
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // Récupérer les destinations qui ont des offres
     if (!currentDestination) {
       let destinationQuery = `
-        SELECT DISTINCT d.slug, d.title 
+        SELECT DISTINCT d.slug, d.title, d.continent 
         FROM destinations d
         INNER JOIN offer_destinations od ON d.id = od.destination_id
         INNER JOIN offers o ON o.id = od.offer_id
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
         destinationParams.push(currentTheme);
       }
 
-      destinationQuery += ' ORDER BY d.title ASC';
+      destinationQuery += ' ORDER BY d.continent ASC, d.title ASC';
       const destinationRows = await query(destinationQuery, destinationParams);
-      result.destinations = destinationRows as Array<{slug: string, title: string}>;
+      result.destinations = destinationRows as Array<{slug: string, title: string, continent: string | null}>;
     }
 
     // Récupérer les types qui ont des offres

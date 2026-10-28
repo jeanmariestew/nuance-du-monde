@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { VRDF_TRAVEL_TYPE_SLUG, lowestUpcomingDatePrice } from '@/lib/vrdfPrice';
 
 export async function GET(
   _req: Request,
@@ -123,6 +124,10 @@ export async function GET(
       console.log('offer_hotels table not found or error:', e);
     }
 
+    const isVrdf = (types as { slug?: string }[]).some((type) => type.slug === VRDF_TRAVEL_TYPE_SLUG);
+    const upcomingPrice = isVrdf ? lowestUpcomingDatePrice(dates) : null;
+    const displayedPrice = upcomingPrice ?? offer.price ?? null;
+
     const mainImage = images?.find(img => img.image_type === 'main')?.image_url || offer.image_main;
     const bannerImage = images?.find(img => img.image_type === 'banner')?.image_url || offer.image_banner;
     const availableDates = dates?.map(d => d.departure_date) || [];
@@ -160,7 +165,8 @@ export async function GET(
         // convenience aliases
         banner_image_url: bannerImage,
         image_url: mainImage,
-        price_from: offer.price_from ?? offer.price ?? null,
+        price: displayedPrice,
+        price_from: upcomingPrice ?? offer.price_from ?? offer.price ?? null,
         available_dates: availableDates,
         images: images as any[],
         travel_types: types,

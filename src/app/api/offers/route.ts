@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import {query} from '@/lib/db';
+import { VRDF_TRAVEL_TYPE_SLUG, lowestUpcomingDatePrice, utcToday } from '@/lib/vrdfPrice';
 
 export async function GET(req: Request) {
   try {
@@ -111,20 +112,43 @@ export async function GET(req: Request) {
         `SELECT offer_id, departure_date, price FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
         offerIds
       );
+      const typeRows = await query(
+        `SELECT ott.offer_id, tt.slug
+         FROM offer_travel_types ott
+         JOIN travel_types tt ON tt.id = ott.travel_type_id
+         WHERE ott.offer_id IN (${offerIds.map(() => '?').join(',')})`,
+        offerIds
+      );
+      const vrdfOfferIds = new Set(
+        (typeRows as { offer_id: number; slug: string }[])
+          .filter((row) => row.slug === VRDF_TRAVEL_TYPE_SLUG)
+          .map((row) => row.offer_id)
+      );
+      const today = utcToday();
       availableDatesMap = (datesRows as any[]).reduce((acc, row) => {
         if (!acc[row.offer_id]) acc[row.offer_id] = [];
         acc[row.offer_id].push(row.departure_date);
         return acc;
       }, {} as Record<number, string[]>);
-      minPriceMap = (datesRows as any[]).reduce((acc, row) => {
-        const p = row.price;
-        if (p !== null && p !== undefined) {
-          if (acc[row.offer_id] === undefined || p < acc[row.offer_id]) acc[row.offer_id] = p;
-        } else if (acc[row.offer_id] === undefined) {
-          acc[row.offer_id] = null;
+      const datesByOffer: Record<number, { departure_date: unknown; price: unknown }[]> = {};
+      for (const row of datesRows as any[]) {
+        if (!datesByOffer[row.offer_id]) datesByOffer[row.offer_id] = [];
+        datesByOffer[row.offer_id].push(row);
+      }
+      minPriceMap = {};
+      for (const [offerId, dates] of Object.entries(datesByOffer)) {
+        const id = Number(offerId);
+        if (vrdfOfferIds.has(id)) {
+          minPriceMap[id] = lowestUpcomingDatePrice(dates, today);
+        } else {
+          minPriceMap[id] = dates.reduce<number | null>((best, row) => {
+            if (row.price === null || row.price === undefined || row.price === "") return best;
+            const price = Number(row.price);
+            if (!Number.isFinite(price)) return best;
+            return best === null || price < best ? price : best;
+          }, null);
         }
-        return acc;
-      }, {} as Record<number, number | null>);
+      }
       
       // Fetch all images for offers
       const imagesRows = await query(
