@@ -567,7 +567,7 @@ function AccordionDatesAndPricing({
                     <button
                       type="button"
                       onClick={() => setQuoteDate(date)}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
                     >
                       Demander un devis
                       <ArrowRight className="h-4 w-4" />
@@ -633,7 +633,7 @@ function AccordionDatesAndPricing({
                           <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                               <p className="text-sm text-gray-300">Prix par personne</p>
-                              <span className="inline-flex w-fit items-center rounded-full border border-[#e6c200] px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight text-[#e6c200]">
+                              <span className="inline-flex max-w-full items-center justify-center rounded-md border border-[#e6c200] px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight text-[#e6c200] sm:max-w-[180px]">
                                 {occupancy}
                               </span>
                             </div>

@@ -153,7 +153,7 @@ export default function ImageStackCarousel({
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`transition-all rounded-full ${
+                className={`transition-all rounded-md ${
                   index === currentIndex
                     ? "w-8 h-2.5 bg-yellow-500"
                     : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400"
@@ -230,7 +230,7 @@ export default function ImageStackCarousel({
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`transition-all rounded-full ${
+                className={`transition-all rounded-md ${
                   index === currentIndex
                     ? "w-10 h-3 bg-yellow-500"
                     : "w-3 h-3 bg-gray-300 hover:bg-gray-400"
