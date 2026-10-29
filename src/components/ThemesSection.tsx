@@ -10,7 +10,7 @@ interface ThemesSectionProps {
 }
 
 export default function ThemesSection({ travelThemes }: ThemesSectionProps) {
-  if (travelThemes.length === 0) return null;
+  if (!travelThemes?.length) return null;
 
   return (
     <>

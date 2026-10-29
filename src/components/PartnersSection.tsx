@@ -35,7 +35,7 @@ export default function PartnersSection({ partners }: PartnersSectionProps) {
   const visible = useVisibleCount();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const total = partners.length;
+  const total = partners?.length ?? 0;
   const maxIndex = Math.max(0, total - visible);
 
   useEffect(() => {

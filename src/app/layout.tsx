@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { Archivo } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import AppFrame from '@/components/AppFrame'
 import ConvertBubble from '@/components/ConvertBubble'
 import { generateMetadata as getMetadata } from '@/lib/metadata'
+import { CLIENT_RECOVERY_SCRIPT } from '@/lib/clientRecovery'
 
 const archivo = Archivo({ subsets: ['latin'], weight: ['300','400','500','700'], variable: '--font-roboto' })
 
@@ -19,6 +21,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${archivo.variable}`}>
       <body className="font-sans">
+        <Script id="ndm-client-recovery" strategy="beforeInteractive">
+          {CLIENT_RECOVERY_SCRIPT}
+        </Script>
         <AppFrame>
           {children}
         </AppFrame>

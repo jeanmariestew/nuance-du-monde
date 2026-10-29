@@ -34,7 +34,7 @@ export default function TestimonialsSection({
 
   // Auto-scroll slider
   useEffect(() => {
-    if (testimonials.length <= 1) return;
+    if ((testimonials?.length ?? 0) <= 1) return;
 
     const container = sliderRef.current;
     if (!container) return;
@@ -79,9 +79,9 @@ export default function TestimonialsSection({
         container.removeEventListener("mouseleave", start);
       }
     };
-  }, [testimonials.length]);
+  }, [testimonials?.length]);
 
-  if (testimonials.length === 0) return null;
+  if (!testimonials?.length) return null;
   const imagesslider = [
     "slider0.jpg",
     "slider1.jpg",
