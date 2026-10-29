@@ -1,6 +1,7 @@
 "use client";
 
 import OfferCard from '@/components/cards/OfferCard';
+import { useProfessional } from "@/contexts/ProfessionalContext";
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -16,6 +17,7 @@ interface OfferListItem {
 
 function OffersListContent() {
   const searchParams = useSearchParams();
+  const { session, isLoading: sessionLoading } = useProfessional();
   const destination = searchParams.get("destination");
   const type = searchParams.get("type");
   const theme = searchParams.get("theme");
@@ -29,25 +31,38 @@ function OffersListContent() {
     if (destination) params.set("destination", destination);
     if (type) params.set("type", type);
     if (theme) params.set("theme", theme);
+    if (session?.isAuthenticated && (destination || type || theme)) {
+      params.set("includePro", "true");
+    }
     return params.toString();
-  }, [destination, type, theme]);
+  }, [destination, type, theme, session?.isAuthenticated]);
 
   useEffect(() => {
+    if (sessionLoading) return;
+    let cancelled = false;
+
     const load = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const url = "/api/offers" + (queryString ? `?${queryString}` : "");
         const res = await fetch(url);
         const data = await res.json();
+        if (cancelled) return;
         if (data.success) setOffers(data.data);
         else setError(data.error || "Erreur lors du chargement des offres");
       } catch (err) {
+        if (cancelled) return;
         setError((err as Error).message || "Erreur réseau lors du chargement des offres");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     load();
-  }, [queryString]);
+    return () => {
+      cancelled = true;
+    };
+  }, [queryString, sessionLoading]);
 
   const pageTitle = useMemo(() => {
     if (destination) return `Offres pour la destination: ${destination}`;
