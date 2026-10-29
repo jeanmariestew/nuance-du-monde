@@ -1,25 +1,49 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 interface ConvertBubbleProps {
   projectId: string;
 }
 
+function removeBubbleLeftovers() {
+  document.querySelectorAll("[id^='leadbubble']").forEach((node) => node.remove());
+  document.querySelectorAll("style").forEach((style) => {
+    if (style.textContent?.includes("#leadbubble_")) style.remove();
+  });
+}
+
+function placeWidget(html: string, holder: HTMLDivElement) {
+  const fragment = document.createRange().createContextualFragment(html);
+  const scripts = Array.from(fragment.querySelectorAll("script"));
+  scripts.forEach((script) => script.remove());
+  holder.replaceChildren();
+  holder.appendChild(fragment);
+  if (!holder.isConnected) document.body.appendChild(holder);
+
+  for (const oldScript of scripts) {
+    if ((oldScript.textContent || "").includes("validateConditionalUrl")) continue;
+    const script = document.createElement("script");
+    for (const attribute of oldScript.attributes) {
+      script.setAttribute(attribute.name, attribute.value);
+    }
+    script.text = oldScript.textContent || "";
+    holder.appendChild(script);
+  }
+}
+
 /**
- * Bulle ConvertBubble, ré-évaluée à chaque changement de route.
- *
- * Le widget est isolé dans son propre conteneur. Au changement de page, on retire
- * uniquement ce conteneur : un observateur sur tout le body retirait aussi des
- * nœuds ajoutés par React et faisait planter la page.
+ * La bulle est montée dans un bloc à nous. Au changement de page, ce bloc
+ * et les éléments qu'elle a posés sur la page sont retirés.
  */
 export default function ConvertBubble({ projectId }: ConvertBubbleProps) {
   const pathname = usePathname();
 
   useEffect(() => {
     let cancelled = false;
-    let holder: HTMLDivElement | null = null;
+    const holder = document.createElement("div");
+    holder.setAttribute("data-convertbubble", projectId);
 
     (async () => {
       try {
@@ -29,19 +53,27 @@ export default function ConvertBubble({ projectId }: ConvertBubbleProps) {
         const data = await res.json();
         if (cancelled || !data.status || typeof data.data !== "string") return;
 
-        holder = document.createElement("div");
-        holder.setAttribute("data-convertbubble", projectId);
-        holder.appendChild(document.createRange().createContextualFragment(data.data));
-        document.body.appendChild(holder);
+        let html = data.data as string;
+        if (html.includes("validateConditionalUrl")) {
+          const check = await fetch(
+            `https://app.convertbubble.net/hooks/project/validateConditionalUrl?project_id=${projectId}&embed=0&url=${encodeURIComponent(window.location.href)}`
+          );
+          const checkData = await check.json();
+          if (cancelled || !checkData.status || typeof checkData.data !== "string") return;
+          html = checkData.data;
+        }
+
+        if (cancelled) return;
+        placeWidget(html, holder);
       } catch {
-        // Widget non-critique : on échoue silencieusement.
+        // Widget non critique.
       }
     })();
 
     return () => {
       cancelled = true;
-      holder?.remove();
-      holder = null;
+      holder.remove();
+      removeBubbleLeftovers();
     };
   }, [pathname, projectId]);
 

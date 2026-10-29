@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Script from "next/script";
+import ConvertBubble from "@/components/ConvertBubble";
 import { Clock, Tag } from "lucide-react";
 import OptimizedImage from "@/components/OptimizedImage";
 import { generateMetadata as getMetadata } from "@/lib/metadata";
@@ -464,7 +464,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         </Accordion>
       </section>
       {slug === "voyage-tunisie-2026-circuit-groupe-voyage-organise-a-dates-fixes-13-jours" && (
-        <Script id="convertbubble-312" strategy="afterInteractive">{`(async function () {let dataHtml = await fetch('https://app.convertbubble.net/hooks/project/getHtmlData?project_id=312&embed=0');let dataHtmlJson = await dataHtml.json(); dataHtmlJson.status && document.querySelector('body').appendChild(document.createRange().createContextualFragment(dataHtmlJson.data));})();`}</Script>
+        <ConvertBubble projectId="312" />
       )}
     </div>
   );
