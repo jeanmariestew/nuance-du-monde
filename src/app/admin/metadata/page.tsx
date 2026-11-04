@@ -400,7 +400,7 @@ function MetadataForm({ initialData, pageTypes, onSubmit, onCancel }: MetadataFo
         </div>
 
         <AdminToggle
-          checked={formData.is_active}
+          checked={!!formData.is_active}
           onChange={(checked) => setFormData({ ...formData, is_active: checked })}
           label="Métadonnées actives"
           description="Appliquées sur le site public"
