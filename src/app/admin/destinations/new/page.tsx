@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageInput from '@/components/admin/ImageInput';
+import AdminToggle from '@/components/admin/AdminToggle';
+import AdminSelect from '@/components/admin/AdminSelect';
 import { adminApi } from '@/lib/axios';
 
 export default function NewDestinationPage() {
@@ -109,22 +111,22 @@ export default function NewDestinationPage() {
         </div>
 
         <div>
-          <label htmlFor="continent" className="block text-sm font-medium text-gray-700 mb-1">Continent</label>
-          <select
+          <AdminSelect
             id="continent"
             name="continent"
+            label="Continent"
             value={formData.continent}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="">Sélectionner un continent</option>
-            <option value="Afrique">Afrique</option>
-            <option value="Amérique du Nord">Amérique du Nord</option>
-            <option value="Amérique du Sud">Amérique du Sud</option>
-            <option value="Asie">Asie</option>
-            <option value="Europe">Europe</option>
-            <option value="Océanie">Océanie</option>
-          </select>
+            placeholder="Sélectionner un continent"
+            options={[
+              { value: "Afrique", label: "Afrique" },
+              { value: "Amérique du Nord", label: "Amérique du Nord" },
+              { value: "Amérique du Sud", label: "Amérique du Sud" },
+              { value: "Asie", label: "Asie" },
+              { value: "Europe", label: "Europe" },
+              { value: "Océanie", label: "Océanie" },
+            ]}
+          />
           <p className="mt-1 text-xs text-gray-500">Le continent où se situe cette destination</p>
         </div>
 
@@ -176,21 +178,18 @@ export default function NewDestinationPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <div>
-            <label htmlFor="price_currency" className="block text-sm font-medium text-gray-700 mb-1">Devise</label>
-            <select
-              id="price_currency"
-              name="price_currency"
-              defaultValue={"CAD"}
-              value={formData.price_currency}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="CAD">CAD</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
-          </div>
+          <AdminSelect
+            id="price_currency"
+            name="price_currency"
+            label="Devise"
+            value={formData.price_currency}
+            onChange={handleChange}
+            options={[
+              { value: "CAD", label: "CAD" },
+              { value: "USD", label: "USD" },
+              { value: "EUR", label: "EUR" },
+            ]}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,19 +260,12 @@ export default function NewDestinationPage() {
           <p className="mt-1 text-xs text-gray-500">Plus le nombre est bas, plus l&apos;élément apparaîtra en haut</p>
         </div>
 
-        <div className="flex items-center">
-          <input
-            id="is_active"
-            name="is_active"
-            type="checkbox"
-            checked={formData.is_active}
-            onChange={handleCheckboxChange}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-            Actif
-          </label>
-        </div>
+        <AdminToggle
+          checked={formData.is_active}
+          onChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
+          label="Actif"
+          description="Visible sur le site"
+        />
 
         {error && <div className="p-3 text-sm text-red-700 bg-red-100 rounded-md">{error}</div>}
 

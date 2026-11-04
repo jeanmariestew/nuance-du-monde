@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { PageMetadata } from '@/types';
 import { adminApi } from '@/lib/axios';
+import AdminSelect from '@/components/admin/AdminSelect';
+import AdminToggle from '@/components/admin/AdminToggle';
 
 export default function MetadataManagementPage() {
   const [metadata, setMetadata] = useState<PageMetadata[]>([]);
@@ -229,24 +231,14 @@ function MetadataForm({ initialData, pageTypes, onSubmit, onCancel }: MetadataFo
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type de page *
-            </label>
-            <select
-              value={formData.page_type}
-              onChange={(e) => setFormData({ ...formData, page_type: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Sélectionner un type</option>
-              {pageTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <AdminSelect
+            label="Type de page *"
+            value={formData.page_type}
+            onChange={(e) => setFormData({ ...formData, page_type: e.target.value })}
+            required
+            placeholder="Sélectionner un type"
+            options={pageTypes}
+          />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -355,19 +347,15 @@ function MetadataForm({ initialData, pageTypes, onSubmit, onCancel }: MetadataFo
           <h3 className="text-lg font-medium mb-4">Twitter Card</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type de carte Twitter
-              </label>
-              <select
-                value={formData.twitter_card || 'summary_large_image'}
-                onChange={(e) => setFormData({ ...formData, twitter_card: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="summary">Summary</option>
-                <option value="summary_large_image">Summary Large Image</option>
-              </select>
-            </div>
+            <AdminSelect
+              label="Type de carte Twitter"
+              value={formData.twitter_card || 'summary_large_image'}
+              onChange={(e) => setFormData({ ...formData, twitter_card: e.target.value })}
+              options={[
+                { value: "summary", label: "Summary" },
+                { value: "summary_large_image", label: "Summary Large Image" },
+              ]}
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -397,36 +385,26 @@ function MetadataForm({ initialData, pageTypes, onSubmit, onCancel }: MetadataFo
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Robots
-              </label>
-              <select
-                value={formData.robots || 'index,follow'}
-                onChange={(e) => setFormData({ ...formData, robots: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="index,follow">Index, Follow</option>
-                <option value="noindex,nofollow">No Index, No Follow</option>
-                <option value="index,nofollow">Index, No Follow</option>
-                <option value="noindex,follow">No Index, Follow</option>
-              </select>
-            </div>
+            <AdminSelect
+              label="Robots"
+              value={formData.robots || 'index,follow'}
+              onChange={(e) => setFormData({ ...formData, robots: e.target.value })}
+              options={[
+                { value: "index,follow", label: "Index, Follow" },
+                { value: "noindex,nofollow", label: "No Index, No Follow" },
+                { value: "index,nofollow", label: "Index, No Follow" },
+                { value: "noindex,follow", label: "No Index, Follow" },
+              ]}
+            />
           </div>
         </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="is_active"
-            checked={formData.is_active}
-            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-            className="mr-2"
-          />
-          <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-            Métadonnées actives
-          </label>
-        </div>
+        <AdminToggle
+          checked={formData.is_active}
+          onChange={(checked) => setFormData({ ...formData, is_active: checked })}
+          label="Métadonnées actives"
+          description="Appliquées sur le site public"
+        />
 
         <div className="flex justify-end space-x-4">
           <button

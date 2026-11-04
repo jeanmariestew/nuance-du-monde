@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Calendar, ChevronDown, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { ArrowRight, Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import QuoteRequestModal from "@/components/QuoteRequestModal";
 
 interface DateOption {
@@ -26,6 +26,8 @@ interface DatesAndPricingProps {
   // Nom du circuit/offre, transmis au formulaire de devis (distinct de `title`,
   // qui est le titre affiché de cette section)
   circuit?: string;
+  // Afficher les montants (désactivable depuis l'admin)
+  showPrice?: boolean;
   // Accordion pleine largeur pour les départs à dates fixes. Les autres types
   // conservent le calendrier.
   variant?: "calendar" | "accordion";
@@ -35,9 +37,11 @@ function CalendarDatesAndPricing({
   dates = [],
   basePrice,
   baseCurrency = "$",
-  title = "Dates et prix",
+  title,
   circuit,
+  showPrice = true,
 }: DatesAndPricingProps) {
+  const sectionTitle = title || (showPrice ? "Dates et prix" : "Dates");
   const [selectedDate, setSelectedDate] = useState<DateOption | null>(
     dates[0] || null
   );
@@ -164,7 +168,7 @@ function CalendarDatesAndPricing({
             <Calendar className="w-6 h-6 text-yellow-600" />
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-medium text-gray-900">
-            {title}
+            {sectionTitle}
           </h2>
         </div>
 
@@ -297,9 +301,11 @@ function CalendarDatesAndPricing({
                       key={date.id}
                       onClick={() => setSelectedDate(date)}
                       className={`w-full text-left p-4 rounded-xl transition-all border-2 grid items-center gap-3 ${
-                        hasAnyNote
+                        showPrice && hasAnyNote
                           ? "grid-cols-[minmax(0,1fr)_120px_140px] sm:grid-cols-[minmax(0,1fr)_130px_160px]"
-                          : "grid-cols-[minmax(0,1fr)_auto]"
+                          : showPrice || hasAnyNote
+                          ? "grid-cols-[minmax(0,1fr)_auto]"
+                          : "grid-cols-[minmax(0,1fr)]"
                       } ${
                         isSelected
                           ? "bg-linear-to-r from-yellow-500 to-orange-500 text-white border-yellow-600 shadow-lg"
@@ -317,12 +323,14 @@ function CalendarDatesAndPricing({
                       </div>
                       {/* Colonne 2 : prix — largeur fixe et identique sur toutes les lignes dès qu'au
                           moins une date de la liste a une remarque, pour que le prix reste aligné */}
-                      <div className="text-right">
-                        <p className={`text-lg font-extrabold whitespace-nowrap ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
-                          {formatPrice(date.price, date.price_currency)}
-                        </p>
-                        <p className={`text-[11px] whitespace-nowrap ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
-                      </div>
+                      {showPrice && (
+                        <div className="text-right">
+                          <p className={`text-lg font-extrabold whitespace-nowrap ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
+                            {formatPrice(date.price, date.price_currency)}
+                          </p>
+                          <p className={`text-[11px] whitespace-nowrap ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
+                        </div>
+                      )}
                       {/* Colonne 3 : texte libre — n'existe que si au moins une date de la liste a
                           une remarque (sinon la liste entière repasse en 2 colonnes ci-dessus) */}
                       {hasAnyNote && (
@@ -400,26 +408,34 @@ function CalendarDatesAndPricing({
                   )}
 
                   {/* Prix */}
-                  <div className="pt-5 border-t-2 border-yellow-400">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm text-yellow-100 mb-2">
-                        Prix par personne
-                      </p>
-                      {selectedDate.price_note && (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                          isCompletNote(selectedDate.price_note) ? "bg-red-500/20 text-red-100" : "bg-yellow-400/20 text-yellow-100"
-                        }`}>
-                          {selectedDate.price_note}
-                        </span>
+                  {(showPrice || selectedDate.price_note) && (
+                    <div className="pt-5 border-t-2 border-yellow-400">
+                      <div className="flex items-center justify-between gap-3">
+                        {showPrice && (
+                          <p className="text-sm text-yellow-100 mb-2">
+                            Prix par personne
+                          </p>
+                        )}
+                        {selectedDate.price_note && (
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                            isCompletNote(selectedDate.price_note) ? "bg-red-500/20 text-red-100" : "bg-yellow-400/20 text-yellow-100"
+                          }`}>
+                            {selectedDate.price_note}
+                          </span>
+                        )}
+                      </div>
+                      {showPrice && (
+                        <>
+                          <p className="text-4xl sm:text-5xl font-bold">
+                            {formatPrice(selectedDate.price, selectedDate.price_currency)}
+                          </p>
+                          <p className="text-sm text-yellow-100 mt-2">
+                            en occupation double
+                          </p>
+                        </>
                       )}
                     </div>
-                    <p className="text-4xl sm:text-5xl font-bold">
-                      {formatPrice(selectedDate.price, selectedDate.price_currency)}
-                    </p>
-                    <p className="text-sm text-yellow-100 mt-2">
-                      en occupation double
-                    </p>
-                  </div>
+                  )}
 
                   {/* Bouton CTA */}
                   <button
@@ -444,15 +460,6 @@ function CalendarDatesAndPricing({
       />
     </section>
   );
-}
-
-function formatLongDate(value: string) {
-  return new Date(value).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 function formatStayRange(dep: string, ret?: string) {
@@ -483,10 +490,11 @@ function AccordionDatesAndPricing({
   dates = [],
   basePrice,
   baseCurrency = "CAD",
-  title = "Dates et prix",
+  title,
   circuit,
+  showPrice = true,
 }: DatesAndPricingProps) {
-  const [openId, setOpenId] = useState<number | null>(dates[0]?.id ?? null);
+  const sectionTitle = title || (showPrice ? "Dates et prix" : "Dates");
   const [quoteDate, setQuoteDate] = useState<DateOption | null>(null);
 
   const formatPrice = (value?: number, currency?: string) => {
@@ -499,10 +507,6 @@ function AccordionDatesAndPricing({
 
   if (!dates.length) return null;
 
-  const toggle = (id: number) => {
-    setOpenId((current) => (current === id ? null : id));
-  };
-
   return (
     <section className="site-section bg-linear-to-b from-gray-50 to-white">
       <div className="site-container">
@@ -512,7 +516,7 @@ function AccordionDatesAndPricing({
               <Calendar className="h-6 w-6 text-yellow-600" />
             </div>
             <h2 className="font-serif text-3xl font-medium text-gray-900 sm:text-4xl">
-              {title}
+              {sectionTitle}
             </h2>
           </div>
           <p className="max-w-3xl text-sm text-gray-500 sm:text-base">
@@ -522,41 +526,33 @@ function AccordionDatesAndPricing({
 
         <div className="space-y-4">
           {dates.map((date) => {
-            const open = openId === date.id;
-            const panelId = `depart-${date.id}`;
             const complet = isCompletNote(date.price_note);
             const occupancy = date.price_note?.trim() || "Prix en chambre double ou twin";
 
             return (
               <article
                 key={date.id}
-                className={`rounded-2xl border-2 bg-[#fffdf6] shadow-sm transition-colors duration-500 ${
-                  open ? "border-yellow-300" : "border-yellow-200"
-                }`}
+                className="rounded-2xl border-2 border-yellow-200 bg-[#fffdf6] p-4 shadow-sm sm:p-5"
               >
-                <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-                  <button
-                    type="button"
-                    onClick={() => toggle(date.id)}
-                    aria-expanded={open}
-                    aria-controls={panelId}
-                    className="min-w-0 flex-1 text-left"
-                  >
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0 flex-1">
                     <p className="text-base font-bold text-gray-900 sm:text-lg">
                       {formatStayRange(date.departure_date, date.return_date)}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
                       {date.return_date ? "Date de retour incluse" : "Départ unique"}
                     </p>
-                  </button>
+                  </div>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                    <div className="shrink-0 text-left sm:text-right">
-                      <p className="text-xl font-bold whitespace-nowrap text-[#b45309] sm:text-2xl">
-                        {formatPrice(date.price, date.price_currency)}
-                      </p>
-                      <p className="text-xs text-gray-500">/ personne</p>
-                    </div>
+                    {showPrice && (
+                      <div className="shrink-0 text-left sm:text-right">
+                        <p className="text-xl font-bold whitespace-nowrap text-[#b45309] sm:text-2xl">
+                          {formatPrice(date.price, date.price_currency)}
+                        </p>
+                        <p className="text-xs text-gray-500">/ personne</p>
+                      </div>
+                    )}
                     <span
                       className={`inline-flex max-w-full items-center justify-center rounded-md px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight sm:max-w-[180px] ${
                         complet ? "bg-red-100 text-red-700" : "bg-[#f3e4a1] text-gray-900"
@@ -572,80 +568,6 @@ function AccordionDatesAndPricing({
                       Demander un devis
                       <ArrowRight className="h-4 w-4" />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => toggle(date.id)}
-                      aria-expanded={open}
-                      aria-controls={panelId}
-                      aria-label={open ? "Fermer les détails du départ" : "Ouvrir les détails du départ"}
-                      className="inline-flex h-10 w-10 items-center justify-center self-end rounded-full text-gray-700 transition-colors hover:bg-yellow-100 sm:self-auto"
-                    >
-                      <ChevronDown
-                        className={`h-5 w-5 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  id={panelId}
-                  className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-                    open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden" aria-hidden={!open}>
-                    <div
-                      className={`px-3 sm:px-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-                        open ? "translate-y-0 pb-3 sm:pb-4" : "-translate-y-2 pb-0"
-                      }`}
-                    >
-                    <div className="rounded-2xl bg-[#0c1222] px-5 py-6 text-white sm:px-8 sm:py-7">
-                      <h3 className="mb-6 text-xl font-bold sm:text-2xl">Détails du départ</h3>
-
-                      {complet && (
-                        <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-400/70 bg-red-500/15 px-4 py-3">
-                          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
-                          <p className="text-sm font-medium text-red-100">
-                            Ce départ est complet. Contactez-nous pour être ajouté(e) à la liste d&apos;attente ou pour connaître la prochaine date disponible.
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.2fr)] md:items-center md:gap-8">
-                        <div className="space-y-5">
-                          <div>
-                            <p className="text-sm text-gray-300">Date de départ</p>
-                            <p className="mt-1 text-2xl font-bold">{formatLongDate(date.departure_date)}</p>
-                          </div>
-                          {date.return_date && (
-                            <div>
-                              <p className="text-sm text-gray-300">Date de retour</p>
-                              <p className="mt-1 text-2xl font-bold">{formatLongDate(date.return_date)}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="hidden h-full min-h-28 w-px bg-[#d9a900] md:block" />
-
-                        <div className="border-t border-white/10 pt-5 md:border-0 md:pt-0">
-                          <div className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                              <p className="text-sm text-gray-300">Prix par personne</p>
-                              <span className="inline-flex max-w-full items-center justify-center rounded-md border border-[#e6c200] px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight text-[#e6c200] sm:max-w-[180px]">
-                                {occupancy}
-                              </span>
-                            </div>
-                            <p className="text-4xl font-bold tracking-tight whitespace-nowrap sm:text-5xl">
-                              {formatPrice(date.price, date.price_currency)}
-                            </p>
-                            <p className="text-sm text-gray-300">en occupation double</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    </div>
                   </div>
                 </div>
               </article>

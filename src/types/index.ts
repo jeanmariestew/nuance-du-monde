@@ -50,6 +50,10 @@ export interface Offer {
   price_from?: number; // public pages may use price_from
   price?: number; // DB column name in schema
   price_currency?: string;
+  // Masquer le prix sur la fiche et les cartes (défaut: non)
+  hide_price?: boolean | number;
+  // Masquer la section extensions sur la fiche offre (défaut: non)
+  hide_extensions?: boolean | number;
   // Promotional pricing fields
   promotional_price?: number;
   promotional_price_currency?: string;

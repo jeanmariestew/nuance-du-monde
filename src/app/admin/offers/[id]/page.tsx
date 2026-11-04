@@ -13,6 +13,9 @@ import DayOptionsEditor, { DayOption } from '@/components/admin/DayOptionsEditor
 import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEditor';
 import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
 import FitPaxPricesEditor from '@/components/admin/FitPaxPricesEditor';
+import AdminToggle from '@/components/admin/AdminToggle';
+import AdminMultiSelectGrid from '@/components/admin/AdminMultiSelectGrid';
+import { adminInputClass, adminLabelClass } from '@/components/admin/adminFormStyles';
 import { FIT_TRAVEL_TYPE_SLUG } from '@/lib/fitPaxPrices';
 import { adminApi } from '@/lib/axios';
 
@@ -42,6 +45,8 @@ type OfferData = {
   is_pro: 0 | 1;
   price: number | null;
   price_currency: string | null;
+  hide_price: 0 | 1;
+  hide_extensions: 0 | 1;
   promotional_price: number | null;
   promotional_price_currency: string | null;
   promotion_start_date: string | null;
@@ -248,10 +253,6 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
     }
   }
 
-  function toggleId(arr: number[], id: number): number[] {
-    return arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id];
-  }
-
   // async function refreshUploads() {
   //   try {
   //     const up = await adminApi.get('/uploads').then(res => res.data);
@@ -301,7 +302,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
   if (!offer) return null;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className={`mx-auto max-w-6xl ${hasChanges ? "pb-24" : ""}`}>
       {/* Popup d'erreur détaillé */}
       {showErrorPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -356,16 +357,14 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-2xl font-semibold">Modifier l&apos;offre</h1>
-        <div className="ml-auto">
-          <Link
-            href="/admin/offers"
-            className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-300 h-10 px-4 text-sm"
-          >
-            ← Retour
-          </Link>
-        </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-semibold sm:text-2xl">Modifier l&apos;offre</h1>
+        <Link
+          href="/admin/offers"
+          className="inline-flex h-10 w-fit items-center justify-center rounded-lg px-4 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-100"
+        >
+          ← Retour
+        </Link>
       </div>
 
       <div className="grid gap-4">
@@ -519,65 +518,76 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
           <CardHeader>
             <CardTitle>Statut et prix</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+          <CardContent className="space-y-5">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Publication</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <AdminToggle
                   checked={!!offer.is_active}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), is_active: e.target.checked ? 1 : 0 })}
-                  className="h-4 w-4"
+                  onChange={(checked) => setOffer({ ...(offer as OfferData), is_active: checked ? 1 : 0 })}
+                  label="Actif"
+                  description="Visible sur le site public"
                 />
-                Actif
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+                <AdminToggle
                   checked={!!offer.is_pro}
-                  onChange={(e) => setOffer({ ...(offer as OfferData), is_pro: e.target.checked ? 1 : 0 })}
-                  className="h-4 w-4"
+                  onChange={(checked) => setOffer({ ...(offer as OfferData), is_pro: checked ? 1 : 0 })}
+                  label="Réservé aux professionnels"
+                  description="Accessible aux agents connectés"
                 />
-                Réservé aux Professionnels
-              </label>
+              </div>
             </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-[1fr,160px]">
-              <label className="text-sm">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Affichage public</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <AdminToggle
+                  checked={!!offer.hide_price}
+                  onChange={(checked) => setOffer({ ...(offer as OfferData), hide_price: checked ? 1 : 0 })}
+                  label="Masquer le prix"
+                  description="Cache les montants sur la fiche et les cartes"
+                />
+                <AdminToggle
+                  checked={!!offer.hide_extensions}
+                  onChange={(checked) => setOffer({ ...(offer as OfferData), hide_extensions: checked ? 1 : 0 })}
+                  label="Masquer les extensions"
+                  description="Cache la section extensions sur la fiche"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <label className={adminLabelClass}>
                 Prix
                 <input
                   type="number"
                   value={offer.price ?? ''}
                   onChange={(e) => setOffer({ ...(offer as OfferData), price: e.target.value === '' ? null : Number(e.target.value) })}
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  className={adminInputClass}
                 />
               </label>
-              <label className="text-sm">
+              <label className={adminLabelClass}>
                 Devise
                 <input
                   type="text"
                   value={offer.price_currency || 'CAD'}
-                  defaultValue={"CAD"}
                   onChange={(e) => setOffer({ ...(offer as OfferData), price_currency: e.target.value })}
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  className={adminInputClass}
                 />
               </label>
-            </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              <label className="text-sm">
+              <label className={adminLabelClass}>
                 Durée (jours)
                 <input
                   type="number"
                   value={offer.duration_days ?? ''}
                   onChange={(e) => setOffer({ ...(offer as OfferData), duration_days: e.target.value === '' ? null : Number(e.target.value) })}
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  className={adminInputClass}
                 />
               </label>
-              <label className="text-sm">
+              <label className={adminLabelClass}>
                 Durée (nuits)
                 <input
                   type="number"
                   value={offer.duration_nights ?? ''}
                   onChange={(e) => setOffer({ ...(offer as OfferData), duration_nights: e.target.value === '' ? null : Number(e.target.value) })}
-                  className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                  className={adminInputClass}
                 />
               </label>
             </div>
@@ -684,19 +694,13 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Types</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {types.map((t) => (
-                <label key={t.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={offer.typeIds.includes(t.id)}
-                    onChange={() => setOffer({ ...(offer as OfferData), typeIds: toggleId(offer.typeIds, t.id) })}
-                    className="h-4 w-4"
-                  />
-                  {t.title}
-                </label>
-              ))}
-            </div>
+            <AdminMultiSelectGrid
+              items={types}
+              selectedIds={offer.typeIds}
+              onChange={(typeIds) => setOffer({ ...(offer as OfferData), typeIds })}
+              searchPlaceholder="Rechercher un type…"
+              emptyLabel="Aucun type trouvé"
+            />
           </CardContent>
         </Card>
 
@@ -719,19 +723,13 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Thèmes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {themes.map((t) => (
-                <label key={t.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={offer.themeIds.includes(t.id)}
-                    onChange={() => setOffer({ ...(offer as OfferData), themeIds: toggleId(offer.themeIds, t.id) })}
-                    className="h-4 w-4"
-                  />
-                  {t.title}
-                </label>
-              ))}
-            </div>
+            <AdminMultiSelectGrid
+              items={themes}
+              selectedIds={offer.themeIds}
+              onChange={(themeIds) => setOffer({ ...(offer as OfferData), themeIds })}
+              searchPlaceholder="Rechercher un thème…"
+              emptyLabel="Aucun thème trouvé"
+            />
           </CardContent>
         </Card>
 
@@ -740,19 +738,13 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Destinations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {destinations.map((d) => (
-                <label key={d.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={offer.destinationIds.includes(d.id)}
-                    onChange={() => setOffer({ ...(offer as OfferData), destinationIds: toggleId(offer.destinationIds, d.id) })}
-                    className="h-4 w-4"
-                  />
-                  {d.title}
-                </label>
-              ))}
-            </div>
+            <AdminMultiSelectGrid
+              items={destinations}
+              selectedIds={offer.destinationIds}
+              onChange={(destinationIds) => setOffer({ ...(offer as OfferData), destinationIds })}
+              searchPlaceholder="Rechercher une destination…"
+              emptyLabel="Aucune destination trouvée"
+            />
           </CardContent>
         </Card>
 
@@ -761,135 +753,137 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
             <CardTitle>Périodes de départ et prix</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3">
-              <div className="text-sm text-neutral-600">
+            <div className="grid gap-4">
+              <p className="text-sm text-neutral-600">
                 Ajoutez des périodes avec une date de départ, une date de retour (optionnelle). Le prix est optionnel : vous pouvez annoncer une date sans prix connu et utiliser le champ texte pour préciser (ex: PRIX SUR DEMANDE).
                 <span className="font-medium text-orange-600"> N&apos;oubliez pas de cliquer sur &quot;Enregistrer&quot; en bas pour sauvegarder.</span>
+              </p>
+              <div className="rounded-xl border border-neutral-200 bg-neutral-50/80 p-3 sm:p-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <label className={adminLabelClass}>
+                    Date de départ
+                    <input
+                      type="date"
+                      id="new-start-date"
+                      min={new Date().toISOString().split('T')[0]}
+                      className={adminInputClass}
+                    />
+                  </label>
+                  <label className={adminLabelClass}>
+                    Date de retour (optionnelle)
+                    <input
+                      type="date"
+                      id="new-end-date"
+                      className={adminInputClass}
+                    />
+                  </label>
+                  <label className={adminLabelClass}>
+                    Prix (optionnel)
+                    <input
+                      type="number"
+                      id="new-date-price"
+                      className={adminInputClass}
+                      placeholder="Ex: 3500"
+                    />
+                  </label>
+                  <label className={adminLabelClass}>
+                    Devise
+                    <input
+                      type="text"
+                      id="new-date-currency"
+                      defaultValue="CAD"
+                      className={adminInputClass}
+                      placeholder="Ex: EUR, CAD, USD"
+                    />
+                  </label>
+                  <label className={`${adminLabelClass} sm:col-span-2 lg:col-span-1`}>
+                    Texte affiché (optionnel)
+                    <input
+                      type="text"
+                      id="new-date-note"
+                      maxLength={255}
+                      className={adminInputClass}
+                      placeholder="Ex: COMPLET, PRIX SUR DEMANDE"
+                    />
+                  </label>
+                  <div className="flex items-end sm:col-span-2 lg:col-span-1">
+                    <Button
+                      onClick={() => {
+                        const start = document.getElementById('new-start-date') as HTMLInputElement;
+                        const end = document.getElementById('new-end-date') as HTMLInputElement;
+                        const price = document.getElementById('new-date-price') as HTMLInputElement;
+                        const currency = document.getElementById('new-date-currency') as HTMLInputElement;
+                        const note = document.getElementById('new-date-note') as HTMLInputElement;
+                        if (!start.value) {
+                          setError('La date de départ est requise');
+                          return;
+                        }
+                        const newEntry = {
+                          departure_date: start.value,
+                          return_date: end.value || null,
+                          price: price.value === '' ? null : Number(price.value),
+                          price_currency: (currency.value || 'EUR'),
+                          price_note: note.value.trim() || null,
+                        };
+                        setOffer({
+                          ...(offer as OfferData),
+                          dates: [...(offer.dates || []), newEntry].sort((a,b) => a.departure_date.localeCompare(b.departure_date)),
+                        });
+                        start.value = '';
+                        end.value = '';
+                        price.value = '';
+                        note.value = '';
+                        setStatus('Période ajoutée - cliquez sur Enregistrer pour sauvegarder');
+                      }}
+                      className="w-full"
+                    >
+                      Ajouter
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="grid gap-2 md:grid-cols-[1fr,1fr,120px,100px,1fr,auto]">
-                <label className="text-sm">
-                  Date de départ
-                  <input
-                    type="date"
-                    id="new-start-date"
-                    min={new Date().toISOString().split('T')[0]}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    placeholder="jj/mm/aaaa"
-                  />
-                </label>
-                <label className="text-sm">
-                  Date de retour (optionnelle)
-                  <input
-                    type="date"
-                    id="new-end-date"
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    placeholder="jj/mm/aaaa"
-                  />
-                </label>
-                <label className="text-sm">
-                  Prix (optionnel)
-                  <input
-                    type="number"
-                    id="new-date-price"
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    placeholder="Ex: 3500"
-                  />
-                </label>
-                <label className="text-sm">
-                  Devise
-                  <input
-                    type="text"
-                    id="new-date-currency"
-                    defaultValue={"CAD"}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    placeholder="Ex: EUR, CAD, USD"
-                  />
-                </label>
-                <label className="text-sm">
-                  Texte affiché (optionnel)
-                  <input
-                    type="text"
-                    id="new-date-note"
-                    maxLength={255}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
-                    placeholder="Ex: COMPLET, PRIX SUR DEMANDE, TARIF PROMOTIONNEL"
-                  />
-                </label>
-                <Button
-                  onClick={() => {
-                    const start = document.getElementById('new-start-date') as HTMLInputElement;
-                    const end = document.getElementById('new-end-date') as HTMLInputElement;
-                    const price = document.getElementById('new-date-price') as HTMLInputElement;
-                    const currency = document.getElementById('new-date-currency') as HTMLInputElement;
-                    const note = document.getElementById('new-date-note') as HTMLInputElement;
-                    if (!start.value) {
-                      setError('La date de départ est requise');
-                      return;
-                    }
-                    const newEntry = {
-                      departure_date: start.value,
-                      return_date: end.value || null,
-                      price: price.value === '' ? null : Number(price.value),
-                      price_currency: (currency.value || 'EUR'),
-                      price_note: note.value.trim() || null,
-                    };
-                    setOffer({
-                      ...(offer as OfferData),
-                      dates: [...(offer.dates || []), newEntry].sort((a,b) => a.departure_date.localeCompare(b.departure_date)),
-                    });
-                    start.value = '';
-                    end.value = '';
-                    price.value = '';
-                    note.value = '';
-                    setStatus('Période ajoutée - cliquez sur Enregistrer pour sauvegarder');
-                  }}
-                  className="px-4 py-2 text-sm"
-                >
-                  Ajouter
-                </Button>
-              </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 {(offer.dates && offer.dates.length > 0) ? (
                   offer.dates.map((d, index) => (
                     editingDateIndex === index ? (
-                      <div key={index} className="grid gap-2 rounded-md border-2 border-[--color-primary] bg-white px-3 py-3 md:grid-cols-[1fr,1fr,120px,100px,1fr,auto,auto]">
-                        <label className="text-xs text-neutral-600">
+                      <div key={index} className="grid grid-cols-1 gap-3 rounded-xl border-2 border-neutral-900 bg-white p-3 sm:grid-cols-2 lg:grid-cols-3 sm:p-4">
+                        <label className={adminLabelClass}>
                           Date de départ
                           <input
                             type="date"
                             value={dateDraft.departure_date}
                             onChange={(e) => setDateDraft({ ...dateDraft, departure_date: e.target.value })}
-                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                            className={adminInputClass}
                           />
                         </label>
-                        <label className="text-xs text-neutral-600">
+                        <label className={adminLabelClass}>
                           Date de retour
                           <input
                             type="date"
                             value={dateDraft.return_date}
                             onChange={(e) => setDateDraft({ ...dateDraft, return_date: e.target.value })}
-                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                            className={adminInputClass}
                           />
                         </label>
-                        <label className="text-xs text-neutral-600">
+                        <label className={adminLabelClass}>
                           Prix
                           <input
                             type="number"
                             value={dateDraft.price}
                             onChange={(e) => setDateDraft({ ...dateDraft, price: e.target.value })}
-                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                            className={adminInputClass}
                           />
                         </label>
-                        <label className="text-xs text-neutral-600">
+                        <label className={adminLabelClass}>
                           Devise
                           <input
                             type="text"
                             value={dateDraft.price_currency}
                             onChange={(e) => setDateDraft({ ...dateDraft, price_currency: e.target.value })}
-                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                            className={adminInputClass}
                           />
                         </label>
-                        <label className="text-xs text-neutral-600">
+                        <label className={`${adminLabelClass} sm:col-span-2 lg:col-span-1`}>
                           Texte affiché
                           <input
                             type="text"
@@ -897,56 +891,68 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                             value={dateDraft.price_note}
                             onChange={(e) => setDateDraft({ ...dateDraft, price_note: e.target.value })}
                             placeholder="Ex: COMPLET, PRIX SUR DEMANDE"
-                            className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+                            className={adminInputClass}
                           />
                         </label>
-                        <Button
-                          onClick={() => {
-                            if (!dateDraft.departure_date) {
-                              setError('La date de départ est requise');
-                              return;
-                            }
-                            const updated = (offer.dates || []).map((entry, i) =>
-                              i === index
-                                ? {
-                                    ...entry,
-                                    departure_date: dateDraft.departure_date,
-                                    return_date: dateDraft.return_date || null,
-                                    price: dateDraft.price === '' ? null : Number(dateDraft.price),
-                                    price_currency: dateDraft.price_currency || 'EUR',
-                                    price_note: dateDraft.price_note.trim() || null,
-                                  }
-                                : entry
-                            ).sort((a, b) => a.departure_date.localeCompare(b.departure_date));
-                            setOffer({ ...(offer as OfferData), dates: updated });
-                            setEditingDateIndex(null);
-                            setStatus('Période modifiée - cliquez sur Enregistrer pour sauvegarder');
-                          }}
-                          className="self-end px-3 py-2 text-sm"
-                        >
-                          Enregistrer
-                        </Button>
-                        <button
-                          onClick={() => setEditingDateIndex(null)}
-                          className="self-end px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900"
-                        >
-                          Annuler
-                        </button>
+                        <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-1 lg:items-end">
+                          <Button
+                            onClick={() => {
+                              if (!dateDraft.departure_date) {
+                                setError('La date de départ est requise');
+                                return;
+                              }
+                              const updated = (offer.dates || []).map((entry, i) =>
+                                i === index
+                                  ? {
+                                      ...entry,
+                                      departure_date: dateDraft.departure_date,
+                                      return_date: dateDraft.return_date || null,
+                                      price: dateDraft.price === '' ? null : Number(dateDraft.price),
+                                      price_currency: dateDraft.price_currency || 'EUR',
+                                      price_note: dateDraft.price_note.trim() || null,
+                                    }
+                                  : entry
+                              ).sort((a, b) => a.departure_date.localeCompare(b.departure_date));
+                              setOffer({ ...(offer as OfferData), dates: updated });
+                              setEditingDateIndex(null);
+                              setStatus('Période modifiée - cliquez sur Enregistrer pour sauvegarder');
+                            }}
+                            className="w-full sm:flex-1"
+                          >
+                            Enregistrer
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingDateIndex(null)}
+                            className="inline-flex h-10 w-full items-center justify-center rounded-lg px-4 text-sm font-medium text-neutral-600 hover:bg-neutral-100 sm:w-auto"
+                          >
+                            Annuler
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                    <div key={index} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-                      <span className="text-sm flex items-center gap-2">
-                        {new Date(d.departure_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
-                        {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}` : ''}
-                        {typeof d.price === 'number' ? ` — ${(d.price_currency || offer.price_currency || 'EUR')} ${d.price}` : ''}
-                        {d.price_note && (
-                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
-                            {d.price_note}
-                          </span>
-                        )}
-                      </span>
-                      <div className="flex items-center gap-3">
+                    <div key={index} className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                      <div className="min-w-0 space-y-1">
+                        <p className="text-sm font-medium text-neutral-900">
+                          {new Date(d.departure_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}
+                          {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}` : ''}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600">
+                          {typeof d.price === 'number' ? (
+                            <span>{(d.price_currency || offer.price_currency || 'EUR')} {d.price}</span>
+                          ) : (
+                            <span className="text-neutral-400">Sans prix</span>
+                          )}
+                          {d.price_note && (
+                            <span className="inline-flex items-center rounded-md bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
+                              {d.price_note}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
                         <button
+                          type="button"
                           onClick={() => {
                             setDateDraft({
                               departure_date: toInputDate(d.departure_date),
@@ -957,29 +963,32 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                             });
                             setEditingDateIndex(index);
                           }}
-                          className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline"
+                          className="text-sm font-medium text-neutral-700 underline hover:text-neutral-900"
                         >
                           Modifier
                         </button>
-                      <button
-                        onClick={() => {
-                          const updated = (offer.dates || []).filter((_, i) => i !== index);
-                          setOffer({
-                            ...(offer as OfferData),
-                            dates: updated,
-                          });
-                          setStatus('Période supprimée - cliquez sur Enregistrer pour sauvegarder');
-                        }}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Supprimer
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (offer.dates || []).filter((_, i) => i !== index);
+                            setOffer({
+                              ...(offer as OfferData),
+                              dates: updated,
+                            });
+                            setStatus('Période supprimée - cliquez sur Enregistrer pour sauvegarder');
+                          }}
+                          className="text-sm font-medium text-red-600 hover:text-red-800"
+                        >
+                          Supprimer
+                        </button>
                       </div>
                     </div>
                     )
                   ))
                 ) : (
-                  <div className="text-sm text-neutral-500 italic">Aucune période configurée</div>
+                  <div className="rounded-xl border border-dashed border-neutral-200 px-4 py-6 text-center text-sm text-neutral-500">
+                    Aucune période configurée
+                  </div>
                 )}
               </div>
             </div>
@@ -999,12 +1008,13 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
         )}
       </div>
 
-      {/* Bouton flottant Enregistrer */}
+      {/* Barre d'enregistrement */}
       {hasChanges && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-150">
-          <div className="bg-white rounded-full shadow-2xl border border-neutral-200 px-6 py-3 flex items-center gap-4">
-            <span className="text-sm text-neutral-600">Modifications non enregistrées</span>
-            <Button onClick={save} disabled={!canSave || saving} className="rounded-full!">
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4">
+          <div className="pointer-events-auto mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white/95 px-3 py-3 shadow-xl backdrop-blur sm:px-5">
+            <span className="hidden text-sm text-neutral-600 sm:inline">Modifications non enregistrées</span>
+            <span className="text-sm text-neutral-600 sm:hidden">Non enregistré</span>
+            <Button onClick={save} disabled={!canSave || saving} className="shrink-0 rounded-xl">
               {saving ? (
                 <span className="inline-flex items-center gap-2"><Spinner size={16} /> Enregistrement…</span>
               ) : (

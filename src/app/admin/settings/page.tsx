@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import {Button} from '@/components/ui/Button';
 import { adminApi } from '@/lib/axios';
 import Spinner from '@/components/ui/Spinner';
+import AdminToggle from '@/components/admin/AdminToggle';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -64,15 +65,12 @@ export default function AdminSettingsPage() {
               <CardTitle>Général</CardTitle>
             </CardHeader>
             <CardContent>
-              <label className="flex items-center gap-3 text-sm">
-                <input
-                  type="checkbox"
-                  checked={maintenance}
-                  onChange={(e) => setMaintenance(e.target.checked)}
-                  className="size-4"
-                />
-                Mode maintenance
-              </label>
+              <AdminToggle
+                checked={maintenance}
+                onChange={setMaintenance}
+                label="Mode maintenance"
+                description="Le site public affiche une page de maintenance"
+              />
             </CardContent>
           </Card>
 

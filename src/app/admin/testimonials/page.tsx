@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { Testimonial } from '@/types';
 import ImageInput from '@/components/admin/ImageInput';
+import AdminToggle from '@/components/admin/AdminToggle';
 import { api } from '@/lib/axios';
 
 type Editable = Partial<Testimonial> & { id?: number };
@@ -134,19 +135,22 @@ export default function AdminTestimonialsPage() {
               placeholder="4"
             />
           </label>
-          <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={!!form.is_featured} onChange={(e) => setForm((f) => ({ ...f, is_featured: e.target.checked }))} />
-              <span>À la une</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={!!form.is_published} onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))} />
-              <span>Publié</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))} />
-              <span>Actif</span>
-            </label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <AdminToggle
+              checked={!!form.is_featured}
+              onChange={(checked) => setForm((f) => ({ ...f, is_featured: checked }))}
+              label="À la une"
+            />
+            <AdminToggle
+              checked={!!form.is_published}
+              onChange={(checked) => setForm((f) => ({ ...f, is_published: checked }))}
+              label="Publié"
+            />
+            <AdminToggle
+              checked={!!form.is_active}
+              onChange={(checked) => setForm((f) => ({ ...f, is_active: checked }))}
+              label="Actif"
+            />
           </div>
         </div>
 

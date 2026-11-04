@@ -45,6 +45,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     is_pro: row.is_pro || false,
     price: row.price,
     price_currency: row.price_currency,
+    hide_price: row.hide_price ? 1 : 0,
+    hide_extensions: row.hide_extensions ? 1 : 0,
     promotional_price: row.promotional_price,
     promotional_price_currency: row.promotional_price_currency,
     promotion_start_date: row.promotion_start_date,
@@ -106,6 +108,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     is_pro = 0,
     price = null,
     price_currency = 'EUR',
+    hide_price = 0,
+    hide_extensions = 0,
     promotional_price = null,
     promotional_price_currency = 'EUR',
     promotion_start_date = null,
@@ -149,8 +153,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       : null;
 
     await query(
-      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=?, fit_pax_prices=? WHERE id=?`,
-      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, serializeFitPaxPrices(fit_pax_prices), id]
+      `UPDATE offers SET title=?, slug=?, short_description=?, description=?, is_active=?, is_pro=?, price=?, price_currency=?, hide_price=?, hide_extensions=?, promotional_price=?, promotional_price_currency=?, promotion_start_date=?, promotion_end_date=?, promotion_description=?, price_includes=?, price_excludes=?, label=?, programme_link=?, coordinates=?, map_center=?, map_image=?, duration_days=?, duration_nights=?, fit_pax_prices=? WHERE id=?`,
+      [title, slug, summary, safeDescription, is_active ? 1 : 0, is_pro ? 1 : 0, price, price_currency, hide_price ? 1 : 0, hide_extensions ? 1 : 0, promotional_price, promotional_price_currency, promotion_start_date, promotion_end_date, promotion_description, safeIncludes, safeExcludes, label, programme_link, coordinatesJson, mapCenterJson, map_image, duration_days, duration_nights, serializeFitPaxPrices(fit_pax_prices), id]
     );
   } catch (e) {
     console.error('[PUT /offers] Erreur UPDATE offers:', e);

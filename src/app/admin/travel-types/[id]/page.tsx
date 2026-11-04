@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import ImageInput from "@/components/admin/ImageInput";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { adminApi } from '@/lib/axios';
 
 export default function EditTravelTypePage({
@@ -243,39 +244,19 @@ export default function EditTravelTypePage({
                 </p>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="flex items-center">
-                  <input
-                    id="is_active"
-                    name="is_active"
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="is_active"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Actif
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id="is_pro"
-                    name="is_pro"
-                    type="checkbox"
-                    checked={formData.is_pro}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="is_pro"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Réservé aux Professionnels
-                  </label>
-                </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <AdminToggle
+                  checked={formData.is_active}
+                  onChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
+                  label="Actif"
+                  description="Visible sur le site"
+                />
+                <AdminToggle
+                  checked={formData.is_pro}
+                  onChange={(checked) => setFormData((prev) => ({ ...prev, is_pro: checked }))}
+                  label="Réservé aux professionnels"
+                  description="Accessible aux agents connectés"
+                />
               </div>
 
               {error && (
