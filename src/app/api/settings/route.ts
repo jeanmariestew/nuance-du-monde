@@ -2,7 +2,14 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
 // Clés autorisées à être lues publiquement
-const PUBLIC_KEYS = ['pro_video_url', 'particulier_video_url'];
+const PUBLIC_KEYS = [
+  'pro_video_url',
+  'particulier_video_url',
+  'home_popup_enabled',
+  'home_popup_media_type',
+  'home_popup_media_url',
+  'home_popup_title',
+];
 
 interface DescribeRow { Field: string }
 interface SettingRow  { k: string; v: string }

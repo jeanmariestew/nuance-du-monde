@@ -12,6 +12,12 @@ interface DateOption {
   price_currency?: string;
   // Texte libre affiché à droite du prix (ex: COMPLET, PRIX SUR DEMANDE, TARIF PROMOTIONNEL...)
   price_note?: string;
+  // Masquer le montant pour cette date uniquement (le price_note reste visible)
+  hide_price?: boolean | number;
+}
+
+function dateShowsPrice(date: DateOption) {
+  return !(date.hide_price === true || date.hide_price === 1 || String(date.hide_price) === "1");
 }
 
 // Heuristique légère : si l'agence indique explicitement "complet" dans le texte libre,
@@ -26,8 +32,6 @@ interface DatesAndPricingProps {
   // Nom du circuit/offre, transmis au formulaire de devis (distinct de `title`,
   // qui est le titre affiché de cette section)
   circuit?: string;
-  // Afficher les montants (désactivable depuis l'admin)
-  showPrice?: boolean;
   // Accordion pleine largeur pour les départs à dates fixes. Les autres types
   // conservent le calendrier.
   variant?: "calendar" | "accordion";
@@ -39,9 +43,8 @@ function CalendarDatesAndPricing({
   baseCurrency = "$",
   title,
   circuit,
-  showPrice = true,
 }: DatesAndPricingProps) {
-  const sectionTitle = title || (showPrice ? "Dates et prix" : "Dates");
+  const sectionTitle = title || "Dates et prix";
   const [selectedDate, setSelectedDate] = useState<DateOption | null>(
     dates[0] || null
   );
@@ -77,6 +80,7 @@ function CalendarDatesAndPricing({
   // aligné. Si aucune date de l'offre n'a de remarque, cette colonne serait un espace mort
   // permanent : on repasse alors toute la liste en 2 colonnes (dates + prix).
   const hasAnyNote = dates.some((d) => !!d.price_note);
+  const hasAnyVisiblePrice = dates.some((d) => dateShowsPrice(d));
 
   // Obtenir tous les mois avec des dates disponibles
   // Note: on lit les composantes en UTC (getUTCFullYear/getUTCMonth) car
@@ -301,9 +305,9 @@ function CalendarDatesAndPricing({
                       key={date.id}
                       onClick={() => setSelectedDate(date)}
                       className={`w-full text-left p-4 rounded-xl transition-all border-2 grid items-center gap-3 ${
-                        showPrice && hasAnyNote
+                        hasAnyVisiblePrice && hasAnyNote
                           ? "grid-cols-[minmax(0,1fr)_120px_140px] sm:grid-cols-[minmax(0,1fr)_130px_160px]"
-                          : showPrice || hasAnyNote
+                          : hasAnyVisiblePrice || hasAnyNote
                           ? "grid-cols-[minmax(0,1fr)_auto]"
                           : "grid-cols-[minmax(0,1fr)]"
                       } ${
@@ -321,18 +325,22 @@ function CalendarDatesAndPricing({
                           {date.return_date ? 'Date de retour incluse' : 'Départ unique'}
                         </p>
                       </div>
-                      {/* Colonne 2 : prix — largeur fixe et identique sur toutes les lignes dès qu'au
-                          moins une date de la liste a une remarque, pour que le prix reste aligné */}
-                      {showPrice && (
+                      {/* Colonne 2 : prix — par date ; masqué individuellement si hide_price */}
+                      {hasAnyVisiblePrice && (
                         <div className="text-right">
-                          <p className={`text-lg font-extrabold whitespace-nowrap ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
-                            {formatPrice(date.price, date.price_currency)}
-                          </p>
-                          <p className={`text-[11px] whitespace-nowrap ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
+                          {dateShowsPrice(date) ? (
+                            <>
+                              <p className={`text-lg font-extrabold whitespace-nowrap ${isSelected ? 'text-white' : 'text-yellow-600'}`}>
+                                {formatPrice(date.price, date.price_currency)}
+                              </p>
+                              <p className={`text-[11px] whitespace-nowrap ${isSelected ? 'text-yellow-100' : 'text-gray-500'}`}>/ personne</p>
+                            </>
+                          ) : (
+                            <p className={`text-sm font-medium ${isSelected ? 'text-yellow-100' : 'text-gray-400'}`}>—</p>
+                          )}
                         </div>
                       )}
-                      {/* Colonne 3 : texte libre — n'existe que si au moins une date de la liste a
-                          une remarque (sinon la liste entière repasse en 2 colonnes ci-dessus) */}
+                      {/* Colonne 3 : texte libre (price_note) — reste visible même si le prix est masqué */}
                       {hasAnyNote && (
                         <div className="text-right">
                           {date.price_note && (
@@ -407,11 +415,11 @@ function CalendarDatesAndPricing({
                     </div>
                   )}
 
-                  {/* Prix */}
-                  {(showPrice || selectedDate.price_note) && (
+                  {/* Prix (par date) + texte libre */}
+                  {(dateShowsPrice(selectedDate) || selectedDate.price_note) && (
                     <div className="pt-5 border-t-2 border-yellow-400">
                       <div className="flex items-center justify-between gap-3">
-                        {showPrice && (
+                        {dateShowsPrice(selectedDate) && (
                           <p className="text-sm text-yellow-100 mb-2">
                             Prix par personne
                           </p>
@@ -424,7 +432,7 @@ function CalendarDatesAndPricing({
                           </span>
                         )}
                       </div>
-                      {showPrice && (
+                      {dateShowsPrice(selectedDate) && (
                         <>
                           <p className="text-4xl sm:text-5xl font-bold">
                             {formatPrice(selectedDate.price, selectedDate.price_currency)}
@@ -492,9 +500,8 @@ function AccordionDatesAndPricing({
   baseCurrency = "CAD",
   title,
   circuit,
-  showPrice = true,
 }: DatesAndPricingProps) {
-  const sectionTitle = title || (showPrice ? "Dates et prix" : "Dates");
+  const sectionTitle = title || "Dates et prix";
   const [quoteDate, setQuoteDate] = useState<DateOption | null>(null);
 
   const formatPrice = (value?: number, currency?: string) => {
@@ -545,7 +552,7 @@ function AccordionDatesAndPricing({
                   </div>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                    {showPrice && (
+                    {dateShowsPrice(date) && (
                       <div className="shrink-0 text-left sm:text-right">
                         <p className="text-xl font-bold whitespace-nowrap text-[#b45309] sm:text-2xl">
                           {formatPrice(date.price, date.price_currency)}

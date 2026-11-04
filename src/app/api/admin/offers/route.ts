@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
-    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null }[],
+    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
         .filter(d => d.departure_date); // Filtrer les dates invalides
       
       if (valid.length > 0) {
-        const placeholders = valid.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
+        const placeholders = valid.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ');
         const values = valid.flatMap((d) => [
           offerId,
           d.departure_date,
@@ -128,9 +128,10 @@ export async function POST(req: Request) {
           d.price ?? null,
           (d.price_currency || 'EUR'),
           normalizePriceNote(d.price_note),
+          d.hide_price ? 1 : 0,
         ]);
         await query(
-          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency, price_note) VALUES ${placeholders}`,
+          `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency, price_note, hide_price) VALUES ${placeholders}`,
           values
         );
       }

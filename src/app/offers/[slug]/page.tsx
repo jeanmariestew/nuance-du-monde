@@ -42,7 +42,6 @@ interface OfferDetail {
   images?: OfferImage[];
   price?: number;
   price_currency?: string;
-  hide_price?: boolean | number;
   hide_extensions?: boolean | number;
   promotional_price?: number;
   promotional_price_currency?: string;
@@ -59,7 +58,7 @@ interface OfferDetail {
   travel_types?: Array<{ id: number; title: string; slug: string }>;
   travel_themes?: Array<{ id: number; title: string; slug: string }>;
   destinations?: Array<{ id: number; title: string; slug: string }>;
-  dates?: Array<{ id: number; departure_date: string; return_date?: string; price?: number; price_currency?: string; price_note?: string }>;
+  dates?: Array<{ id: number; departure_date: string; return_date?: string; price?: number; price_currency?: string; price_note?: string; hide_price?: boolean | number }>;
   programme_link?: string;
   coordinates?: Array<{ name: string; lat: number; lng: number }>;
   map_center?: { lat: number; lng: number; zoom: number } | null;
@@ -148,9 +147,8 @@ export default async function OfferDetailPage({ params }: PageProps) {
   }
 
   // Image de couverture principale - vérifier toutes les sources possibles
-  const showPrice = !offer.hide_price;
   const showExtensions = !offer.hide_extensions;
-  const fitPrices = showPrice && offer.travel_types?.some((type) => type.slug === FIT_TRAVEL_TYPE_SLUG)
+  const fitPrices = offer.travel_types?.some((type) => type.slug === FIT_TRAVEL_TYPE_SLUG)
     ? parseFitPaxPrices(offer.fit_pax_prices)
     : [];
   const isGroupedFixedDates = offer.travel_types?.some(
@@ -227,7 +225,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left: Content */}
           <div className="order-2 lg:order-1 px-4 sm:px-0">
-            {(offer.duration_days || offer.duration_nights || (showPrice && offer.price) || fitPrices.length > 0) && (
+            {(offer.duration_days || offer.duration_nights || offer.price || fitPrices.length > 0) && (
               <div className="flex flex-col gap-2 mt-3 sm:mt-4 mb-4 sm:mb-6">
                 {(offer.duration_days || offer.duration_nights) && (
                   <div className="flex items-center gap-2.5">
@@ -241,7 +239,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                     </span>
                   </div>
                 )}
-                {showPrice && offer.price && (
+                {offer.price && (
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
                       <Tag className="w-4 h-4 text-yellow-500" />
@@ -383,7 +381,6 @@ export default async function OfferDetailPage({ params }: PageProps) {
         basePrice={offer.price}
         baseCurrency={offer.price_currency}
         circuit={offer.title}
-        showPrice={showPrice}
         variant={isGroupedFixedDates ? "accordion" : "calendar"}
       />
 

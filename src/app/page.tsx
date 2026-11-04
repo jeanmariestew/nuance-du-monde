@@ -16,6 +16,7 @@ import { api } from "@/lib/axios";
 import AnimatedBentoGrid from "@/components/banner/partenariat";
 import { useProfessional } from "@/contexts/ProfessionalContext";
 import ProfessionalAuthModal from "@/components/ProfessionalAuthModal";
+import HomePopup, { type HomePopupConfig } from "@/components/HomePopup";
 
 interface Testimonial {
   id: number;
@@ -39,6 +40,7 @@ interface HomeContentProps {
   partners: Partner[];
   proVideoUrl: string;
   particulierVideoUrl: string;
+  homePopup: HomePopupConfig | null;
   isAuthModalOpen: boolean;
   onAuthModalClose: () => void;
   onShowAuthModal: () => void;
@@ -52,6 +54,7 @@ function HomeContent({
   partners,
   proVideoUrl,
   particulierVideoUrl,
+  homePopup,
   isAuthModalOpen,
   onAuthModalClose,
   onShowAuthModal,
@@ -61,6 +64,9 @@ function HomeContent({
     <div className="flex flex-col gap-y-6">
       {/* Hero animé */}
       <HeroAnimated />
+
+      {/* Bannière présentation (ex. VRDF) — après le hero, avant types de voyages */}
+      <HomePopup config={homePopup} />
 
       {/* Type de voyage Section */}
       <TravelTypesHero />
@@ -127,6 +133,7 @@ function HomeSearchParamsWrapper({
   partners,
   proVideoUrl,
   particulierVideoUrl,
+  homePopup,
 }: Omit<HomeContentProps, 'isAuthModalOpen' | 'onAuthModalClose' | 'onShowAuthModal' | 'registerMode'>) {
   const searchParams = useSearchParams();
   const isRegister = searchParams.get('register') !== null;
@@ -147,6 +154,7 @@ function HomeSearchParamsWrapper({
       partners={partners}
       proVideoUrl={proVideoUrl}
       particulierVideoUrl={particulierVideoUrl}
+      homePopup={homePopup}
       isAuthModalOpen={isAuthModalOpen}
       onAuthModalClose={() => setIsAuthModalOpen(false)}
       onShowAuthModal={() => setIsAuthModalOpen(true)}
@@ -162,6 +170,7 @@ export default function Home() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [proVideoUrl, setProVideoUrl] = useState('');
   const [particulierVideoUrl, setParticulierVideoUrl] = useState('');
+  const [homePopup, setHomePopup] = useState<HomePopupConfig | null>(null);
   const { session } = useProfessional();
 
   useEffect(() => {
@@ -185,6 +194,15 @@ export default function Home() {
         if (settingsRes.success) {
           setProVideoUrl(settingsRes.data?.pro_video_url || '');
           setParticulierVideoUrl(settingsRes.data?.particulier_video_url || '');
+          const mediaType = settingsRes.data?.home_popup_media_type || 'video';
+          setHomePopup({
+            enabled: String(settingsRes.data?.home_popup_enabled || '0') === '1',
+            mediaType: ['video', 'animated_image', 'image'].includes(mediaType)
+              ? mediaType
+              : 'video',
+            mediaUrl: settingsRes.data?.home_popup_media_url || '',
+            title: settingsRes.data?.home_popup_title || '',
+          });
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
@@ -203,6 +221,7 @@ export default function Home() {
         partners={partners}
         proVideoUrl={proVideoUrl}
         particulierVideoUrl={particulierVideoUrl}
+        homePopup={homePopup}
       />
     </Suspense>
   );

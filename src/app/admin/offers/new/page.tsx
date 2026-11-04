@@ -13,6 +13,7 @@ import ExtensionEditor, { OfferExtension } from '@/components/admin/ExtensionEdi
 import HotelEditor, { OfferHotel } from '@/components/admin/HotelEditor';
 import FitPaxPricesEditor from '@/components/admin/FitPaxPricesEditor';
 import AdminToggle from '@/components/admin/AdminToggle';
+import AdminCheckbox from '@/components/admin/AdminCheckbox';
 import AdminMultiSelectGrid from '@/components/admin/AdminMultiSelectGrid';
 import { adminInputClass, adminLabelClass, adminSelectClass } from '@/components/admin/adminFormStyles';
 import { FIT_TRAVEL_TYPE_SLUG } from '@/lib/fitPaxPrices';
@@ -41,7 +42,6 @@ type NewOfferData = {
   is_active: 0 | 1;
   price: number | null;
   price_currency: string | null;
-  hide_price: 0 | 1;
   hide_extensions: 0 | 1;
   promotional_price: number | null;
   promotional_price_currency: string | null;
@@ -55,7 +55,7 @@ type NewOfferData = {
   duration_days: number | null;
   duration_nights: number | null;
   available_dates: string[];
-  dates?: { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null }[];
+  dates?: { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: 0 | 1 }[];
   typeIds: number[];
   themeIds: number[];
   destinationIds: number[];
@@ -69,8 +69,8 @@ export default function AdminOfferNewPage() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [editingDateIndex, setEditingDateIndex] = useState<number | null>(null);
-  const [dateDraft, setDateDraft] = useState<{ departure_date: string; return_date: string; price: string; price_currency: string; price_note: string }>({
-    departure_date: '', return_date: '', price: '', price_currency: 'CAD', price_note: '',
+  const [dateDraft, setDateDraft] = useState<{ departure_date: string; return_date: string; price: string; price_currency: string; price_note: string; hide_price: boolean }>({
+    departure_date: '', return_date: '', price: '', price_currency: 'CAD', price_note: '', hide_price: false,
   });
 
   const [offer, setOffer] = useState<NewOfferData>({
@@ -82,7 +82,6 @@ export default function AdminOfferNewPage() {
     is_active: 1,
     price: null,
     price_currency: 'EUR',
-    hide_price: 0,
     hide_extensions: 0,
     promotional_price: null,
     promotional_price_currency: 'EUR',
@@ -541,12 +540,6 @@ export default function AdminOfferNewPage() {
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Affichage public</p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <AdminToggle
-                  checked={!!offer.hide_price}
-                  onChange={(checked) => setOffer({ ...offer, hide_price: checked ? 1 : 0 })}
-                  label="Masquer le prix"
-                  description="Cache les montants sur la fiche et les cartes"
-                />
-                <AdminToggle
                   checked={!!offer.hide_extensions}
                   onChange={(checked) => setOffer({ ...offer, hide_extensions: checked ? 1 : 0 })}
                   label="Masquer les extensions"
@@ -807,6 +800,13 @@ export default function AdminOfferNewPage() {
                       placeholder="Ex: COMPLET, PRIX SUR DEMANDE"
                     />
                   </label>
+                  <label className="flex items-start gap-2 sm:col-span-2 lg:col-span-2 text-sm text-neutral-700">
+                    <input type="checkbox" id="new-date-hide-price" className="mt-0.5 h-4 w-4 rounded border-neutral-300" />
+                    <span>
+                      <span className="font-medium">Masquer le prix de cette date</span>
+                      <span className="block text-xs text-neutral-500">Le montant n’apparaît pas ; le texte libre (ex. PRIX SUR DEMANDE) reste visible</span>
+                    </span>
+                  </label>
                   <div className="flex items-end sm:col-span-2 lg:col-span-1">
                     <Button
                       onClick={() => {
@@ -815,6 +815,7 @@ export default function AdminOfferNewPage() {
                         const price = document.getElementById('new-date-price') as HTMLInputElement;
                         const currency = document.getElementById('new-date-currency') as HTMLInputElement;
                         const note = document.getElementById('new-date-note') as HTMLInputElement;
+                        const hidePrice = document.getElementById('new-date-hide-price') as HTMLInputElement;
                         if (!start.value) {
                           setError('La date de départ est requise');
                           return;
@@ -825,6 +826,7 @@ export default function AdminOfferNewPage() {
                           price: price.value === '' ? null : Number(price.value),
                           price_currency: (currency.value || 'EUR'),
                           price_note: note.value.trim() || null,
+                          hide_price: (hidePrice?.checked ? 1 : 0) as 0 | 1,
                         };
                         setOffer({
                           ...offer,
@@ -834,6 +836,7 @@ export default function AdminOfferNewPage() {
                         end.value = '';
                         price.value = '';
                         note.value = '';
+                        if (hidePrice) hidePrice.checked = false;
                         setStatus('Période ajoutée - cliquez sur Créer pour sauvegarder');
                       }}
                       className="w-full"
@@ -895,6 +898,15 @@ export default function AdminOfferNewPage() {
                             className={adminInputClass}
                           />
                         </label>
+                        <div className="sm:col-span-2 lg:col-span-3">
+                          <AdminCheckbox
+                            variant="card"
+                            checked={dateDraft.hide_price}
+                            onChange={(checked) => setDateDraft({ ...dateDraft, hide_price: checked })}
+                            label="Masquer le prix de cette date"
+                            description="Le montant n’apparaît pas sur le site ; le texte libre reste visible"
+                          />
+                        </div>
                         <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-1 lg:items-end">
                           <Button
                             onClick={() => {
@@ -911,6 +923,7 @@ export default function AdminOfferNewPage() {
                                       price: dateDraft.price === '' ? null : Number(dateDraft.price),
                                       price_currency: dateDraft.price_currency || 'EUR',
                                       price_note: dateDraft.price_note.trim() || null,
+                                      hide_price: (dateDraft.hide_price ? 1 : 0) as 0 | 1,
                                     }
                                   : entry
                               ).sort((a, b) => a.departure_date.localeCompare(b.departure_date));
@@ -939,7 +952,11 @@ export default function AdminOfferNewPage() {
                           {d.return_date ? ` → ${new Date(d.return_date).toLocaleDateString('fr-FR', { timeZone: 'UTC' })}` : ''}
                         </p>
                         <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600">
-                          {typeof d.price === 'number' ? (
+                          {d.hide_price ? (
+                            <span className="inline-flex items-center rounded-md bg-neutral-200 px-2 py-0.5 text-xs font-semibold text-neutral-700">
+                              Prix masqué
+                            </span>
+                          ) : typeof d.price === 'number' ? (
                             <span>{(d.price_currency || offer.price_currency || 'EUR')} {d.price}</span>
                           ) : (
                             <span className="text-neutral-400">Sans prix</span>
@@ -961,6 +978,7 @@ export default function AdminOfferNewPage() {
                               price: typeof d.price === 'number' ? String(d.price) : '',
                               price_currency: d.price_currency || offer.price_currency || 'CAD',
                               price_note: d.price_note || '',
+                              hide_price: !!d.hide_price,
                             });
                             setEditingDateIndex(index);
                           }}

@@ -109,7 +109,7 @@ export async function GET(req: Request) {
     
     if (offerIds.length > 0) {
       const datesRows = await query(
-        `SELECT offer_id, departure_date, price FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
+        `SELECT offer_id, departure_date, price, hide_price FROM offer_dates WHERE offer_id IN (${offerIds.map(() => '?').join(',')}) ORDER BY departure_date`,
         offerIds
       );
       const typeRows = await query(

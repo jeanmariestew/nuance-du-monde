@@ -1,13 +1,11 @@
 import path from "path";
 import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
+import { resolveUploadsDirForRead } from "@/lib/uploadsDir";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const UPLOADS_DIR =
-  process.env.UPLOADS_DIR || path.join(process.cwd(), "public", "uploads");
 
 function getMimeType(filename: string) {
   const ext = path.extname(filename).toLowerCase();
@@ -23,6 +21,14 @@ function getMimeType(filename: string) {
       return "image/gif";
     case ".svg":
       return "image/svg+xml";
+    case ".mp4":
+      return "video/mp4";
+    case ".webm":
+      return "video/webm";
+    case ".mov":
+      return "video/quicktime";
+    case ".ogg":
+      return "video/ogg";
     default:
       return "application/octet-stream";
   }
@@ -42,9 +48,7 @@ export async function GET(req: Request, context: RouteParams) {
         : [];
 
     const requestedPath = parts.join("/");
-
-    // Anti path traversal
-    const baseDir = path.resolve(UPLOADS_DIR);
+    const baseDir = await resolveUploadsDirForRead();
     const filePath = path.resolve(path.join(baseDir, requestedPath));
 
     if (!filePath.startsWith(baseDir + path.sep) && filePath !== baseDir) {
@@ -72,7 +76,7 @@ export async function GET(req: Request, context: RouteParams) {
         "Cache-Control": "no-store, max-age=0, must-revalidate",
       },
     });
-  } catch (e: any) {
+  } catch {
     return new NextResponse("Server error", {
       status: 500,
       headers: { "Cache-Control": "no-store, max-age=0, must-revalidate" },

@@ -16,8 +16,7 @@ export default function OfferCard({ offer }: Props) {
   const duration = offer.duration_days
     ? `${offer.duration_days} jours et ${offer.duration_nights} nuits`
     : "";
-  const showPrice = !offer.hide_price;
-  const price = showPrice && offer.price_from !== undefined && offer.price_from !== null
+  const price = offer.price_from !== undefined && offer.price_from !== null
     ? new Intl.NumberFormat('fr-FR').format(offer.price_from)
     : "";
   const currency = offer.price_currency || "$";
@@ -116,7 +115,7 @@ export default function OfferCard({ offer }: Props) {
             </div>
 
             {/* Price section */}
-            {showPrice && price && (
+            {price && (
               <div className="border-2 border-gray-200 rounded-xl p-2 bg-linear-to-br from-yellow-50 to-orange-50 mt-auto">
                 <p className="text-sm text-gray-600 mb-1">À partir de</p>
                 <div className="flex items-baseline gap-2">

@@ -17,6 +17,7 @@ import {
   Search,
   Menu,
   X,
+  MonitorPlay,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,6 +37,7 @@ const NAV: NavItem[] = [
   { href: "/admin/professionals", label: "Professionnels", icon: Briefcase },
   { href: "/admin/brochure-requests", label: "Demandes brochure", icon: FileText },
   { href: "/admin/metadata", label: "Métadonnées SEO", icon: Search },
+  { href: "/admin/homepage-popup", label: "Bannière accueil", icon: MonitorPlay },
   { href: "/admin/html-files", label: "Signatures", icon: FileCode },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];

@@ -13,13 +13,14 @@ function calendarDay(value: unknown): string | null {
   return match ? match[1] : null;
 }
 
-/** Prix le plus bas parmi les départs qui ne sont pas encore passés. */
+/** Prix le plus bas parmi les départs à venir dont le prix n'est pas masqué. */
 export function lowestUpcomingDatePrice(
-  dates: Array<{ departure_date?: unknown; price?: unknown }>,
+  dates: Array<{ departure_date?: unknown; price?: unknown; hide_price?: unknown }>,
   today = utcToday()
 ): number | null {
   let best: number | null = null;
   for (const date of dates) {
+    if (date.hide_price === 1 || date.hide_price === true || date.hide_price === "1") continue;
     const day = calendarDay(date.departure_date);
     if (!day || day < today) continue;
     if (date.price == null || date.price === "") continue;
