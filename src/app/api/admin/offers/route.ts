@@ -128,7 +128,7 @@ export async function POST(req: Request) {
           d.price ?? null,
           (d.price_currency || 'EUR'),
           normalizePriceNote(d.price_note),
-          d.hide_price ? 1 : 0,
+          d.hide_price === true || d.hide_price === 1 || d.hide_price === '1' ? 1 : 0,
         ]);
         await query(
           `INSERT INTO offer_dates (offer_id, departure_date, return_date, price, price_currency, price_note, hide_price) VALUES ${placeholders}`,

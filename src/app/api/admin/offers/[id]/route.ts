@@ -266,7 +266,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       const formattedDepartureDate = formatDateForMySQL(dateData.departure_date);
       const formattedReturnDate = formatDateForMySQL(dateData.return_date);
       const priceNote = normalizePriceNote(dateData.price_note);
-      const hidePrice = dateData.hide_price ? 1 : 0;
+      // Important : ne pas faire `value ? 1 : 0` (la string "0" serait truthy)
+      const hidePrice =
+        dateData.hide_price === true ||
+        dateData.hide_price === 1 ||
+        dateData.hide_price === '1'
+          ? 1
+          : 0;
 
       if (!formattedDepartureDate) {
         console.warn('[PUT /offers] Date de départ invalide ignorée:', dateData.departure_date);

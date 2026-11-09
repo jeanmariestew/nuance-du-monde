@@ -967,6 +967,23 @@ export default function AdminOfferNewPage() {
                             </span>
                           )}
                         </div>
+                        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-xs text-neutral-700">
+                          <input
+                            type="checkbox"
+                            checked={!!d.hide_price}
+                            onChange={(e) => {
+                              const updated = (offer.dates || []).map((entry, i) =>
+                                i === index
+                                  ? { ...entry, hide_price: (e.target.checked ? 1 : 0) as 0 | 1 }
+                                  : entry
+                              );
+                              setOffer({ ...offer, dates: updated });
+                              setStatus('Masquage prix modifié — cliquez sur Créer pour sauvegarder');
+                            }}
+                            className="h-4 w-4 rounded border-neutral-300"
+                          />
+                          Masquer le prix de cette date
+                        </label>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <button

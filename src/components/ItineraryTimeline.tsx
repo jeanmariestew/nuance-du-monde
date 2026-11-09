@@ -239,7 +239,7 @@ export default function ItineraryTimeline({
                 {dayOptionsList.length > 0 && (
                   <div className="mt-4 p-3 sm:p-4 rounded-xl border-4 border-yellow-200">
                     <div className="text-sm w-full sm:text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      En options
+                      En option
                     </div>
                     <div className="space-y-5 ">
                       {dayOptionsList.map((option, optIdx) => (

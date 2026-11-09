@@ -21,12 +21,13 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.json({ success: true });
+  // Cookie httpOnly = session unique pour toutes les pages / API admin
   res.cookies.set('admin_token', expected, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 30, // 30 jours
   });
   return res;
 }

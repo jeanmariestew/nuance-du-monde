@@ -1,11 +1,14 @@
 "use client";
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
 import {Button} from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import axios from 'axios';
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
+  const searchParams = useSearchParams();
   const [token, setToken] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,11 +23,16 @@ export default function AdminLoginPage() {
       });
       const data = res.data;
       if (data.success) {
-        window.location.assign('/admin');
+        const next = searchParams.get('next');
+        const dest =
+          next && next.startsWith('/admin') && !next.startsWith('/admin/login')
+            ? next
+            : '/admin';
+        window.location.assign(dest);
       } else {
         setMessage(data.error || 'Connexion échouée');
       }
-    } catch (err) {
+    } catch {
       setMessage('Erreur réseau');
     } finally {
       setLoading(false);
@@ -64,5 +72,13 @@ export default function AdminLoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-neutral-500">Chargement…</div>}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

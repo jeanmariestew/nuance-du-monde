@@ -13,6 +13,12 @@ function calendarDay(value: unknown): string | null {
   return match ? match[1] : null;
 }
 
+function isHiddenPrice(value: unknown): boolean {
+  if (value === 1 || value === true || value === "1") return true;
+  if (typeof value === "bigint" && value === 1n) return true;
+  return false;
+}
+
 /** Prix le plus bas parmi les départs à venir dont le prix n'est pas masqué. */
 export function lowestUpcomingDatePrice(
   dates: Array<{ departure_date?: unknown; price?: unknown; hide_price?: unknown }>,
@@ -20,7 +26,7 @@ export function lowestUpcomingDatePrice(
 ): number | null {
   let best: number | null = null;
   for (const date of dates) {
-    if (date.hide_price === 1 || date.hide_price === true || date.hide_price === "1") continue;
+    if (isHiddenPrice(date.hide_price)) continue;
     const day = calendarDay(date.departure_date);
     if (!day || day < today) continue;
     if (date.price == null || date.price === "") continue;

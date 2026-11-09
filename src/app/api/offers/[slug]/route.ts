@@ -126,7 +126,9 @@ export async function GET(
 
     const isVrdf = (types as { slug?: string }[]).some((type) => type.slug === VRDF_TRAVEL_TYPE_SLUG);
     const upcomingPrice = isVrdf ? lowestUpcomingDatePrice(dates) : null;
-    const displayedPrice = upcomingPrice ?? offer.price ?? null;
+    // VRDF : prix d'en-tête = plus bas des dates visibles uniquement.
+    // Si toutes les dates à venir ont hide_price, ne pas retomber sur offers.price.
+    const displayedPrice = isVrdf ? upcomingPrice : (offer.price ?? null);
 
     const mainImage = images?.find(img => img.image_type === 'main')?.image_url || offer.image_main;
     const bannerImage = images?.find(img => img.image_type === 'banner')?.image_url || offer.image_banner;

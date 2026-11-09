@@ -162,6 +162,33 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
     setError(null);
     setStatus(null);
     try {
+      // Si une date est en cours d'édition, valider le brouillon avant l'envoi
+      // (sinon hide_price / price_note restent uniquement dans dateDraft et sont perdus).
+      let offerSnapshot = offer;
+      if (editingDateIndex !== null) {
+        if (!dateDraft.departure_date) {
+          setError('La date de départ est requise');
+          setSaving(false);
+          return;
+        }
+        const updatedDates = (offer.dates || []).map((entry, i) =>
+          i === editingDateIndex
+            ? {
+                ...entry,
+                departure_date: dateDraft.departure_date,
+                return_date: dateDraft.return_date || null,
+                price: dateDraft.price === '' ? null : Number(dateDraft.price),
+                price_currency: dateDraft.price_currency || 'EUR',
+                price_note: dateDraft.price_note.trim() || null,
+                hide_price: (dateDraft.hide_price ? 1 : 0) as 0 | 1,
+              }
+            : entry
+        ).sort((a, b) => a.departure_date.localeCompare(b.departure_date));
+        offerSnapshot = { ...offer, dates: updatedDates };
+        setOffer(offerSnapshot);
+        setEditingDateIndex(null);
+      }
+
       // Formater les dates pour MySQL (YYYY-MM-DD uniquement)
       const formatDate = (dateStr: string | null) => {
         if (!dateStr) return null;
@@ -172,9 +199,14 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       };
 
       const dataToSave = {
-        ...offer,
-        promotion_start_date: formatDate(offer.promotion_start_date),
-        promotion_end_date: formatDate(offer.promotion_end_date),
+        ...offerSnapshot,
+        dates: (offerSnapshot.dates || []).map((d) => ({
+          ...d,
+          hide_price: d.hide_price ? 1 : 0,
+          price_note: d.price_note?.trim() || null,
+        })),
+        promotion_start_date: formatDate(offerSnapshot.promotion_start_date),
+        promotion_end_date: formatDate(offerSnapshot.promotion_end_date),
       };
 
       console.log('Données à sauvegarder:', dataToSave);
@@ -236,7 +268,7 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
       } else {
         setStatus('Offre partiellement enregistrée - voir les erreurs');
       }
-      setOriginalOffer(JSON.parse(JSON.stringify(offer)));
+      setOriginalOffer(JSON.parse(JSON.stringify(offerSnapshot)));
     } catch (e: any) {
       console.error('Erreur sauvegarde:', e);
       const errorMsg = e.response?.data?.error || e.message || 'Erreur de sauvegarde';
@@ -967,6 +999,23 @@ export default function AdminOfferEditPage({ params }: { params: Promise<{ id: s
                             </span>
                           )}
                         </div>
+                        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-xs text-neutral-700">
+                          <input
+                            type="checkbox"
+                            checked={!!d.hide_price}
+                            onChange={(e) => {
+                              const updated = (offer.dates || []).map((entry, i) =>
+                                i === index
+                                  ? { ...entry, hide_price: (e.target.checked ? 1 : 0) as 0 | 1 }
+                                  : entry
+                              );
+                              setOffer({ ...(offer as OfferData), dates: updated });
+                              setStatus('Masquage prix modifié — cliquez sur Enregistrer pour sauvegarder');
+                            }}
+                            className="h-4 w-4 rounded border-neutral-300"
+                          />
+                          Masquer le prix de cette date
+                        </label>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <button

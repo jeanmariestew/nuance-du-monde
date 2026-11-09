@@ -12,17 +12,37 @@ interface DateOption {
   price_currency?: string;
   // Texte libre affiché à droite du prix (ex: COMPLET, PRIX SUR DEMANDE, TARIF PROMOTIONNEL...)
   price_note?: string;
-  // Masquer le montant pour cette date uniquement (le price_note reste visible)
+  // Masquer le montant pour cette date uniquement
   hide_price?: boolean | number;
 }
 
 function dateShowsPrice(date: DateOption) {
-  return !(date.hide_price === true || date.hide_price === 1 || String(date.hide_price) === "1");
+  const v = date.hide_price as unknown;
+  if (v === true || v === 1 || v === "1") return false;
+  if (typeof v === "bigint" && v === 1n) return false;
+  if (v && typeof v === "object" && "data" in (v as object)) {
+    // mysql2 Buffer-like
+    const data = (v as { data?: number[] }).data;
+    if (Array.isArray(data) && data[0] === 1) return false;
+  }
+  return true;
 }
 
 // Heuristique légère : si l'agence indique explicitement "complet" dans le texte libre,
 // on met en évidence la date (bannière + calendrier) sans pour autant imposer un statut figé.
 const isCompletNote = (note?: string) => !!note && /complet/i.test(note);
+
+/** Libellé d'occupation lié au prix — à masquer avec le montant. */
+const isPriceOccupancyNote = (note?: string) =>
+  !!note && /prix\s+en\s+chambre\s+double/i.test(note);
+
+/** Texte libre encore utile quand le prix est masqué (ex. PRIX SUR DEMANDE, COMPLET). */
+function visiblePriceNote(date: DateOption): string {
+  const note = date.price_note?.trim() || "";
+  if (!note) return "";
+  if (!dateShowsPrice(date) && isPriceOccupancyNote(note)) return "";
+  return note;
+}
 
 interface DatesAndPricingProps {
   dates?: DateOption[];
@@ -79,7 +99,7 @@ function CalendarDatesAndPricing({
   // remarque, on réserve une 3e colonne fixe sur TOUTES les lignes pour que le prix reste
   // aligné. Si aucune date de l'offre n'a de remarque, cette colonne serait un espace mort
   // permanent : on repasse alors toute la liste en 2 colonnes (dates + prix).
-  const hasAnyNote = dates.some((d) => !!d.price_note);
+  const hasAnyNote = dates.some((d) => !!visiblePriceNote(d));
   const hasAnyVisiblePrice = dates.some((d) => dateShowsPrice(d));
 
   // Obtenir tous les mois avec des dates disponibles
@@ -299,7 +319,8 @@ function CalendarDatesAndPricing({
               <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1 sm:pr-2">
                 {dates.map((date) => {
                   const isSelected = selectedDate?.id === date.id;
-                  const complet = isCompletNote(date.price_note);
+                  const note = visiblePriceNote(date);
+                  const complet = isCompletNote(note);
                   return (
                     <button
                       key={date.id}
@@ -340,10 +361,10 @@ function CalendarDatesAndPricing({
                           )}
                         </div>
                       )}
-                      {/* Colonne 3 : texte libre (price_note) — reste visible même si le prix est masqué */}
+                      {/* Colonne 3 : texte libre (sans « chambre double » si prix masqué) */}
                       {hasAnyNote && (
                         <div className="text-right">
-                          {date.price_note && (
+                          {note && (
                             <span className={`inline-block rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase leading-tight break-words ${
                               isSelected
                                 ? "bg-white/20 text-white"
@@ -351,7 +372,7 @@ function CalendarDatesAndPricing({
                                 ? "bg-red-100 text-red-700"
                                 : "bg-yellow-200 text-yellow-900"
                             }`}>
-                              {date.price_note}
+                              {note}
                             </span>
                           )}
                         </div>
@@ -416,7 +437,7 @@ function CalendarDatesAndPricing({
                   )}
 
                   {/* Prix (par date) + texte libre */}
-                  {(dateShowsPrice(selectedDate) || selectedDate.price_note) && (
+                  {(dateShowsPrice(selectedDate) || visiblePriceNote(selectedDate)) && (
                     <div className="pt-5 border-t-2 border-yellow-400">
                       <div className="flex items-center justify-between gap-3">
                         {dateShowsPrice(selectedDate) && (
@@ -424,11 +445,11 @@ function CalendarDatesAndPricing({
                             Prix par personne
                           </p>
                         )}
-                        {selectedDate.price_note && (
+                        {visiblePriceNote(selectedDate) && (
                           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                            isCompletNote(selectedDate.price_note) ? "bg-red-500/20 text-red-100" : "bg-yellow-400/20 text-yellow-100"
+                            isCompletNote(visiblePriceNote(selectedDate)) ? "bg-red-500/20 text-red-100" : "bg-yellow-400/20 text-yellow-100"
                           }`}>
-                            {selectedDate.price_note}
+                            {visiblePriceNote(selectedDate)}
                           </span>
                         )}
                       </div>
@@ -505,8 +526,9 @@ function AccordionDatesAndPricing({
   const [quoteDate, setQuoteDate] = useState<DateOption | null>(null);
 
   const formatPrice = (value?: number, currency?: string) => {
-    const amount = value ?? basePrice;
-    if (amount === undefined || amount === null) return "—";
+    // Ne jamais retomber sur le prix « global » de l'offre : chaque date est autonome.
+    if (value === undefined || value === null || Number.isNaN(Number(value))) return "—";
+    const amount = Number(value);
     const code = (currency || baseCurrency || "CAD").replace(/\s/g, "");
     const label = code === "$" || code === "CAD$" || code === "C$" ? "CAD" : code;
     return `${label} ${new Intl.NumberFormat("fr-FR").format(amount)}`;
@@ -533,8 +555,13 @@ function AccordionDatesAndPricing({
 
         <div className="space-y-4">
           {dates.map((date) => {
-            const complet = isCompletNote(date.price_note);
-            const occupancy = date.price_note?.trim() || "Prix en chambre double ou twin";
+            const showPrice = dateShowsPrice(date);
+            const note = visiblePriceNote(date);
+            const complet = isCompletNote(note);
+            // Occupation par défaut seulement si le prix est affiché ; sinon uniquement un vrai texte libre
+            const badgeText = showPrice
+              ? note || "Prix en chambre double ou twin"
+              : note;
 
             return (
               <article
@@ -552,7 +579,7 @@ function AccordionDatesAndPricing({
                   </div>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                    {dateShowsPrice(date) && (
+                    {showPrice && (
                       <div className="shrink-0 text-left sm:text-right">
                         <p className="text-xl font-bold whitespace-nowrap text-[#b45309] sm:text-2xl">
                           {formatPrice(date.price, date.price_currency)}
@@ -560,13 +587,15 @@ function AccordionDatesAndPricing({
                         <p className="text-xs text-gray-500">/ personne</p>
                       </div>
                     )}
-                    <span
-                      className={`inline-flex max-w-full items-center justify-center rounded-md px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight sm:max-w-[180px] ${
-                        complet ? "bg-red-100 text-red-700" : "bg-[#f3e4a1] text-gray-900"
-                      }`}
-                    >
-                      {occupancy}
-                    </span>
+                    {badgeText && (
+                      <span
+                        className={`inline-flex max-w-full items-center justify-center rounded-md px-3 py-1.5 text-center text-[11px] font-bold uppercase leading-tight sm:max-w-[180px] ${
+                          complet ? "bg-red-100 text-red-700" : "bg-[#f3e4a1] text-gray-900"
+                        }`}
+                      >
+                        {badgeText}
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() => setQuoteDate(date)}

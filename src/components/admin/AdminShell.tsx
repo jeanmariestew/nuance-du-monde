@@ -18,8 +18,10 @@ import {
   Menu,
   X,
   MonitorPlay,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
+import { adminApi } from "@/lib/axios";
 
 type NavItem = {
   href: string;
@@ -121,8 +123,23 @@ function SidebarContent({
           />
         ))}
       </nav>
-      <div className="border-t border-neutral-200 px-4 py-3 text-xs text-neutral-400">
-        Administration v1.0.0
+      <div className="border-t border-neutral-200 px-4 py-3">
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await adminApi.post("/logout");
+            } catch {
+              // ignore
+            }
+            window.location.href = "/admin/login";
+          }}
+          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+        >
+          <LogOut size={16} />
+          Déconnexion
+        </button>
+        <p className="mt-2 px-3 text-xs text-neutral-400">Administration v1.0.0</p>
       </div>
     </div>
   );

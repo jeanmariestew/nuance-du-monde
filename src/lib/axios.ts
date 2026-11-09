@@ -13,9 +13,8 @@ export const api = axios.create({
 });
 
 /**
- * Instance Axios admin (sécurisée)
- * Pour les requêtes vers les APIs d'administration
- * Inclut automatiquement le token d'authentification
+ * Instance Axios admin — authentification par cookie de session (httpOnly).
+ * withCredentials garantit l'envoi du cookie sur toutes les pages admin.
  */
 export const adminApi = axios.create({
   baseURL: '/api/admin',
@@ -23,45 +22,39 @@ export const adminApi = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 600000,
+  withCredentials: true,
 });
 
-// Intercepteur pour ajouter le token d'authentification aux requêtes admin
 adminApi.interceptors.request.use(
   (config) => {
-    // Récupérer le token depuis localStorage (côté client uniquement)
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('admin_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    // FormData : laisser le navigateur poser le boundary multipart
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      if (config.headers) {
+        delete (config.headers as Record<string, unknown>)['Content-Type'];
       }
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Intercepteur pour gérer les erreurs d'authentification admin
 adminApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expiré ou invalide - rediriger vers login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('admin_token');
-        window.location.href = '/admin/login';
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (!path.startsWith('/admin/login')) {
+        const next = encodeURIComponent(path + window.location.search);
+        window.location.href = `/admin/login?next=${next}`;
       }
     }
     return Promise.reject(error);
   }
 );
 
-// Intercepteur pour gérer les erreurs générales sur l'API publique
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Log des erreurs en développement
     if (process.env.NODE_ENV === 'development') {
       console.error('API Error:', error.response?.data || error.message);
     }
