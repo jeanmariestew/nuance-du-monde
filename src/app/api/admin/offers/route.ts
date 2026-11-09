@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
-    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | null }[],
+    dates = [] as { departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],

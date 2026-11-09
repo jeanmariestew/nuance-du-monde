@@ -125,7 +125,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     duration_days = null,
     duration_nights = null,
     available_dates = [] as string[],
-    dates = [] as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | null }[],
+    dates = [] as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | string | null }[],
     typeIds = [] as number[],
     themeIds = [] as number[],
     destinationIds = [] as number[],
@@ -260,19 +260,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const processedIds: number[] = [];
     
     for (const d of datesToProcess) {
-      const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | null };
+      const dateData = d as { id?: number; departure_date: string; return_date?: string | null; price?: number | null; price_currency?: string | null; price_note?: string | null; hide_price?: number | boolean | string | null };
 
       // Formater les dates pour MySQL
       const formattedDepartureDate = formatDateForMySQL(dateData.departure_date);
       const formattedReturnDate = formatDateForMySQL(dateData.return_date);
       const priceNote = normalizePriceNote(dateData.price_note);
       // Important : ne pas faire `value ? 1 : 0` (la string "0" serait truthy)
+      const hideRaw = dateData.hide_price;
       const hidePrice =
-        dateData.hide_price === true ||
-        dateData.hide_price === 1 ||
-        dateData.hide_price === '1'
-          ? 1
-          : 0;
+        hideRaw === true || hideRaw === 1 || hideRaw === '1' ? 1 : 0;
 
       if (!formattedDepartureDate) {
         console.warn('[PUT /offers] Date de départ invalide ignorée:', dateData.departure_date);

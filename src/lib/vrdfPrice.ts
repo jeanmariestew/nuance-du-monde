@@ -15,7 +15,7 @@ function calendarDay(value: unknown): string | null {
 
 function isHiddenPrice(value: unknown): boolean {
   if (value === 1 || value === true || value === "1") return true;
-  if (typeof value === "bigint" && value === 1n) return true;
+  if (typeof value === "bigint" && value === BigInt(1)) return true;
   return false;
 }
 

@@ -19,7 +19,7 @@ interface DateOption {
 function dateShowsPrice(date: DateOption) {
   const v = date.hide_price as unknown;
   if (v === true || v === 1 || v === "1") return false;
-  if (typeof v === "bigint" && v === 1n) return false;
+  if (typeof v === "bigint" && v === BigInt(1)) return false;
   if (v && typeof v === "object" && "data" in (v as object)) {
     // mysql2 Buffer-like
     const data = (v as { data?: number[] }).data;
