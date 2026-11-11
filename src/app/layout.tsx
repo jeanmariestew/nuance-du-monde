@@ -21,10 +21,13 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${archivo.variable}`}>
       <head>
-        {/* ConvertBox — à placer avant </head> */}
-        <Script id="convertbox-embed" strategy="beforeInteractive">
-          {`!function(e,t){(e=t.createElement("script")).src="https://cdn.convertbox.com/convertbox/js/embed.js",e.id="app-convertbox-script",e.async=true,e.dataset.uuid="39641cb1-ce77-4754-baee-92a09f26b06c",document.getElementsByTagName("head")[0].appendChild(e)}(window,document);`}
-        </Script>
+        {/* ConvertBox — script brut avant </head> (évite le loader next/script) */}
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `!function(e,t){(e=t.createElement("script")).src="https://cdn.convertbox.com/convertbox/js/embed.js",e.id="app-convertbox-script",e.async=true,e.dataset.uuid="39641cb1-ce77-4754-baee-92a09f26b06c",document.getElementsByTagName("head")[0].appendChild(e)}(window,document);`,
+          }}
+        />
       </head>
       <body className="font-sans">
         <Script id="ndm-client-recovery" strategy="beforeInteractive">
