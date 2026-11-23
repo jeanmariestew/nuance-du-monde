@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { ArrowUpRight, Calendar, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import QuoteRequestModal from "@/components/QuoteRequestModal";
 
 interface DateOption {
@@ -517,13 +517,10 @@ function formatStayRange(dep: string, ret?: string) {
 
 function AccordionDatesAndPricing({
   dates = [],
-  basePrice,
   baseCurrency = "CAD",
   title,
-  circuit,
 }: DatesAndPricingProps) {
   const sectionTitle = title || "Dates et prix";
-  const [quoteDate, setQuoteDate] = useState<DateOption | null>(null);
 
   const formatPrice = (value?: number, currency?: string) => {
     // Ne jamais retomber sur le prix « global » de l'offre : chaque date est autonome.
@@ -551,6 +548,28 @@ function AccordionDatesAndPricing({
           <p className="max-w-3xl text-sm text-gray-500 sm:text-base">
             Découvrez toutes les dates disponibles pour ce voyage. Chaque départ inclut la date de retour.
           </p>
+
+          {/* Boutons d'inscription primaire et secondaire */}
+          <div className="mt-5 flex flex-wrap items-center gap-3 sm:gap-4">
+            <a
+              href="https://sites.leadconnectorhq.com/preview/SjU8o5m6bzz9GSHZgaMw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-[#131312] bg-[#131312] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#2a2a28] hover:bg-[#2a2a28] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#131312] focus-visible:ring-offset-2"
+            >
+              Je m&apos;inscris
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+            <a
+              href="https://sites.leadconnectorhq.com/preview/jDLwOngp9gWEqlCm3OTy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-[#131312] bg-transparent px-6 py-3 text-sm font-semibold text-[#131312] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#131312] hover:text-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#131312] focus-visible:ring-offset-2"
+            >
+              J&apos;inscris mon client
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -596,14 +615,6 @@ function AccordionDatesAndPricing({
                         {badgeText}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => setQuoteDate(date)}
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
-                    >
-                      Demander un devis
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
                   </div>
                 </div>
               </article>
@@ -611,12 +622,6 @@ function AccordionDatesAndPricing({
           })}
         </div>
       </div>
-
-      <QuoteRequestModal
-        isOpen={quoteDate !== null}
-        onClose={() => setQuoteDate(null)}
-        circuit={circuit}
-      />
     </section>
   );
 }
